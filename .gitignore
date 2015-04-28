@@ -1,8 +1,24 @@
+# COM Files
+*.txt
+*.doc.tdlex
+*.doc.tdl
+*.xlsx
+*.xls
+*.ldb
+*.cmp
+*.bak
+*.bkp
+*.tdl
+*.tdlex
+
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+Debug/
+!Debug/*.mk
 
 # Precompiled Headers
 *.gch
