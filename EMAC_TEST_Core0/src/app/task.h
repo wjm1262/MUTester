@@ -40,7 +40,7 @@ extern AUXI_SNAPSHOT_TM_QUEUE  g_Eth1AuxiTMQueue;
 typedef struct sTASK_AD_PARA
 {
 	ADI_ETHER_BUFFER *pStandardADFrmSendBuf ;
-	unsigned int unSmpCnt;
+	unsigned short usSmpCnt;
 }TASK_AD_PARA;
 
 extern TASK_AD_PARA g_TaskADPara;

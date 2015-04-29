@@ -88,7 +88,8 @@ typedef struct ASDU_Info{
 
 }ASDU_INFO;
 
-typedef struct IEC61850_9_2{
+typedef struct IEC61850_9_2
+{
 	FRAME_HEAD FrameHead;
 	bool       bSecurity;//是否含有security
 	UINT8      ASDU_Num;
@@ -106,59 +107,6 @@ void* Packet_9_2Frame(void *des , void *pAD_Value, uint8_t AD_ByteLength);
 
 void* Packet_9_2Frame2( void *pAD_Value, uint8_t AD_ByteLength);
 void Send_9_2Frame(void);
-
-typedef struct SavASDUBinaryData
-{
-
-	UINT8 		ASDU_Tag;//0xA2
-	UINT16 	ASDU_Length;
-	UINT16  ASDU_PosInPackage;
-
-	UINT8	svID_Tag;
-	char    svID_String[GOCBREF_VALUE_LEN];	        //不超过65字节
-	UINT16  svID_PosInPackage;
-
-	UINT8		DatSet_Tag;
-	char     DatSet_string[DATASET_VALUE_LEN];
-	UINT16     DatSet_PosInPackage;
-
-	UINT8		smpCnt_Tag;
-	UINT16     smpCnt_Value;
-	UINT16       smpCnt_PosInPackage;
-
-	UINT8		ConfRev_Tag;
-	UINT32  ConfRev_Value;
-	UINT16   ConfRev_PosInPackage;//0x83
-
-	bool bRefrTm;
-	UINT8	RefrTmp_Tag;
-	UINT8    RefrTm_Value[8];
-	UINT16    RefrTm_PosInPackage;
-
-	UINT8 SmpSync_Tag;
-	UINT8 SmpSync_Value;
-	UINT16  SmpSync_PosInPackage;
-
-	UINT8   SmpRate_Tag;
-	UINT16 SmpRate_Value;
-	UINT16 SmpRate_PosInPackage;
-
-	UINT8		NumOfDataEntry_Tag;
-	UINT32   	NumOfDataEntry_Value;
-	UINT16		NumOfDataEntry_PosInPackage;
-
-	UINT8  	subData_Tag;
-	UINT16     subData_Length;
-	UINT16	subData_PosInPackage;
-
-}SAVBinaryData, *PSAVBinaryData;
-
-typedef struct SavPdu
-{
-	UINT16      ASDU_Num;//0x80
-	bool       bSecurity;//是否含有security//0x81
-	SAVBinaryData asdu;//0xa2
-}SAVPDU;
 
 
 #endif

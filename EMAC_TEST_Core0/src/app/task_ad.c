@@ -112,7 +112,7 @@ uint32_t MDMA_Init(void)
 
 
 
-void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength)
+void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength, uint16_t smpCnt)
 {
 	ADI_ETHER_BUFFER *pNewBuffer = NULL;
 	ADI_ETHER_BUFFER *pBuf = NULL;
@@ -160,7 +160,7 @@ void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength)
 
 	nFrmLen = PackSmvFrm( (uint8_t*)pBuf->Data + 2,
 			data,
-			g_TaskADPara.unSmpCnt, PortNo );
+			smpCnt, PortNo );
 
 //	g_TaskADPara.unSmpCnt++;
 
@@ -188,7 +188,7 @@ void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength)
 
 
 static void PackStandADData(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
-		unsigned int SmpCnt)
+		uint16_t SmpCnt)
 {
 	STAND_SAMP_TYPE  *pPktAD =(STAND_SAMP_TYPE*)( OutBuf );
 
@@ -264,7 +264,7 @@ static void PackStandADData(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLen
 //}
 
 
-void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength)
+void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpCnt)
 {
 	ADI_ETHER_BUFFER *pNewBuffer = NULL;
 	ADI_ETHER_BUFFER *pBuf = NULL;
@@ -287,7 +287,7 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength)
 			+ sizeof(MUTestMsgHeader)
 			+ sizeof(STAND_SAMP_HEAD_TYPE);
 
-	PackStandADData( pADDataBuf, pAD_Value,  AD_ByteLength, g_TaskADPara.unSmpCnt%4000);
+	PackStandADData( pADDataBuf, pAD_Value,  AD_ByteLength, smpCnt );
 
 //	g_TaskADPara.unSmpCnt++;
 
@@ -531,11 +531,11 @@ static void SPORTCallbackRx2(
         	/* user process the AD data*/
 
 
-        	ADData2SmvFrm( pArg, 32);
+        	ADData2SmvFrm( pArg, 32, g_TaskADPara.usSmpCnt);
 
-        	ADData2StandardADFrm( pArg, 32 );
+        	ADData2StandardADFrm( pArg, 32, g_TaskADPara.usSmpCnt);
 
-        	g_TaskADPara.unSmpCnt++;
+        	g_TaskADPara.usSmpCnt = (g_TaskADPara.usSmpCnt + 1)%4000;
 
             break;
         default:
@@ -551,7 +551,7 @@ void Task_AD7608( void* p_arg )
 
 	g_TaskADPara.pStandardADFrmSendBuf = NULL;
 
-	g_TaskADPara.unSmpCnt = 0;
+	g_TaskADPara.usSmpCnt = 0;
 
 	MDMA_Init();
 

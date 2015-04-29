@@ -267,70 +267,59 @@ int main(void)
 	MuTesterSystem.Device.Eth0.hDev = g_hEthDev[0];
 	MuTesterSystem.Device.Eth1.hDev = g_hEthDev[1];
 
-//	Task_exEth_Tx_Rx(NULL);
-//	Task_Eth1_Tx(NULL);
-//	Task_Eth0_Rx(NULL);
-//	Task_Eth1_Rx(NULL);
+	Task_exEth_Tx_Rx(NULL);
+	Task_Eth1_Tx(NULL);
+	Task_Eth0_Rx(NULL);
+	Task_Eth1_Rx(NULL);
 
-//	MuTesterSystem.Device.Eth0.EnableAuxiTimeStamped( g_hEthDev[0] );
-	MuTesterSystem.Device.SysTime0.InitSystemTime( g_hEthDev[0] );
-//	SetPtpPPSOut( g_hEthDev[0], 2, 0);
-	SetFixedPPSOutput(g_hEthDev[0]);
 
-	MuTesterSystem.Device.SysTime0.InitSystemTime( g_hEthDev[1] );
-	SetPtpPPSOut( g_hEthDev[1], 2, 0);
+	Task_SystemTime0(NULL);
+	Task_SystemTime1(NULL);
+
+	//
+	Init_IEC_9_2();
+
+	Task_AD7608( NULL );
+
+	uint8_t* pForwardFrm = NULL;
+	uint8_t* pRecvFrm = NULL;
 
 	while(1)
 	{
+		//
+		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueue );
+		if(pXmtBuf)
+		{
+			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
+#if 0
+			if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x01) )
+			{
+				IntegrityTest0( pForwardFrm);
+			}
+			else if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x02) )
+			{
+				IntegrityTest1( pForwardFrm);
+			}
+#endif
+			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 
-	}
-//	Task_SystemTime0(NULL);
-//	Task_SystemTime1(NULL);
+//			DEBUG_STATEMENT("send ok\n\n");
 
-	//
-//	Init_IEC_9_2();
+		}
 
-//	Task_AD7608( NULL );
+		pRecvFrm = (uint8_t*)MuTesterSystem.Device.exEth.EthRecv();
+		if(pRecvFrm)
+		{
+			FORWARD_ETHER_FRAME *pEtheCMD_Frame = ( FORWARD_ETHER_FRAME * )pRecvFrm;
 
-//	uint8_t* pForwardFrm = NULL;
-//	uint8_t* pRecvFrm = NULL;
-//
-//	while(1)
-//	{
-//		//
-//		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueue );
-//		if(pXmtBuf)
-//		{
-//			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
-//#if 0
-//			if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x01) )
-//			{
-//				IntegrityTest0( pForwardFrm);
-//			}
-//			else if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x02) )
-//			{
-//				IntegrityTest1( pForwardFrm);
-//			}
-//#endif
-//			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
-//
-////			DEBUG_STATEMENT("send ok\n\n");
-//
-//		}
-//
-//		pRecvFrm = (uint8_t*)MuTesterSystem.Device.exEth.EthRecv();
-//		if(pRecvFrm)
-//		{
-//			FORWARD_ETHER_FRAME *pEtheCMD_Frame = ( FORWARD_ETHER_FRAME * )pRecvFrm;
-//
-////			Comm_processCmd( (uint8_t*)pEtheCMD_Frame +2, pEtheCMD_Frame->NoBytes );
-//
-//			//DEBUG_PRINT ( " len:%d,   \n\n" , pEtheCMD_Frame->NoBytes );
-//			DEBUG_STATEMENT("recv ok.\n\n");
-//
-//		}
-//
-//	}//while
+//			Comm_processCmd( (uint8_t*)pEtheCMD_Frame +2, pEtheCMD_Frame->NoBytes );
+
+			//DEBUG_PRINT ( " len:%d,   \n\n" , pEtheCMD_Frame->NoBytes );
+			DEBUG_STATEMENT("recv ok.\n\n");
+
+		}
+
+	}//while
 
 #if USE_OS
 	//

@@ -22,7 +22,7 @@ static void Initialize(void)
 
 	Init_GPIO();
 
-//	Init_PTPAuxin();//disable auxin interrupt
+	Init_PTPAuxin();//disable auxin interrupt
 
  //	Init_CoreTimer();
 
@@ -34,15 +34,15 @@ static void Initialize(void)
 
 #endif
 
-//    Setup_SMC_Bank1();
+    Setup_SMC_Bank1();
 
 	RegisterEthnetModual();
 
 	RegisterSysTimeModual();
 //
-//	RegisterADModual();
+	RegisterADModual();
 
-//	RegisterExEthnetModual();
+	RegisterExEthnetModual();
 
 }
 

@@ -502,8 +502,8 @@ void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
 	{
 		SetEth0FlexiblePPSOutput( hDev, PULSE_TRAIN,
 				tmStartSec, tmStartNanoSec,
-//				_4K_PPS_INTERVAL_VAL, _4K_PPS_WIDTH_VAL);
-				PPS_INTERVAL_VAL-1, PPS_WIDTH_VAL-1);
+				_4K_PPS_INTERVAL_VAL, _4K_PPS_WIDTH_VAL);
+//				PPS_INTERVAL_VAL-1, PPS_WIDTH_VAL-1);
 	}
 	else
 	{
@@ -520,7 +520,7 @@ void SetTrigerTimeofAuxiInCtrlPPS(ADI_ETHER_HANDLE phDevice, const TimeInternal 
 	int tm_status;
 
 	tm_status = pEmacRegs->EMAC_TM_STMPSTAT;
-	pEmacRegs->EMAC_TM_PPSCTL &=  ~BITM_EMAC_TM_PPSCTL_TRGTMODSEL;
+	pEmacRegs->EMAC_TM_PPSCTL &=  ~BITM_EMAC_TM_PPSCTL_TRGTMODSEL;//Interrupt Only
 
 	/* b.4 Program the start time value when the PPS output should start using the EMAC_TM_TGTM and EMAC_TM_
 	NTGTM registers. Ensure that the EMAC_TM_NTGTM.TSTRBUSY bit is reset before programming the target

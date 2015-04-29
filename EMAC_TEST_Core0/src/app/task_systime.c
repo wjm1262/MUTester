@@ -25,18 +25,23 @@ typedef struct sTASK_SYSTIME_PARA
 	bool bIsFirstInterrupt;
 	bool bTimingTestStarted;
 	bool bIsDoTimingTest;
+
 	bool bSysTmIsSynced;
 	bool bSysTmSyncChanged;
 	bool bSetFirstAlarm; // set the  first target trigger time
+
+	bool bPPSIsRunning; //PPS是否输出
+
 	TimeInternal AlarmStartTime;
+
 	int nAlarmIdx; //
 	int  nErrorTiming;  // 系统时钟对时误差
 	int  nResultTimingTest ;// 对时测试的结果
 }TASK_SYSTIME_PARA;
 
 TASK_SYSTIME_PARA g_TaskSysTimeParas[MAX_NETWORK_IF] = {
-		{true, false, false, false, false, false, 0, 0, 0},
-		{true, false, false, false, false, false, 0, 0, 0},
+		{true, false, false, false, false, false, false,{0}, 0, 0, 0},
+		{true, false, false, false, false, false, false,{0}, 0, 0, 0},
 };
 
 #if 0
@@ -111,26 +116,26 @@ int handle_systime_calibration(	ADI_ETHER_HANDLE phDevice,
 	 * reInit the system time and output system PPS
 	*/
 
-	if(pTaskPara->bIsFirstInterrupt )
-	{
-		/* reset the system time should be done before the SetFlexiblePPSOutput,
-		 * for the current time may exceed the startTime,
-		 * then cause a Time Stamp Target Time Programming Error.
-		 * And this situation is testified in our TESTS.
-			by wjm@2014-8-16 AM9:30
-		 * */
-		//reset the system time
-		ResetSysTime( phDevice );
-
-//		DEBUG_PRINT("aux:< %10d.%-9d >  sys:(reset)\n\n",pAuxiTimeStamp->seconds,  pAuxiTimeStamp->nanoseconds );
-
-		SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
-
-		pTaskPara->bIsFirstInterrupt = false;
-
-	}
-	else
-	{
+//	if(pTaskPara->bIsFirstInterrupt )
+//	{
+//		/* reset the system time should be done before the SetFlexiblePPSOutput,
+//		 * for the current time may exceed the startTime,
+//		 * then cause a Time Stamp Target Time Programming Error.
+//		 * And this situation is testified in our TESTS.
+//			by wjm@2014-8-16 AM9:30
+//		 * */
+//		//reset the system time
+//		ResetSysTime( phDevice );
+//
+////		DEBUG_PRINT("aux:< %10d.%-9d >  sys:(reset)\n\n",pAuxiTimeStamp->seconds,  pAuxiTimeStamp->nanoseconds );
+//
+//		SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
+//
+//		pTaskPara->bIsFirstInterrupt = false;
+//
+//	}
+//	else
+//	{
 		//
 
 		if( tmInternal.nanoseconds > (NANO_SECOND_UNIT/2) )
@@ -154,8 +159,8 @@ int handle_systime_calibration(	ADI_ETHER_HANDLE phDevice,
 
 		pEmacRegs->EMAC_TM_CTL |= BITM_EMAC_TM_CTL_TSADDREG;
 
-		DEBUG_PRINT("aux:< %10d.%-9d > int:(%10d %-9d) adj: %d \n\n", pAuxiTimeStamp->seconds, pAuxiTimeStamp->nanoseconds, tmInternal.seconds, tmInternal.nanoseconds, adjAddend);
-	}//
+//		DEBUG_PRINT("aux:< %10d.%-9d > int:(%10d %-9d) adj: %d \n\n", pAuxiTimeStamp->seconds, pAuxiTimeStamp->nanoseconds, tmInternal.seconds, tmInternal.nanoseconds, adjAddend);
+//	}//
 
 	return tmInternal.nanoseconds;
 }
@@ -212,16 +217,24 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 		pTaskPara->nErrorTiming = handle_systime_calibration(phDevice,
 				pAuxiTimeStamp,
 				pTaskPara);
-#if 0
+#if 1
 		bRet = SysTmIsSynchronizted( pTaskPara->nErrorTiming );
 
 		if(pTaskPara->bSysTmIsSynced != bRet)
 		{
 			pTaskPara->bSysTmSyncChanged = true;
 			pTaskPara->bSysTmIsSynced = bRet;
+			pTaskPara->bSetFirstAlarm = false;
 		}
 #endif
 
+#if 1
+		if(!pTaskPara->bPPSIsRunning)
+		{
+			SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
+			pTaskPara->bPPSIsRunning = true;
+		}
+#endif
 		// set the  first Trigger time
 #if 0
 
