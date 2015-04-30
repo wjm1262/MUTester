@@ -81,18 +81,13 @@
 #define SMC0_BGH_PORTB_FER  ((uint32_t) ((uint32_t) 1<<9))
 
 
-#define pBANK1_ADDR_BASE        ((volatile unsigned short *)0XB4000000) //if define with (volatile unsigned int *),erroÈË£¡£¡£¡£¬why£¿£¿£¿
-
+#define pBANK1_ADDR_BASE        ((volatile unsigned short *)0XB4000000)
 #define pBANK1_EMAC_CTR_BASE    ((volatile unsigned short *)0XB4080000)
+#define pBANK1_ADHD_CTR_BASE    ((volatile unsigned short *)0XB4100000)
+#define pBANK1_ADS1278_CTR_BASE ((volatile unsigned short *)0XB4200000)
+#define pBANK1_AD7608_CTR_BASE  ((volatile unsigned short *)0XB4280000)
 
-#define pBANK1_ADHD_CTR_BASE    ((volatile unsigned short *)0XB4100000) //if define with (volatile unsigned int *),erroÈË£¡£¡£¡£¬why£¿£¿£¿
 
-#define pBANK1_ADS1278_CTR_BASE ((volatile unsigned short *)0XB4180000)
-
-#define pBANK1_AD7608_CTR_BASE  ((volatile unsigned short *)0XB4200000) //if define with (volatile unsigned int *),erroÈË£¡£¡£¡£¬why£¿£¿£¿
-
-#define ADC_SYNC_HIGH()         (*pBANK1_BASE_ADDR |=  0x40)
-#define ADC_SYNC_LOW()          (*pBANK1_BASE_ADDR &= ~0x40)
 
 /*
  * control ads1278 with SMC module bank1£¬so we should configure the SMC
@@ -228,7 +223,7 @@ int Setup_AD7608_SMC(void)
 	 * 3, disable the over-sample.
 	 */
 	*pBANK1_AD7608_CTR_BASE &= ~((1u <<4) | (1u << 3) | (7u << 0));
-	*pBANK1_AD7608_CTR_BASE |=  (1u << 4) | (0u << 0); //D4 Rising edge reset the ad7608
+	*pBANK1_AD7608_CTR_BASE |=  (1u << 4) | (1u << 3) | (0u << 0); //D4 Rising edge reset the ad7608
 
 	*pBANK1_AD7608_CTR_BASE &= ~(1u << 4); //Restore the reset pin
 	return 0;
