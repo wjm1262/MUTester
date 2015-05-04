@@ -223,7 +223,7 @@ int Setup_AD7608_SMC(void)
 	 * 3, disable the over-sample.
 	 */
 	*pBANK1_AD7608_CTR_BASE &= ~((1u <<4) | (1u << 3) | (7u << 0));
-	*pBANK1_AD7608_CTR_BASE |=  (1u << 4) | (1u << 3) | (0u << 0); //D4 Rising edge reset the ad7608
+	*pBANK1_AD7608_CTR_BASE |=  (1u << 4) | (0u << 0); //D4 Rising edge reset the ad7608
 
 	*pBANK1_AD7608_CTR_BASE &= ~(1u << 4); //Restore the reset pin
 	return 0;
