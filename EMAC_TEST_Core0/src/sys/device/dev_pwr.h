@@ -33,13 +33,13 @@
 #define SYS_CLKIN 20000000
 /* Default values for the parameters */
 //#define  MULTIPLIER_SEL		14
-#define  MULTIPLIER_SEL		20
+#define  MULTIPLIER_SEL		25
 //#define  MULTIPLIER_SEL		16
 #define	 DF_SEL				false
 #define  CCLK_SEL			1
 #define  DDRCLK_SEL			2
-#define	 SCLK0_SEL			1
-#define	 SCLK1_SEL			1
+#define	 SCLK0_SEL			2
+#define	 SCLK1_SEL			2
 #define	 SYSCLK_SEL			2
 #define	 OUTCLK_SEL			4
 #define  CLKOUT_SEL			CCLK_BY_4
