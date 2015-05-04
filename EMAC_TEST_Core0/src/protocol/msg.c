@@ -1,12 +1,13 @@
 #include "msg.h"
 
+#include "myapp_cfg.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 
 
-extern UINT8 DM9000A_MAC[6];
 UINT8 PC_MAC[6] = {0x00, 0x02, 0x03, 0x04, 0x05, 0x81};
 
 RUNTIME_PARAMS g_rtParams;
@@ -78,19 +79,11 @@ int msgPackHeader ( UINT8 *OutBuf, UINT8 MsgType, UINT16 NetType, UINT16 CmdCode
 	UINT16 Len = MSG_HEADER_LEN + DataLeng;
 	MUTestMsgHeader *header = (MUTestMsgHeader *)OutBuf;
 
-	header->descMac[0] = PC_MAC[0];
-	header->descMac[1] = PC_MAC[1];
-	header->descMac[2] = PC_MAC[2];
-	header->descMac[3] = PC_MAC[3];
-	header->descMac[4] = PC_MAC[4];
+	memcpy( header->descMac, PC_MAC, 6 );
 	header->descMac[5] = MsgType;		//¿ØÖÆÃüÁî:0x81; ×ª·¢Ö¡:0x80
 
-	header->sourMac[0] = DM9000A_MAC[0];
-	header->sourMac[1] = DM9000A_MAC[1];
-	header->sourMac[2] = DM9000A_MAC[2];
-	header->sourMac[3] = DM9000A_MAC[3];
-	header->sourMac[4] = DM9000A_MAC[4];
-	header->sourMac[5] = DM9000A_MAC[5];
+	memcpy(	header->sourMac, user_net_config_info[2].hwaddr, 6 );
+
 
 	header->netType    = netHostChangeS( NetType );
 

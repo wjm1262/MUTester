@@ -62,37 +62,16 @@
 #define ISR		0xfe //Interrupt Status Register
 #define IMR		0xff //Interrupt Mask Register
 
-//#define CLKIN_DM9000A 20 //MHz
-extern uint8_t DM9000A_MAC[6];
-extern volatile int MDMA3_Param;
-extern volatile void* MDMA2_Param;
 
-typedef void (*DM9000A_ISR_Handler)(ADI_GPIO_PIN_INTERRUPT const ePinInt,
-									const uint32_t event,
-									void *pArg);
 
-void Register_MAC_INT_Callback( DM9000A_ISR_Handler handler );
 
 void Enable_MAC_INT_Interrupt( bool enable );
 
 //
-int PendSmcSem(void);
+void Init_DM9000A(uint8_t* srcMac );
 
-void PostSmcSem(void);
+int ExEthSend(void*buffer, int len);
 
-uint8_t ReadReg(uint8_t RegAddr);
-
-void WriteReg(uint8_t RegAddr, uint8_t RegValue);
-
-void Init_DM9000A(void);
-
-
-int DM9000A_DMA_Send( void * buf, int len );
-
-bool MDMAIsReady(void);
-
-bool IsSendOver(void);
-
-int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady);
+void* ExEthRecv(void);
 
 #endif /* DRI_DM9000A_H_ */

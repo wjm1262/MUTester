@@ -303,72 +303,6 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 
 /**************Ex eth********************/
 
-
-
-/*
- * DM9000A IRQ ISR
- */
-void DM9000A_ISR1(ADI_GPIO_PIN_INTERRUPT const ePinInt,const uint32_t event, void *pArg)
-{
-	QueueItem* pItem = NULL;
-	/* turn off the INT to prevent INIT err */
-//	WriteReg(IMR, 0x80);
-
-	if( 0 == PendSmcSem() )
-	{
-		return;
-	}
-
-	uint16_t status = ReadReg( ISR );
-
-	if( status & 0x01 )//接收包中断
-	{
-		WriteReg( ISR, 0x01 );//清除中断
-//		WriteReg( ISR, 0x01 );//清除中断
-
-		adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
-
-		ENTER_CRITICAL_REGION();
-
-		pItem =  Queue_pop_unused_buf( &g_ExEthRecvQueue );
-
-		if( pItem != NULL )
-		{
-			MDMA2_Param = (void*)pItem->Data;
-	//		Process_DM9000A_Recv( pItem->Data);
-		}
-
-		EXIT_CRITICAL_REGION();
-
-	}
-
-	if(status & 0x02)//发送包中断
-	{
-		WriteReg( ISR, 0x02 );//清除中断
-	}
-
-	PostSmcSem();
-
-}
-
-void DM9000A_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt,const uint32_t event, void *pArg)
-{
-
-	/* turn off the INT to prevent INIT err */
-//	WriteReg(IMR, 0x80);
-
-	//WriteReg( ISR, 0x01 );//清除中断
-	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
-
-	//Push DM9000a INT Event Queue
-//	ENTER_CRITICAL_REGION();
-	En_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue, 1);
-//	EXIT_CRITICAL_REGION();
-}
-
-
-
-
 void Task_exEth_Tx_Rx( void *p_arg )
 {
 	//tx mem
@@ -377,13 +311,9 @@ void Task_exEth_Tx_Rx( void *p_arg )
 
 	clear_queue(&user_net_config_info[2].xmt_buffers_queue);
 
-	//rx mem
-	Queue_init( &g_ExEthRecvQueue );
-	Init_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue );
-
 	//dev
-	MuTesterSystem.Device.exEth.InitExEthnet();
-//	MuTesterSystem.Device.exEth.RegisterMACIntCallback(DM9000A_ISR );
-//	MuTesterSystem.Device.exEth.EnableMACIntInterrupt(true);
+	MuTesterSystem.Device.exEth.InitExEthnet(user_net_config_info[2].hwaddr);
+
+	MuTesterSystem.Device.exEth.EnableMACIntInterrupt(true);
 
 }

@@ -23,7 +23,6 @@
 #include "sys.h"
 #include "task.h"
 #include "adi_initialize.h"
-void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice);
 
 char VersionString[128] = "Version 1.0.0. ";
 char VerDescripString[64] = "with Forward SMV frame. ";
@@ -277,9 +276,9 @@ int main(void)
 	Task_SystemTime1(NULL);
 
 	//
-	Init_IEC_9_2();
+//	Init_IEC_9_2();
 
-	Task_AD7608( NULL );
+//	Task_AD7608( NULL );
 
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;

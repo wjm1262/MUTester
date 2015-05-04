@@ -59,12 +59,8 @@ typedef struct Dev_ExEthnet
 //	int  (*Configure)(void* hDev);
 
 
-	void (*InitExEthnet)(void);
+	void (*InitExEthnet)(uint8_t* srcMac );
 
-
-
-
-	void (*RegisterMACIntCallback)( DM9000A_ISR_Handler handler );
 	void (*EnableMACIntInterrupt) (bool enable);
 
 	int (*EthSend)(void*buffer, int len);

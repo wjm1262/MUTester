@@ -71,12 +71,23 @@ static uint8_t MemDmaStreamMem[ADI_DMA_STREAM_REQ_MEMORY];
 void myMDAM_Callback (void *pCBParam, uint32_t event, void *pArg)
 {
 	ADI_ETHER_BUFFER *ptr = g_TaskADPara.pStandardADFrmSendBuf;
+	ADI_ETHER_BUFFER * pNewBuffer = NULL;
 	switch ( event )
 	{
 		case ADI_DMA_EVENT_BUFFER_PROCESSED:
 //			memcpy(&ptr, &(((uint8_t *)pArg)[1540]), 4);
 			//send by eth1
-			MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], ptr);
+		//	MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], ptr);
+
+			//send by exEth
+			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, ptr);
+
+			// get n buffers
+			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
+
+			// Add buffers to eth1
+			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
+
 			break;
 		default:
 			break;
@@ -208,60 +219,11 @@ static void PackStandADData(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLen
 	pPktAD->IaSampData   = netHostChangeL(pAD7608_Data[3].ad *5000./0x1ffff);
 	pPktAD->IbSampData   = netHostChangeL(pAD7608_Data[4].ad *5000./0x1ffff);
 	pPktAD->IbSampData   = netHostChangeL(pAD7608_Data[5].ad *5000./0x1ffff);
-// 	pIEC61850_9_2->pASDU_info[i].ChannelData[4].value   = myHtonl(pAD7608_Data[6].ad *5000./0x1ffff);
-// 	pIEC61850_9_2->pASDU_info[i].ChannelData[8].value   = myHtonl(pAD7608_Data[7].ad *5000./0x1ffff);
+
 
 
 }
 
-
-//void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength)
-//{
-//	ADI_ETHER_BUFFER *pNewBuffer = NULL;
-//	ADI_ETHER_BUFFER *pBuf = NULL;
-//	uint8_t* pADDataBuf = NULL;
-//
-//	unsigned int SmpIdx = 0;
-//	int nFrmLen = 0;
-//
-//	SmpIdx = (g_TaskADPara.unSmpCnt) % STAND_SAMP_COUNT_EACH_PKT;
-//	if( SmpIdx == 0)
-//	{
-//		/* user process the AD data*/
-//		pBuf = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
-//		g_TaskADPara.pStandardADFrmSendBuf = pBuf;
-//		if(!pBuf)
-//		{
-//			//ERROR
-//			DEBUG_PRINT("%s[#%d]:pop_queue failed...\n\n", __FILE__, __LINE__);
-//			return ;
-//		}
-//	}
-//
-//	pADDataBuf = (uint8_t*)g_TaskADPara.pStandardADFrmSendBuf->Data + 2
-//			+ sizeof(MUTestMsgHeader)
-//			+ sizeof(STAND_SAMP_HEAD_TYPE)
-//			+ SmpIdx*sizeof(STAND_SAMP_TYPE);
-//
-//	PackStandADData( pADDataBuf, pAD_Value,  AD_ByteLength, g_TaskADPara.unSmpCnt%4000);
-//
-//	g_TaskADPara.unSmpCnt++;
-//
-//	if( g_TaskADPara.unSmpCnt %STAND_SAMP_COUNT_EACH_PKT == 0)
-//	{
-//		nFrmLen = msgPackStandADFrm( (uint8_t*)g_TaskADPara.pStandardADFrmSendBuf->Data + 2,
-//				STAND_SAMP_COUNT_EACH_PKT);
-//
-//		*( unsigned short * ) g_TaskADPara.pStandardADFrmSendBuf->Data = nFrmLen;
-//		g_TaskADPara.pStandardADFrmSendBuf->ElementCount  = nFrmLen + 2;
-//		g_TaskADPara.pStandardADFrmSendBuf->PayLoad =  0; 	// payload is part of the packet
-//		pBuf->StatusWord = 0; 	// changes from 0 to the status info
-//
-//		//send by exEth
-//		MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, g_TaskADPara.pStandardADFrmSendBuf);
-//		g_TaskADPara.pStandardADFrmSendBuf = NULL;
-//	}
-//}
 
 
 void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpCnt)
@@ -304,27 +266,7 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpC
 }
 
 
-#if 0
 
-/*
- * busy callback function, indicate the AD7608 A/D finished, start SPI to receive data.
- */
-static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
-{
-//	*pREG_PORTD_DATA_CLR = ADI_GPIO_PIN_9;//将采样引脚默认拉低，下次开始采样时只需置高就可
-	int nSeconds0, nNanoSeconds0;
-	int nSeconds1, nNanoSeconds1;
-
-//	GetSysTime(g_hEthDev[0], &nSeconds0, &nNanoSeconds0);
-
-	adi_spi_SubmitBuffer(g_hSPI0, &spi_Tx_Rx_buffer); //give the empty buffer to system, we can read-back in SPI call-back.
-	EnableSPI0();
-
-//	GetSysTime(g_hEthDev[0], &nSeconds1, &nNanoSeconds1);
-
-//	DEBUG_PRINT("bs %d:%d, e %d:%d \n\n", nSeconds0, nNanoSeconds0,nSeconds1, nNanoSeconds1);
-}
-#else
 static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
 {
 
@@ -332,101 +274,6 @@ static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t
 
 	/* Enable the SPORT2-B Rx  D0 and DMA */
 	Enable_SPORT1B();
-}
-#endif
-
-/*
- * spi callback function
- */
-static void SPI0_Callback2(void *pCBParam, uint32_t nEvent, void *pArg)
-{
-	ADI_ETHER_BUFFER *pNewBuffer = NULL;
-	ADI_ETHER_BUFFER *pBuf = NULL;
-	uint8_t* pADDataBuf = NULL;
-
-
-	static unsigned int SmpCnt = 0;
-	unsigned int SmpIdx = 0;
-	int nFrmLen = 0;
-
-	int nSeconds0, nNanoSeconds0;
-	int nSeconds1, nNanoSeconds1;
-	int nSeconds2, nNanoSeconds2;
-
-	switch(nEvent)
-	{
-		case (uint32_t)ADI_SPI_TRANSCEIVER_PROCESSED:
-			{
-//				GetSysTime(g_hEthDev[0], &nSeconds0, &nNanoSeconds0);
-				/* stop the SPI process */
-				DisableSPI0();
-
-
-
-//				GetSysTime(g_hEthDev[0], &nSeconds1, &nNanoSeconds1);
-
-			}
-
-			break;
-
-		default:
-			break;
-	}
-}
-
-static void SPI0_Callback(void *pCBParam, uint32_t nEvent, void *pArg)
-{
-	ADI_ETHER_BUFFER *des = NULL;
-	IEC61850_9_2 *pFrmData   = NULL;
-
-	int nSeconds0, nNanoSeconds0;
-	int nSeconds1, nNanoSeconds1;
-	int nSeconds2, nNanoSeconds2;
-
-	switch(nEvent)
-	{
-		case (uint32_t)ADI_SPI_TRANSCEIVER_PROCESSED:
-			{
-//				GetSysTime(g_hEthDev[0], &nSeconds0, &nNanoSeconds0);
-				/* stop the SPI process */
-				DisableSPI0();
-
-//				g_nISRCounter++;
-
-				/* user process the AD data*/
-				des = pop_queue( &user_net_config_info[1].xmt_buffers_queue );
-
-				g_TaskADPara.pStandardADFrmSendBuf = des;
-
-				pFrmData = (IEC61850_9_2 *)Packet_9_2Frame2( (((ADI_SPI_TRANSCEIVER *)(pArg))->pReceiver), 2);
-
-				des->ElementCount  = pFrmData->FrameLen + 2;
-				des->pNext         = NULL;
-
-				adi_mdma_Copy1D(hMemDmaStream,
-									(uint8_t *)des->Data+2,
-									(pFrmData->SendBuff + pFrmData->offset + 1),
-								    ADI_DMA_MSIZE_1BYTE,
-								    pFrmData->FrameLen);
-
-
-
-//				GetSysTime(g_hEthDev[0], &nSeconds1, &nNanoSeconds1);
-
-
-				//send by eth1
-				//MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], des);
-
-			}
-
-//			GetSysTime(g_hEthDev[0], &nSeconds2, &nNanoSeconds2);
-//			DEBUG_PRINT("0- %d:%d,1- %d:%d,2- %d:%d\n\n", nSeconds0, nNanoSeconds0,nSeconds1, nNanoSeconds1, nSeconds2, nNanoSeconds2);
-
-			break;
-
-		default:
-			break;
-	}
 }
 
 

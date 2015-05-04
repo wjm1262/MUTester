@@ -23,11 +23,10 @@ typedef struct EXEMAC_FRAME_Q
 
 } EXEMAC_FRAME_Q;
 
-extern EXEMAC_FRAME_Q g_ExEthXmtQueue;
-extern EXETH_RECV_QUEUE g_ExEthRecvQueue;
-extern DM9000A_INT_EVENT_QUEUE g_Dm9000aIntEventQueue;
 
-int init_exemac_queue ( EXEMAC_FRAME_Q *pQueue, ADI_ETHER_BUFFER  *pBuffer );
+extern EXEMAC_FRAME_Q g_ExEthXmtQueue;
+
+
 
 void RegisterExEthnetModual(void);
 
