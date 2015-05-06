@@ -277,25 +277,6 @@ void AdjSysTimeSecond(ADI_ETHER_HANDLE phDevice, time_t deltaSecond)
 	ProgrammingSysTimeFineCorrection(phDevice);
 }
 
-void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
-{
-	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
-	ADI_EMAC_REGISTERS *const  pEmacRegs = ( ( ADI_EMAC_DEVICE * ) phDevice )->pEMAC_REGS;
-
-
-	pEmacRegs->EMAC_TM_CTL |= BITM_EMAC_TM_CTL_TSENA ;
-	asm ( "SSYNC;" );
-
-
-
-	pEmacRegs->EMAC_TM_PPSCTL = 0x1;
-	asm ( "SSYNC;" );
-
-	//0000,The default
-//	value for these bits is 0000, which configures a 1 Hz signal with a pulse width equal to the period of the PTP
-//	clock
-
-}
 
 void StopFlexiblePPSOutput( ADI_ETHER_HANDLE phDevice, PPS_TYPE ePPSType )
 {
@@ -511,6 +492,24 @@ void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
 				tmStartSec, tmStartNanoSec,
 				PPS_INTERVAL_VAL-1, PPS_WIDTH_VAL-1);
 	}
+}
+
+void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
+{
+	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
+	ADI_EMAC_REGISTERS *const  pEmacRegs = ( ( ADI_EMAC_DEVICE * ) phDevice )->pEMAC_REGS;
+
+
+	pEmacRegs->EMAC_TM_CTL |= BITM_EMAC_TM_CTL_TSENA ;
+	asm ( "SSYNC;" );
+
+	pEmacRegs->EMAC_TM_PPSCTL = 0x1;
+	asm ( "SSYNC;" );
+
+	//0000,The default
+//	value for these bits is 0000, which configures a 1 Hz signal with a pulse width equal to the period of the PTP
+//	clock
+
 }
 
 void SetTrigerTimeofAuxiInCtrlPPS(ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp)

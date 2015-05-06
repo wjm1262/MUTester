@@ -164,18 +164,23 @@ void IntegrityTest0(uint8_t* pForwardFrm)
 {
 	static int16_t PreSmpCnt0 = -1;
 	int16_t CurSmpCnt = 0;
+	uint8_t u0, u1;
 
 	uint8_t c60_pos0 = 0x4e;
 	uint8_t c60_pos1 = 0x4f;
+//	uint8_t c60_pos0 = 0x54;
+//	uint8_t c60_pos1 = 0x55;
 
+	u0 = *(pForwardFrm +c60_pos0);
+	u1 = *(pForwardFrm +c60_pos1);
 
-	CurSmpCnt = (*(pForwardFrm +c60_pos0)<<8) + (*(pForwardFrm +c60_pos1));
+	CurSmpCnt = (u0<<8) + u1;
 
 	if( -1 != PreSmpCnt0 )
 	{
 		if( (PreSmpCnt0 + 1)%4000 != CurSmpCnt )
 		{
-			DEBUG_PRINT("%d ... %d.\n\n" , PreSmpCnt0, CurSmpCnt);
+			DEBUG_PRINT("eth0:%d--%d\n\n" , PreSmpCnt0, CurSmpCnt);
 		}
 		PreSmpCnt0 = CurSmpCnt;
 	}
@@ -193,14 +198,15 @@ void IntegrityTest1(uint8_t* pForwardFrm)
 	uint8_t c60_pos0 = 0x4e;
 	uint8_t c60_pos1 = 0x4f;
 
-
+//	uint8_t c60_pos0 = 0x54;
+//	uint8_t c60_pos1 = 0x55;
 	CurSmpCnt = (*(pForwardFrm +c60_pos0)<<8) + (*(pForwardFrm +c60_pos1));
 
 	if( -1 != PreSmpCnt1 )
 	{
 		if( (PreSmpCnt1 + 1)%4000 != CurSmpCnt )
 		{
-			DEBUG_PRINT("%d ... %d.\n\n" , PreSmpCnt1, CurSmpCnt);
+			DEBUG_PRINT("eth1:%d ..%d\n\n" , PreSmpCnt1, CurSmpCnt);
 		}
 		PreSmpCnt1 = CurSmpCnt;
 	}
@@ -267,16 +273,17 @@ int main(void)
 	MuTesterSystem.Device.Eth1.hDev = g_hEthDev[1];
 
 	Task_exEth_Tx_Rx(NULL);
+	Task_Eth0_Tx(NULL);
 	Task_Eth1_Tx(NULL);
 	Task_Eth0_Rx(NULL);
 	Task_Eth1_Rx(NULL);
 
 
 	Task_SystemTime0(NULL);
-	Task_SystemTime1(NULL);
+//	Task_SystemTime1(NULL);
 
 	//
-//	Init_IEC_9_2();
+	Init_IEC_9_2();
 
 //	Task_AD7608( NULL );
 
@@ -290,16 +297,17 @@ int main(void)
 		if(pXmtBuf)
 		{
 			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
-#if 0
-			if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x01) )
+#if 1
+			if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
 			{
 				IntegrityTest0( pForwardFrm);
 			}
-			else if( (*(pForwardFrm +0x32) == 0x40 ) && (*(pForwardFrm +0x33) == 0x02) )
+			else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
 			{
 				IntegrityTest1( pForwardFrm);
 			}
 #endif
+
 			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 
 //			DEBUG_STATEMENT("send ok\n\n");
