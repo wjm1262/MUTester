@@ -77,16 +77,16 @@ void myMDAM_Callback (void *pCBParam, uint32_t event, void *pArg)
 		case ADI_DMA_EVENT_BUFFER_PROCESSED:
 //			memcpy(&ptr, &(((uint8_t *)pArg)[1540]), 4);
 			//send by eth1
-		//	MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], ptr);
+			MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], ptr);
 
-			//send by exEth
-			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, ptr);
-
-			// get n buffers
-			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
-
-			// Add buffers to eth1
-			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
+//			//send by exEth
+//			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, ptr);
+//
+//			// get n buffers
+//			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
+//
+//			// Add buffers to eth1
+//			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
 
 			break;
 		default:
