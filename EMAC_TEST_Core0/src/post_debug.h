@@ -14,8 +14,8 @@
  * defining one of these methods will enabling debug printing *
  **************************************************************/
 //#define __DEBUG_FILE__	/* prints are directed to file __DEBUG_FILE_NAME__ */
-//#define __DEBUG_UART__	/* prints are directed to the UART */
-#define __DEBUG_CCES__		/* prints are directed to the CCES console window (MUCH SLOWER!!!) */
+#define __DEBUG_UART__	/* prints are directed to the UART */
+//#define __DEBUG_CCES__		/* prints are directed to the CCES console window (MUCH SLOWER!!!) */
 /**************************************************************/
 
 #define TEST_PASS				1

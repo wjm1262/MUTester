@@ -115,6 +115,8 @@ void ProgrammingSysTimeFineCorrection(ADI_ETHER_HANDLE phDevice );
 
 void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec );
 
+void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice);
+
 void SetTrigerTimeofAuxiInCtrlPPS(ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp);
 
 void TimeStampStatusInterruptHandler ( 	ADI_ETHER_HANDLE phDevice, uint32_t tm_status );

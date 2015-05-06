@@ -22,11 +22,8 @@ static void InitSystemTime (void* hEthDev)
 		ProgrammingTimestamp(hEthDev);
 	}
 
-//	ResetSysTime( hEthDev );
-
 	ProgrammingSysTimeFineCorrection( hEthDev );
 
-//	SetPtpPPSOut( hEthDev, 2, 0 );
 }
 
 static void EnableTimeStampAuxinInterrupt(void* hEthDev)

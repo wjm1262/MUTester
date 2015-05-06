@@ -49,7 +49,7 @@ uint8_t TimerMemory[ADI_TMR_MEMORY];
 static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg);
 
 #define TEST_TIMER_NUM      1
-#define TIMER_PERIOD        (50000000)
+#define TIMER_PERIOD        (125000)
 #define TIMER_WIDTH         (TIMER_PERIOD/2)
 #define TIMER_DELAY          (TIMER_WIDTH/2)
 
@@ -260,7 +260,7 @@ static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg)
 	g_ulTickCount++;
 //	DEBUG_PRINT("%d\n\n",g_nISRCounter);
 
-	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
 
 	/* decrement each counter if it is non-zero */
 	for( n = 0; n < MAX_NUM_COUNTDOWN_TIMERS; n++ )
