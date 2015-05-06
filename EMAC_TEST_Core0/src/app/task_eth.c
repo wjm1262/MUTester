@@ -132,6 +132,61 @@ void Task_Eth1_Tx( void *p_arg )
 }
 
 
+static void IntegrityTest0(uint8_t* pForwardFrm)
+{
+	static int16_t PreSmpCnt0 = -1;
+	int16_t CurSmpCnt = 0;
+	uint8_t u0, u1;
+
+	uint8_t c60_pos0 = 0x4e;
+	uint8_t c60_pos1 = 0x4f;
+//	uint8_t c60_pos0 = 0x54;
+//	uint8_t c60_pos1 = 0x55;
+
+	u0 = *(pForwardFrm +c60_pos0);
+	u1 = *(pForwardFrm +c60_pos1);
+
+	CurSmpCnt = (u0<<8) + u1;
+
+	if( -1 != PreSmpCnt0 )
+	{
+		if( (PreSmpCnt0 + 1)%4000 != CurSmpCnt )
+		{
+			DEBUG_PRINT("eth ca0:%d--%d\n\n" , PreSmpCnt0, CurSmpCnt);
+		}
+		PreSmpCnt0 = CurSmpCnt;
+	}
+	else
+	{
+		PreSmpCnt0 = CurSmpCnt;
+	}
+}
+
+static void IntegrityTest1(uint8_t* pForwardFrm)
+{
+	static int16_t PreSmpCnt1 = -1;
+	int16_t CurSmpCnt = 0;
+
+	uint8_t c60_pos0 = 0x4e;
+	uint8_t c60_pos1 = 0x4f;
+
+//	uint8_t c60_pos0 = 0x54;
+//	uint8_t c60_pos1 = 0x55;
+	CurSmpCnt = (*(pForwardFrm +c60_pos0)<<8) + (*(pForwardFrm +c60_pos1));
+
+	if( -1 != PreSmpCnt1 )
+	{
+		if( (PreSmpCnt1 + 1)%4000 != CurSmpCnt )
+		{
+			DEBUG_PRINT("eth ca1:%d ..%d\n\n" , PreSmpCnt1, CurSmpCnt);
+		}
+		PreSmpCnt1 = CurSmpCnt;
+	}
+	else
+	{
+		PreSmpCnt1 = CurSmpCnt;
+	}
+}
 
 void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 {
@@ -150,6 +205,8 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 	//int int_sts = cli();
 	ENTER_CRITICAL_REGION();
 
+	uint8_t* pForwardFrm = NULL;
+
 	pFrmHead = pFrms;
 
 	switch ( event )
@@ -167,7 +224,21 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 				nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
 
 				FrmLen = pFrms->ProcessedElementCount - 6;
-
+#if 1
+				pForwardFrm = (uint8_t*)pFrms->Data +2;
+				if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
+				{
+					IntegrityTest0( pForwardFrm);
+				}
+				else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
+				{
+					IntegrityTest1( pForwardFrm);
+				}
+				else
+				{
+					DEBUG_STATEMENT("ERROR AppID\n\n");
+				}
+#endif
 //				PackForwardSMVFrame ( nanoSeconds, FrmLen, pFrms );
 
 				PackForwardFrame( TYPE609_CONT_NET_RECV1_DATA,  unSecond, nanoSeconds,
@@ -177,6 +248,7 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 
 				pFrms = pFrms->pNext;
 				n++;
+
 			}
 #if 0
 			//send by eth1
@@ -237,6 +309,8 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 	ENTER_CRITICAL_REGION();
 	pFrmHead = pFrms;
 
+	uint8_t* pForwardFrm = NULL;
+
 	switch ( event )
 	{
 
@@ -254,7 +328,21 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 				FrmLen = pFrms->ProcessedElementCount - 6;
 
 //				PackForwardSMVFrame ( nanoSeconds, FrmLen, pFrms );
-
+#if 1
+				pForwardFrm = (uint8_t*)pFrms->Data +2;
+				if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
+				{
+					IntegrityTest0( pForwardFrm);
+				}
+				else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
+				{
+					IntegrityTest1( pForwardFrm);
+				}
+				else
+				{
+					DEBUG_STATEMENT("ERROR AppID\n\n");
+				}
+#endif
 				PackForwardFrame( TYPE609_CONT_NET_RECV2_DATA, unSecond, nanoSeconds,
 						FrmLen,
 						pFrms);

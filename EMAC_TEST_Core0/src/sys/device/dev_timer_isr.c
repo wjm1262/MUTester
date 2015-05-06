@@ -49,7 +49,7 @@ uint8_t TimerMemory[ADI_TMR_MEMORY];
 static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg);
 
 #define TEST_TIMER_NUM      1
-#define TIMER_PERIOD        (125000)
+#define TIMER_PERIOD        (80000)
 #define TIMER_WIDTH         (TIMER_PERIOD/2)
 #define TIMER_DELAY          (TIMER_WIDTH/2)
 

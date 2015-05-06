@@ -229,7 +229,7 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 #endif
 
 #if 1
-		if(!pTaskPara->bPPSIsRunning)
+		if(!pTaskPara->bPPSIsRunning && pTaskPara->bSysTmIsSynced )
 		{
 			SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
 			pTaskPara->bPPSIsRunning = true;

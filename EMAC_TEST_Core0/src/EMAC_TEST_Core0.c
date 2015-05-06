@@ -160,7 +160,7 @@ void Task_App_Start(void*p_arg)
 
 #endif
 
-void IntegrityTest0(uint8_t* pForwardFrm)
+static void IntegrityTest0(uint8_t* pForwardFrm)
 {
 	static int16_t PreSmpCnt0 = -1;
 	int16_t CurSmpCnt = 0;
@@ -190,7 +190,7 @@ void IntegrityTest0(uint8_t* pForwardFrm)
 	}
 }
 
-void IntegrityTest1(uint8_t* pForwardFrm)
+static void IntegrityTest1(uint8_t* pForwardFrm)
 {
 	static int16_t PreSmpCnt1 = -1;
 	int16_t CurSmpCnt = 0;
@@ -276,7 +276,7 @@ int main(void)
 	Task_Eth0_Tx(NULL);
 	Task_Eth1_Tx(NULL);
 	Task_Eth0_Rx(NULL);
-	Task_Eth1_Rx(NULL);
+//	Task_Eth1_Rx(NULL);
 
 
 	Task_SystemTime0(NULL);
@@ -285,7 +285,7 @@ int main(void)
 	//
 	Init_IEC_9_2();
 
-//	Task_AD7608( NULL );
+	Task_AD7608( NULL );
 
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;

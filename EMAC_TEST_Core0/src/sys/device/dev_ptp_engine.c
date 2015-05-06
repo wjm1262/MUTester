@@ -23,6 +23,8 @@ static void InitSystemTime (void* hEthDev)
 	}
 
 	ProgrammingSysTimeFineCorrection( hEthDev );
+	//
+//	SetFixedPPSOutput(hEthDev);
 
 }
 
