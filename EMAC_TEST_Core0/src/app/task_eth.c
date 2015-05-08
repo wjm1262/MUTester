@@ -202,12 +202,20 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 	uint32_t FrmLen = 0;
 	int  n =0;
 
+	int nSeconds0, nNanoSeconds0;
+	int nSeconds1, nNanoSeconds1;
+	int nSeconds2, nNanoSeconds2;
+
+
+
 	//int int_sts = cli();
 	ENTER_CRITICAL_REGION();
 
 	uint8_t* pForwardFrm = NULL;
 
 	pFrmHead = pFrms;
+
+
 
 	switch ( event )
 	{
@@ -250,6 +258,9 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 				n++;
 
 			}
+
+
+
 #if 0
 			//send by eth1
 			MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], pFrmHead);
@@ -262,14 +273,20 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 			MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
 			//CHECK_ETH_RESULT(eResult, "Eth0.Read");
 #else
+			GetSysTime(pDev, &nSeconds0, &nNanoSeconds0);
+
 			//send by exEth
 			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
 
 			// get n buffers
 			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
 
+			GetSysTime(pDev, &nSeconds1, &nNanoSeconds1);
+
 			// Add buffers to eth0
-			MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
+//			MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
+			adi_ether_GemacRead( g_hEthDev[0], pNewBuffer );
+			GetSysTime(pDev, &nSeconds2, &nNanoSeconds2);
 #endif
 			break;
 
@@ -289,6 +306,9 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 	//sti(int_sts);
 	EXIT_CRITICAL_REGION();
 
+
+//	DEBUG_PRINT("rx %d, %d, %d\n\n", nNanoSeconds1-nNanoSeconds0, nNanoSeconds2-nNanoSeconds1, nNanoSeconds2-nNanoSeconds0);
+//	DEBUG_PRINT("rx s:%d, r:%d \n\n", nNanoSeconds1-nNanoSeconds0, nNanoSeconds2-nNanoSeconds1);
 }
 
 void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )

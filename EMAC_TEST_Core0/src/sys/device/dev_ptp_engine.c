@@ -24,6 +24,7 @@ static void InitSystemTime (void* hEthDev)
 
 	ProgrammingSysTimeFineCorrection( hEthDev );
 	//
+	SetPtpPPSOut(hEthDev, 2, 0);
 //	SetFixedPPSOutput(hEthDev);
 
 }

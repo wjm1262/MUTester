@@ -79,11 +79,9 @@ int msgPackHeader ( UINT8 *OutBuf, UINT8 MsgType, UINT16 NetType, UINT16 CmdCode
 	UINT16 Len = MSG_HEADER_LEN + DataLeng;
 	MUTestMsgHeader *header = (MUTestMsgHeader *)OutBuf;
 
+	memcpy(	header->sourMac, user_net_config_info[2].hwaddr, 6 );
 	memcpy( header->descMac, PC_MAC, 6 );
 	header->descMac[5] = MsgType;		//¿ØÖÆÃüÁî:0x81; ×ª·¢Ö¡:0x80
-
-	memcpy(	header->sourMac, user_net_config_info[2].hwaddr, 6 );
-
 
 	header->netType    = netHostChangeS( NetType );
 

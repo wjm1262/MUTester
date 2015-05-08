@@ -196,6 +196,8 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 
 	bool bRet;
 
+	return 0;
+
 	if( phDevice == g_hEthDev[0] )
 	{
 		pTaskPara = &g_TaskSysTimeParas[0];

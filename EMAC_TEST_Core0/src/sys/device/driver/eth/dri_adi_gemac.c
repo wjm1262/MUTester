@@ -877,6 +877,11 @@ static void process_int2 ( ADI_EMAC_DEVICE *pDev, ADI_EMAC_CHANNEL *pChannel )
 			pTmp->RxTimeStamp.TimeStampLo = pCurDmaDesc->RxTimeStampLo;
 			pTmp->RxTimeStamp.TimeStampHi = pCurDmaDesc->RxTimeStampHi;
 
+//			if(( pCurDmaDesc->Status | 0x100) && (pCurDmaDesc->Status | 0x02) )
+//			{
+//				DEBUG_STATEMENT("Rx CRC ERROR. \n\n ");
+//			}
+
 		}
 		else
 		{
@@ -1185,6 +1190,10 @@ void EMACInterruptHandler ( uint32_t IID, void *pCBParm )
 	uint32_t tm_status;
 	short value;
 
+	int nSeconds0, nNanoSeconds0;
+	int nSeconds1, nNanoSeconds1;
+	int nSeconds2, nNanoSeconds2;
+
 	asm ( "SSYNC;" );
 	dma_status =  pEmacRegs->EMAC_DMA_STAT;
 	
@@ -1192,82 +1201,93 @@ void EMACInterruptHandler ( uint32_t IID, void *pCBParm )
 	int_status = pEmacRegs->EMAC_ISTAT;
 	tm_status = pEmacRegs->EMAC_TM_STMPSTAT;
 
+
+	/* check if we got any interrupt */
+	if ( dma_status != 0 )
+	{
+
+		/* acknowledge dma interrupts */
+		pEmacRegs->EMAC_DMA_STAT = dma_status & 0x1FFFF;
+		
+		/* receive frame interrupt */
+		if ( dma_status & BITM_EMAC_DMA_STAT_RI )
+		{
+			STATS_INC ( pDev->Stats.RxIntCnt );
+		//			GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
+			process_int2 ( pDev, &pDev->Rx );
+		//			GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
+		//			DEBUG_PRINT("rx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
+		}
+
+		/* transmit complete interrupt */
+		if ( dma_status &  BITM_EMAC_DMA_STAT_TI )
+		{
+			STATS_INC ( pDev->Stats.TxIntCnt );
+			GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
+
+			process_int2 ( pDev, &pDev->Tx );
+
+			GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
+			DEBUG_PRINT("tx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
+		}
+
+		/* TU, no buffer to transmit - tx in suspended state check queued buffers */
+		/* The EMAC_DMA_STAT.TU bit indicates that the Next Descriptor in the
+		Transmit List is owned by the application and cannot be acquired by
+		the DMA. Transmission is suspended. The value in the EMAC_DMA_STAT.TS
+		bits explain the Transmit Process state transitions. To
+		resume processing transmit descriptors, the application should
+		change the ownership of the bit of the descriptor and then issue a
+		Transmit Poll Demand command.
+		* */
+		if ( gemac_is_txbuf_unavail ( dma_status ) )
+		{
+	//		DEBUG_PRINT("EMAC:%X, no buffer to transmit \n\n ", pDev);
+			transfer_queued_bufs ( pDev, &pDev->Tx );
+	//		transfer_queued_bufs_debug( pDev, &pDev->Tx );
+		}
+
+		/* early Receive interrupt */
+		/* indicates that the DMA had filled the
+		first data buffer of the packet. The EMAC_DMA_STAT.RI bit
+		automatically clears this bit.
+		* */
+		if ( dma_status & BITM_EMAC_DMA_STAT_ERI )
+		{
+			STATS_INC ( pDev->Stats.EarlyRxIntCnt );
+		}
+
+		/* abnormal interrupts - errors */
+		if ( dma_status & BITM_EMAC_DMA_STAT_AIS )
+		{
+			//DEBUG_STATEMENT("abnormal interrupts errors\n\n ");
+			handle_abnormal_interrupts ( pDev, dma_status );
+			//pDev->pAbnormalIntHandler( pDev, dma_status );
+		}
+
+		/* IEEE-1588 time stamp trigger interrupt */
+		if ( dma_status & BITM_EMAC_DMA_STAT_TTI )
+		{
+		}
+
+		/* memory management counter interrupts */
+
+		if ( dma_status & BITM_EMAC_DMA_STAT_MCI )
+		{
+			STATS_INC ( pDev->Stats.MMCIntCnt );
+			value = pEmacRegs->EMAC_ISTAT;
+			pEmacRegs->EMAC_ISTAT = 0;
+			pEmacRegs->EMAC_MMC_CTL = 0x1;
+			value = pEmacRegs->EMAC_MMC_RXINT;
+			value = pEmacRegs->EMAC_MMC_TXINT;
+		}
+	}
+
+
 	//Time Stamp Status Interrupt
 	if( (pDev->AuxiTMEnabled ) && (int_status & BITM_EMAC_ISTAT_TS) )
 	{
 		TimeStampStatusInterruptHandler ((ADI_ETHER_HANDLE)pCBParm, tm_status );
-	}
-
-	/* check if we got any interrupt */
-	if ( dma_status == 0 )
-		return;
-		
-	/* acknowledge dma interrupts */
-	pEmacRegs->EMAC_DMA_STAT = dma_status & 0x1FFFF;
-	
-	/* receive frame interrupt */
-	if ( dma_status & BITM_EMAC_DMA_STAT_RI )
-	{
-		STATS_INC ( pDev->Stats.RxIntCnt );
-		process_int2 ( pDev, &pDev->Rx );
-	}
-	
-	/* transmit complete interrupt */
-	if ( dma_status &  BITM_EMAC_DMA_STAT_TI )
-	{
-		STATS_INC ( pDev->Stats.TxIntCnt );
-		process_int2 ( pDev, &pDev->Tx );
-	}
-	
-	/* TU, no buffer to transmit - tx in suspended state check queued buffers */
-	/* The EMAC_DMA_STAT.TU bit indicates that the Next Descriptor in the
-	Transmit List is owned by the application and cannot be acquired by
-	the DMA. Transmission is suspended. The value in the EMAC_DMA_STAT.TS
-	bits explain the Transmit Process state transitions. To
-	resume processing transmit descriptors, the application should
-	change the ownership of the bit of the descriptor and then issue a
-	Transmit Poll Demand command.
-	 * */
-	if ( gemac_is_txbuf_unavail ( dma_status ) )
-	{
-//		DEBUG_PRINT("EMAC:%X, no buffer to transmit \n\n ", pDev);
-		transfer_queued_bufs ( pDev, &pDev->Tx );
-//		transfer_queued_bufs_debug( pDev, &pDev->Tx );
-	}
-
-	/* early Receive interrupt */
-	/* indicates that the DMA had filled the
-	first data buffer of the packet. The EMAC_DMA_STAT.RI bit
-	automatically clears this bit.
-	 * */
-	if ( dma_status & BITM_EMAC_DMA_STAT_ERI )
-	{
-		STATS_INC ( pDev->Stats.EarlyRxIntCnt );
-	}
-
-	/* abnormal interrupts - errors */
-	if ( dma_status & BITM_EMAC_DMA_STAT_AIS )
-	{
-		//DEBUG_STATEMENT("abnormal interrupts errors\n\n ");
-		handle_abnormal_interrupts ( pDev, dma_status );
-//		pDev->pAbnormalIntHandler( pDev, dma_status );
-	}
-
-	/* IEEE-1588 time stamp trigger interrupt */
-	if ( dma_status & BITM_EMAC_DMA_STAT_TTI )
-	{
-	}
-	
-	/* memory management counter interrupts */
-
-	if ( dma_status & BITM_EMAC_DMA_STAT_MCI )
-	{
-		STATS_INC ( pDev->Stats.MMCIntCnt );
-		value = pEmacRegs->EMAC_ISTAT;
-		pEmacRegs->EMAC_ISTAT = 0;
-		pEmacRegs->EMAC_MMC_CTL = 0x1;
-		value = pEmacRegs->EMAC_MMC_RXINT;
-		value = pEmacRegs->EMAC_MMC_TXINT;
 	}
 	
 }

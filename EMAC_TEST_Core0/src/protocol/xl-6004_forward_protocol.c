@@ -299,19 +299,32 @@ ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode, uint32_t unSecond, uint32_t 
 
 	uint8_t *head;
 
-	uint16_t  PayLoadLen = FrmLen;
+	uint16_t  PayLoadLen ;
 	uint16_t TotalLen;
-	short *pLength;
 
-	//the first two bytes reserved for length
-//	head = (char*)tx->Data;
-//	PackForwardSMVFrmHeader ( head, unNanoSecond, PayLoadLen);
+	UINT8 MsgType;
+	UINT16 NetType;
 
 	head = (uint8_t*)tx->Data +2;
-	TotalLen = msgPackForwardFrm ( head, CmdCode, PayLoadLen, unSecond, unNanoSecond );
+//	TotalLen = msgPackForwardFrm ( head, CmdCode, PayLoadLen, unSecond, unNanoSecond );
 
-	pLength = ( short * ) tx->Data;
-	*pLength = TotalLen;
+	UINT8 *tempPoint = head + sizeof(MUTestMsgHeader);
+
+	*(UINT32*)tempPoint = unSecond;
+	tempPoint += sizeof(UINT32);
+
+	*(UINT32*)tempPoint = unNanoSecond;
+	tempPoint += sizeof(UINT32);
+
+	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
+	NetType = NET_609_TRANSMIT ;
+
+	PayLoadLen  = MSG_FORWARD_FRM_HEADER_LEN + FrmLen;
+
+	TotalLen = msgPackHeader ( head, MsgType, NetType, CmdCode, PayLoadLen );
+
+
+	*(short*)tx->Data = TotalLen;
 
 	tx->ElementCount = TotalLen + 2; // total element count including 2 byte header
 	tx->PayLoad =  0; // payload is part of the packet

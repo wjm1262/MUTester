@@ -276,7 +276,7 @@ int main(void)
 	Task_Eth0_Tx(NULL);
 	Task_Eth1_Tx(NULL);
 	Task_Eth0_Rx(NULL);
-//	Task_Eth1_Rx(NULL);
+	Task_Eth1_Rx(NULL);
 
 
 	Task_SystemTime0(NULL);
@@ -285,7 +285,7 @@ int main(void)
 	//
 	Init_IEC_9_2();
 
-	Task_AD7608( NULL );
+//	Task_AD7608( NULL );
 
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;
