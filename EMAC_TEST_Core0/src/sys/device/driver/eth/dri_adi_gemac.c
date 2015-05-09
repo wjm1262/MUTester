@@ -1202,6 +1202,7 @@ void EMACInterruptHandler ( uint32_t IID, void *pCBParm )
 	tm_status = pEmacRegs->EMAC_TM_STMPSTAT;
 
 
+
 	/* check if we got any interrupt */
 	if ( dma_status != 0 )
 	{
@@ -1284,7 +1285,7 @@ void EMACInterruptHandler ( uint32_t IID, void *pCBParm )
 	}
 
 
-	//Time Stamp Status Interrupt
+	//PTP modual Status Interrupt
 	if( (pDev->AuxiTMEnabled ) && (int_status & BITM_EMAC_ISTAT_TS) )
 	{
 		TimeStampStatusInterruptHandler ((ADI_ETHER_HANDLE)pCBParm, tm_status );

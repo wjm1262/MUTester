@@ -404,13 +404,13 @@ void Task_AD7608( void* p_arg )
 
 	MuTesterSystem.Device.AD7608.InitADDevice();
 
-	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback( AD7608_Busy_ISR );
-
-//	MuTesterSystem.Device.AD7608.RegisterSPI0Callback( SPI0_Callback );
-
-	MuTesterSystem.Device.AD7608.RegisterSportCallback( SPORTCallbackRx );
-
-	MuTesterSystem.Device.AD7608.EnableBuzyIOInterrupt( true );
+//	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback( AD7608_Busy_ISR );
+//
+////	MuTesterSystem.Device.AD7608.RegisterSPI0Callback( SPI0_Callback );
+//
+//	MuTesterSystem.Device.AD7608.RegisterSportCallback( SPORTCallbackRx );
+//
+//	MuTesterSystem.Device.AD7608.EnableBuzyIOInterrupt( true );
 
 //	Start_AD7608();
 

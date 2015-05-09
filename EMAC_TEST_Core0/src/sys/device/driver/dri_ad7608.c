@@ -39,27 +39,6 @@ uint32_t Init_AD7608_IO(void)
 			break;
 		}
 
-		/* set GPIO output ad7606 convertA-B */
-//		IO_result = adi_gpio_SetDirection(
-//			ADI_GPIO_PORT_D,
-//			ADI_GPIO_PIN_0,
-//			ADI_GPIO_DIRECTION_OUTPUT);
-//		if (IO_result != ADI_GPIO_SUCCESS)
-//		{
-//			printf("adi_gpio_SetDirection failed : %d\n", IO_result);
-//			break;
-//		}
-
-		/* set GPIO output ad7606 RESET */
-		IO_result = adi_gpio_SetDirection(
-			ADI_GPIO_PORT_D,
-			ADI_GPIO_PIN_3,
-			ADI_GPIO_DIRECTION_OUTPUT);
-		if (IO_result != ADI_GPIO_SUCCESS)
-		{
-			printf("adi_gpio_SetDirection failed : %d\n", IO_result);
-			break;
-		}
 
 		/* set GPIO output ad7606 busy */
 		IO_result = adi_gpio_SetDirection(

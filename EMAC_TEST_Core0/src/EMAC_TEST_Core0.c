@@ -285,7 +285,7 @@ int main(void)
 	//
 	Init_IEC_9_2();
 
-//	Task_AD7608( NULL );
+	Task_AD7608( NULL );
 
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;
