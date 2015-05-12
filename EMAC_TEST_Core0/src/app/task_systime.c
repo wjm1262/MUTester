@@ -17,9 +17,6 @@
 #include "IEC61850_9_2.h"
 
 
-AUXI_SNAPSHOT_TM_QUEUE  g_Eth0AuxiTMQueue;
-AUXI_SNAPSHOT_TM_QUEUE  g_Eth1AuxiTMQueue;
-
 typedef struct sTASK_SYSTIME_PARA
 {
 	bool bIsFirstInterrupt;
@@ -196,7 +193,6 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 
 	bool bRet;
 
-	return 0;
 
 	if( phDevice == g_hEthDev[0] )
 	{
@@ -217,8 +213,8 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 	if(pTaskPara->bIsDoTimingTest == false)
 	{
 		pTaskPara->nErrorTiming = handle_systime_calibration(phDevice,
-				pAuxiTimeStamp,
-				pTaskPara);
+										pAuxiTimeStamp,
+										pTaskPara);
 #if 1
 		bRet = SysTmIsSynchronizted( pTaskPara->nErrorTiming );
 
@@ -275,28 +271,11 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 
 
 
-//static void Eth0AuxiTMTriggerHandler(void* pArg1)
-//{
-//	if( EnQueue( &g_Eth0AuxiTMQueue, pArg1 ) != Q_OK )
-//	{
-//		DEBUG_STATEMENT("EnQueue: Eth0 AuxiSnapshotTMQueue Failed!\n\n ");
-//	}
-//}
-//
-//static void Eth1AuxiTMTriggerHandler(void* pArg1)
-//{
-//	if( EnQueue( &g_Eth1AuxiTMQueue, pArg1 ) != Q_OK )
-//	{
-//		DEBUG_STATEMENT("EnQueue: Eth1 AuxiSnapshotTMQueue Failed!\n\n ");
-//	}
-//}
-
 // 这个函数 会被 两个网口调用，注意 不能有静态变量
 void TargetTimeTriggerInterruptHandler(	ADI_ETHER_HANDLE phDevice )
 {
 #if 1
-//	static bool bFirstTriggered = true;
-//	static int idx = 0;
+
 	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
 
 	TASK_SYSTIME_PARA* pTaskPara = NULL;
@@ -345,47 +324,21 @@ void Task_SystemTime0( void* p_arg )
 {
 //	OS_ERR osErr;
 
-	int QRet;
 	int nRet;
-	bool bRet = false;
-	TIME_STAMP_TYPE SnapshotTMType;
 
-	InitQueue( &g_Eth0AuxiTMQueue );
 
 	MuTesterSystem.Device.Eth0.EnableAuxiTimeStamped( g_hEthDev[0] );
 
-	MuTesterSystem.Device.SysTime0.InitSystemTime( g_hEthDev[0] );
+	nRet = MuTesterSystem.Device.SysTime0.InitSystemTime( g_hEthDev[0] );
+	if(nRet)
+	{
+		g_TaskSysTimeParas[0].bPPSIsRunning = true;
+	}
+
 	MuTesterSystem.Device.SysTime0.SetAuxiTMTriggerHandler( g_hEthDev[0], handle_auxiliary_tm_interrupt );
 //	MuTesterSystem.Device.SysTime0.SetTargetTMTriggerHandler( g_hEthDev[0], TargetTimeTriggerInterruptHandler );
 	MuTesterSystem.Device.SysTime0.EnableTimeStampAuxinInterrupt( g_hEthDev[0] );
 
-//	while(1)
-//	{
-//		QRet = DeQueue ( &g_Eth0AuxiTMQueue, &SnapshotTMType );
-//
-//		if(Q_OK == QRet)
-//		{
-//			if(SnapshotTMType.bIsDoTimingTest == false)
-//			{
-//
-//				nRet = handle_systime_calibration(g_hEthDev[0],
-//						&SnapshotTMType.SnapshotTm,
-//						SnapshotTMType.bTimingTestStarted);
-//
-////				bRet = SysTmIsSynchronizted(nRet);
-//			}
-//		}
-//		else
-//		{
-//			OSTimeDly(10, OS_OPT_TIME_DLY, &osErr);
-//			if(osErr != OS_ERR_NONE)
-//			{
-//				DEBUG_PRINT("Task_SystemTime0 : OSTimeDly Error:%d \n\n", osErr);
-//
-//			}
-//		}
-//
-//	}
 
 //	OSTaskDel((OS_TCB*)0, &osErr);
 
@@ -395,16 +348,17 @@ void Task_SystemTime1( void* p_arg )
 {
 //	OS_ERR osErr;
 
-	int QRet;
 	int nRet;
-	bool bRet = false;
-	TIME_STAMP_TYPE SnapshotTMType;
 
-	InitQueue( &g_Eth1AuxiTMQueue );
 
 	MuTesterSystem.Device.Eth1.EnableAuxiTimeStamped( g_hEthDev[1] );
 
-	MuTesterSystem.Device.SysTime1.InitSystemTime( g_hEthDev[1] );
+	nRet = MuTesterSystem.Device.SysTime1.InitSystemTime( g_hEthDev[1] );
+	if(nRet)
+	{
+		g_TaskSysTimeParas[1].bPPSIsRunning = true;
+	}
+
 	MuTesterSystem.Device.SysTime1.SetAuxiTMTriggerHandler( g_hEthDev[1], handle_auxiliary_tm_interrupt );
 	MuTesterSystem.Device.SysTime1.EnableTimeStampAuxinInterrupt( g_hEthDev[1] );
 

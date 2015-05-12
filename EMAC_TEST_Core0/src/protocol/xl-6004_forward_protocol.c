@@ -288,49 +288,5 @@ ADI_ETHER_BUFFER *PackACKFrmOfReadVersion ( void *pCtrlInfoFrmBuf, ADI_ETHER_BUF
 }
 
 
-///////////////////////////////////////////////////////
-
-ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
-										uint16_t FrmLen,
-										 ADI_ETHER_BUFFER *pXmtBuf)
-{
-
-	ADI_ETHER_BUFFER *tx = pXmtBuf;
-
-	uint8_t *head;
-
-	uint16_t  PayLoadLen ;
-	uint16_t TotalLen;
-
-	UINT8 MsgType;
-	UINT16 NetType;
-
-	head = (uint8_t*)tx->Data +2;
-//	TotalLen = msgPackForwardFrm ( head, CmdCode, PayLoadLen, unSecond, unNanoSecond );
-
-	UINT8 *tempPoint = head + sizeof(MUTestMsgHeader);
-
-	*(UINT32*)tempPoint = unSecond;
-	tempPoint += sizeof(UINT32);
-
-	*(UINT32*)tempPoint = unNanoSecond;
-	tempPoint += sizeof(UINT32);
-
-	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
-	NetType = NET_609_TRANSMIT ;
-
-	PayLoadLen  = MSG_FORWARD_FRM_HEADER_LEN + FrmLen;
-
-	TotalLen = msgPackHeader ( head, MsgType, NetType, CmdCode, PayLoadLen );
-
-
-	*(short*)tx->Data = TotalLen;
-
-	tx->ElementCount = TotalLen + 2; // total element count including 2 byte header
-	tx->PayLoad =  0; // payload is part of the packet
-	tx->StatusWord = 0; // changes from 0 to the status info
-
-	return tx;
-}
 
 

@@ -26,7 +26,7 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 	UINT8 *netData =  recvData + sizeof(MUTestMsgHeader);
 	UINT16 netDataSize = head.dataLeng;
 
-	if( head.netType == NET_609_TRANSMIT )
+	if( head.netType == NET_609_CONCROL )
 	{
 		//是控制命令帧，在这里处理
 		Code = head.code;
@@ -187,7 +187,9 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 
 			break;
 		case TYPE609_CONT_GOOSE_DATA_WRITE:
-			ret = msgPackGooseDataWrite(netData, netDataSize );
+
+			ret = msgUnpackGooseDataWrite(netData, netDataSize );
+
 			if(ret == 1)
 			{
 				MsgLen = msgPackDefaultReply(1,TYPE609_CONT_GOOSE_DATA_WRITE,COMM_ACK_RIGHT, NULL);
@@ -196,6 +198,7 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 			{
 				MsgLen = msgPackDefaultReply(0,TYPE609_CONT_GOOSE_DATA_WRITE,COMM_ACK_ERROR, NULL);
 			}
+
 			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
 
 			break;

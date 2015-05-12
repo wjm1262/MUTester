@@ -35,7 +35,7 @@
 //#define  MULTIPLIER_SEL		14
 #define  MULTIPLIER_SEL		16
 //#define  MULTIPLIER_SEL		16
-#define	 DF_SEL				false
+#define	 DF_SEL				0
 #define  CCLK_SEL			1
 #define  DDRCLK_SEL			2
 #define	 SCLK0_SEL			2

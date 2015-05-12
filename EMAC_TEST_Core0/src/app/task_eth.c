@@ -11,8 +11,10 @@
 
 #include "myapp_cfg.h"
 
-#include "xl-6004_forward_protocol.h"
+//#include "xl-6004_forward_protocol.h"
 #include "mutester_comm_protocol.h"
+#include "msg.h"
+
 #include "post_debug.h"
 /*
  * Report error if result code is not success
@@ -215,79 +217,69 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 
 	pFrmHead = pFrms;
 
-
-
 	switch ( event )
 	{
-
 		case ADI_ETHER_EVENT_FRAME_RCVD:
-
-			while(pFrms)
+			if (g_rtParams.U8Parameter[U8PARA_NETIN1_TRANSTOPC] )
 			{
-				//process frame
-				//get time stamp
-				pTmBuff = ( RX_TX_TIME_STAMP_BUFFER * ) pFrms;
+				while(pFrms)
+				{
+					//process frame
+					//get time stamp
+					pTmBuff = ( RX_TX_TIME_STAMP_BUFFER * ) pFrms;
 
-				unSecond = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampHi ) ;
-				nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
+					unSecond = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampHi ) ;
+					nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
 
-				FrmLen = pFrms->ProcessedElementCount - 6;
+					FrmLen = pFrms->ProcessedElementCount - 6;
 #if 1
-				pForwardFrm = (uint8_t*)pFrms->Data +2;
-				if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
-				{
-					IntegrityTest0( pForwardFrm);
-				}
-				else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
-				{
-					IntegrityTest1( pForwardFrm);
-				}
-				else
-				{
-					DEBUG_STATEMENT("ERROR AppID\n\n");
-				}
+					pForwardFrm = (uint8_t*)pFrms->Data +2;
+					if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
+					{
+						IntegrityTest0( pForwardFrm);
+					}
+					else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
+					{
+						IntegrityTest1( pForwardFrm);
+					}
+					else
+					{
+						DEBUG_STATEMENT("ERROR AppID\n\n");
+					}
 #endif
-//				PackForwardSMVFrame ( nanoSeconds, FrmLen, pFrms );
 
-				PackForwardFrame( TYPE609_CONT_NET_RECV1_DATA,  unSecond, nanoSeconds,
-						FrmLen,
-						pFrms);
+					PackForwardFrame( TYPE609_CONT_NET_RECV1_DATA,  unSecond, nanoSeconds,
+										FrmLen,
+										pFrms);
 
+					pFrms = pFrms->pNext;
+					n++;
 
-				pFrms = pFrms->pNext;
-				n++;
-
-			}
-
-
+				}
 
 #if 0
-			//send by eth1
-			MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], pFrmHead);
-
-			// get n buffers
-			//
-			pNewBuffer = pop_n_queue( &(user_net_config_info[1].xmt_buffers_queue), n );
-
-			// add buffers to eth0
-			MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
-			//CHECK_ETH_RESULT(eResult, "Eth0.Read");
+				//send by eth1
+				MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], pFrmHead);
+				// get n buffers
+				pNewBuffer = pop_n_queue( &(user_net_config_info[1].xmt_buffers_queue), n );
+				// add buffers to eth0
+				MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
+				//CHECK_ETH_RESULT(eResult, "Eth0.Read");
 #else
-			GetSysTime(pDev, &nSeconds0, &nNanoSeconds0);
-
-			//send by exEth
-			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
-
-			// get n buffers
-			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
-
-			GetSysTime(pDev, &nSeconds1, &nNanoSeconds1);
-
-			// Add buffers to eth0
-//			MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
-			adi_ether_GemacRead( g_hEthDev[0], pNewBuffer );
-			GetSysTime(pDev, &nSeconds2, &nNanoSeconds2);
+				//send by exEth
+				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
+				// get n buffers
+				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
+				// Add buffers to eth0
+				//MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
+				adi_ether_GemacRead( g_hEthDev[0], pNewBuffer );
 #endif
+			}
+			else
+			{
+				// return buffers to eth0
+				MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pFrmHead );
+			}
 			break;
 
 		case ADI_ETHER_EVENT_FRAME_XMIT:
@@ -333,62 +325,66 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 
 	switch ( event )
 	{
-
 		case ADI_ETHER_EVENT_FRAME_RCVD:
-
-			while(pFrms)
+			if (g_rtParams.U8Parameter[U8PARA_NETIN2_TRANSTOPC] )
 			{
-				//process frame
-				//get time stamp
-				pTmBuff = ( RX_TX_TIME_STAMP_BUFFER * ) pFrms;
+				while(pFrms)
+				{
+					//process frame
+					//get time stamp
+					pTmBuff = ( RX_TX_TIME_STAMP_BUFFER * ) pFrms;
 
-				unSecond = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampHi ) ;
-				nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
+					unSecond = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampHi ) ;
+					nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
 
-				FrmLen = pFrms->ProcessedElementCount - 6;
+					FrmLen = pFrms->ProcessedElementCount - 6;
 
-//				PackForwardSMVFrame ( nanoSeconds, FrmLen, pFrms );
 #if 1
-				pForwardFrm = (uint8_t*)pFrms->Data +2;
-				if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
-				{
-					IntegrityTest0( pForwardFrm);
-				}
-				else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
-				{
-					IntegrityTest1( pForwardFrm);
-				}
-				else
-				{
-					DEBUG_STATEMENT("ERROR AppID\n\n");
-				}
+					pForwardFrm = (uint8_t*)pFrms->Data +2;
+					if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
+					{
+						IntegrityTest0( pForwardFrm);
+					}
+					else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
+					{
+						IntegrityTest1( pForwardFrm);
+					}
+					else
+					{
+						DEBUG_STATEMENT("ERROR AppID\n\n");
+					}
 #endif
-				PackForwardFrame( TYPE609_CONT_NET_RECV2_DATA, unSecond, nanoSeconds,
-						FrmLen,
-						pFrms);
+					PackForwardFrame( TYPE609_CONT_NET_RECV2_DATA, unSecond, nanoSeconds,
+										FrmLen,
+										pFrms);
 
-				pFrms = pFrms->pNext;
-				n++;
-			}
+					pFrms = pFrms->pNext;
+					n++;
+				}//while
+
 #if 0
-			//send by eth0
-			MuTesterSystem.Device.Eth0.Write ( g_hEthDev[0], pFrmHead);
-
-			// get n buffers
-			pNewBuffer = pop_n_queue( &(user_net_config_info[0].xmt_buffers_queue), n );
-
-			// Add buffers to eth1
-			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
+				//send by eth0
+				MuTesterSystem.Device.Eth0.Write ( g_hEthDev[0], pFrmHead);
+				// get n buffers
+				pNewBuffer = pop_n_queue( &(user_net_config_info[0].xmt_buffers_queue), n );
+				// Add buffers to eth1
+				MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
 #else
-			//send by exEth
-			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
-
-			// get n buffers
-			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
-
-			// Add buffers to eth1
-			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
+				//send by exEth
+				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
+				// get n buffers
+				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
+				// Add buffers to eth1
+				MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
 #endif
+
+			}
+			else
+			{
+				// return buffers to eth1
+				MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pFrmHead );
+			}
+
 			break;
 
 		case ADI_ETHER_EVENT_FRAME_XMIT:

@@ -123,9 +123,9 @@ void ProgrammingSysTimeFineCorrection(ADI_ETHER_HANDLE phDevice );
 //int handle_systime_calibration(	ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp,
 //							bool bTimingTestStarted);
 
-void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec );
+int SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec );
 
-void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice);
+int SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice);
 
 void SetTrigerTimeofAuxiInCtrlPPS(ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp);
 

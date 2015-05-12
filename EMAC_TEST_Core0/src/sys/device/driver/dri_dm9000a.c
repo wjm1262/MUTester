@@ -430,8 +430,9 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 
 	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
 
-	if(RxReady & 0x01 == 1)
-	{
+	// modified by wjm@2015-5-12
+//	if(RxReady & 0x01 == 1)
+//	{
 		/* start write the Read FIFO */
 		*pADDR_DM9000A = MRCMD;
 		*pADDR_DM9000A = MRCMD;
@@ -458,7 +459,7 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 			RxLen = *pDATA_DM9000A;
 		}
 
-		*(uint16_t*)buf = RxLen;
+		*(uint16_t*)buf = RxLen; // 帧长度
 
 		HalfRxLen = (RxLen + 1) >> 1;
 
@@ -475,14 +476,14 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 			(( uint16_t *)(buf+2))[i] = *pDATA_DM9000A;
 		}
 
-	}
-
-	else if(RxReady & 0x02 )
-	{
-		/* Ready状态不是0或者1为异常，需要重启 */
-		DM9000A_Reset();
-		return -1;
-	}
+//	}
+//
+//	else if(RxReady & 0x02 )
+//	{
+//		/* Ready状态不是0或者1为异常，需要重启 */
+//		DM9000A_Reset();
+//		return -1;
+//	}
 
 	return 1;
 }
@@ -519,31 +520,30 @@ static void Process_DM9000A_INT_Event( void )
 	uint8_t RxReady = 0;
 
 	uint16_t status = ReadReg( ISR );
-	uint16_t temp;
-	uint8_t RxStatusRegister;
+
+//	uint8_t RxStatusRegister;
 	if( status & 0x01 )//接收包中断
 	{
-
 		/* 读取Rx Ready，不偏移内存指针 */
 		ReadReg( MRCMDX );
 		RxReady = ReadReg( MRCMDX );
 
 		while(RxReady & 0x01 == 1)
 		{
-			RxStatusRegister = ReadReg(0x06);
+//			RxStatusRegister = ReadReg(0x06);// modified by wjm@2015-5-12
 
 			ENTER_CRITICAL_REGION();
 
 			pItem =  LoopQueue_push( &g_ExEthRecvQueue );
+
+			EXIT_CRITICAL_REGION();
+
 			if( pItem != NULL )
 			{
-				pItem->Size = RxStatusRegister;
-
+//				pItem->Size = RxStatusRegister;// modified by wjm@2015-5-12
 //				MDMA2_Param = (void*)pItem->Data;
 				Process_DM9000A_Recv( pItem->Data, RxReady);
 			}
-
-			EXIT_CRITICAL_REGION();
 
 			/* 读取Rx Ready，不偏移内存指针 */
 			ReadReg( MRCMDX );
@@ -553,6 +553,13 @@ static void Process_DM9000A_INT_Event( void )
 
 		WriteReg( ISR, 0x01 );//清除中断
 
+		/* Ready状态不是0或者1为异常，需要重启 */
+		// add by wjm@2015-5-12
+		if(RxReady & 0xfe )
+		{
+			DM9000A_Reset();
+			return ;
+		}
 	}
 
 	if(status & 0x02)//发送包中断

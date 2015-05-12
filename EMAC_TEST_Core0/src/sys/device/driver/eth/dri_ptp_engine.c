@@ -476,7 +476,7 @@ void SetEth1FlexiblePPSOutput( ADI_ETHER_HANDLE phDevice,
 
 }
 
-void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
+int SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
 {
 
 	if(hDev == g_hEthDev[0])
@@ -492,9 +492,11 @@ void SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
 				tmStartSec, tmStartNanoSec,
 				PPS_INTERVAL_VAL-1, PPS_WIDTH_VAL-1);
 	}
+
+	return 1;
 }
 
-void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
+int SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
 {
 	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
 	ADI_EMAC_REGISTERS *const  pEmacRegs = ( ( ADI_EMAC_DEVICE * ) phDevice )->pEMAC_REGS;
@@ -509,6 +511,7 @@ void SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
 	//0000,The default
 //	value for these bits is 0000, which configures a 1 Hz signal with a pulse width equal to the period of the PTP
 //	clock
+	return 1;
 
 }
 

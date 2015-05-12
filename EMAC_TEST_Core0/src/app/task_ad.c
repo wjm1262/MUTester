@@ -14,7 +14,7 @@
 #include "myapp_cfg.h"
 
 #include "mutester_comm_protocol.h"
-#include "xl-6004_forward_protocol.h"
+//#include "xl-6004_forward_protocol.h"
 #include "msg.h"
 
 #include "IEC61850_9_2.h"
@@ -377,8 +377,11 @@ static void SPORTCallbackRx2(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
         	/* user process the AD data*/
 
+        	if(g_rtParams.U8Parameter[U8PARA_NET_SEND1] | g_rtParams.U8Parameter[U8PARA_NET_SEND2])
+        	{
+        		ADData2SmvFrm( pArg, 32, g_TaskADPara.usSmpCnt);
+        	}
 
-        	ADData2SmvFrm( pArg, 32, g_TaskADPara.usSmpCnt);
 
         	ADData2StandardADFrm( pArg, 32, g_TaskADPara.usSmpCnt);
 
@@ -404,15 +407,14 @@ void Task_AD7608( void* p_arg )
 
 	MuTesterSystem.Device.AD7608.InitADDevice();
 
-//	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback( AD7608_Busy_ISR );
-//
-////	MuTesterSystem.Device.AD7608.RegisterSPI0Callback( SPI0_Callback );
-//
-//	MuTesterSystem.Device.AD7608.RegisterSportCallback( SPORTCallbackRx );
-//
-//	MuTesterSystem.Device.AD7608.EnableBuzyIOInterrupt( true );
+	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback( AD7608_Busy_ISR );
 
-//	Start_AD7608();
+//	MuTesterSystem.Device.AD7608.RegisterSPI0Callback( SPI0_Callback );
+
+	MuTesterSystem.Device.AD7608.RegisterSportCallback( SPORTCallbackRx );
+
+	MuTesterSystem.Device.AD7608.EnableBuzyIOInterrupt( true );
+
 
 //	OSTaskDel((OS_TCB*)0, &osErr);
 

@@ -171,9 +171,7 @@ ADI_ETHER_BUFFER *PackForwardSMVFrame( uint32_t unNanoSecond,
 									uint16_t SmvFrmLen,
 									 ADI_ETHER_BUFFER *pXmtBuf);
 
-ADI_ETHER_BUFFER *PackForwardFrame( uint16_t CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
-										uint16_t FrmLen,
-										 ADI_ETHER_BUFFER *pXmtBuf);
+
 
 
 ADI_ETHER_BUFFER *PackACKFrmOfReadVersion ( void *pCtrlInfoFrmBuf, ADI_ETHER_BUFFER *pXmtBuf );

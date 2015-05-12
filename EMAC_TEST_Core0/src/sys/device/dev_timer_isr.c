@@ -12,19 +12,19 @@
  */
 
 #include <ccblkfn.h>
-#include <services/tmr/adi_tmr.h>
-#include <services/int/adi_int.h>
-#include <services/tmr/adi_tmr_bf6xx.h>
 #include <adi_types.h>
+#include <services/tmr/adi_tmr.h>
+#include <services/tmr/adi_tmr_bf6xx.h>
+#include <services/int/adi_int.h>
+#include <services/int/adi_sec.h>
+#include <services/gpio/adi_gpio.h>
+
 //#include "post_common.h"
 #include "post_debug.h"
 #include "dev_timer_isr.h"
 
-#include <services/int/adi_sec.h>
-#include <services/gpio/adi_gpio.h>
-
 #include "task.h"
-
+#include "dev_pwr.h"
 
 #if defined(__DEBUG_FILE__)
 #include <string.h>
@@ -49,7 +49,7 @@ uint8_t TimerMemory[ADI_TMR_MEMORY];
 static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg);
 
 #define TEST_TIMER_NUM      1
-#define TIMER_PERIOD        (80000)
+#define TIMER_PERIOD        (SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL)/1000
 #define TIMER_WIDTH         (TIMER_PERIOD/2)
 #define TIMER_DELAY          (TIMER_WIDTH/2)
 

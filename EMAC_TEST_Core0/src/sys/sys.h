@@ -79,12 +79,10 @@ typedef struct Dev_SysTime
 	// data section
 
 	// operation
-	void  (*InitSystemTime)(void* hEthDev);
+	int  (*InitSystemTime)(void* hEthDev);
 	void (*EnableTimeStampAuxinInterrupt) (void* hEthDev);
 	void (*SetAuxiTMTriggerHandler) (void* hEthDev, void* handler );
 	void (*SetTargetTMTriggerHandler) (void* hEthDev, void* handler );
-
-
 
 }DEV_SYSTIME;
 typedef struct Dev_AD

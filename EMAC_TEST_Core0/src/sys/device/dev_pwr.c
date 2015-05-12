@@ -15,7 +15,7 @@ ADI_PWR_RESULT Init_PowerService(void)
 		pwrRes = adi_pwr_Init(SYS_CLKIN,500000000,250000000,100000000);
 		if (pwrRes != ADI_PWR_SUCCESS)
 			break;
-		pwrRes =adi_pwr_SetClkControlRegister(ADI_PWR_CLK_CTL_DF,   0 );
+		pwrRes =adi_pwr_SetClkControlRegister(ADI_PWR_CLK_CTL_DF,   DF_SEL );
 		if (pwrRes != ADI_PWR_SUCCESS)
 			break;
 		pwrRes =adi_pwr_SetClkControlRegister(ADI_PWR_CLK_CTL_MSEL,   MULTIPLIER_SEL );

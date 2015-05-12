@@ -5,7 +5,7 @@
 #define ADI_DEBUG  (1)
 
 #include "EMAC_TEST_Core0.h"
-#include "xl-6004_forward_protocol.h"
+//#include "xl-6004_forward_protocol.h"
 #include "mutester_comm_protocol.h"
 #include "msg.h"
 #include "comm_cmd_process.h"
@@ -246,6 +246,9 @@ int main(void)
 
 	//global initialization
 	MuTesterSystem.Initialize();
+	g_rtParams.U8Parameter[U8PARA_NETIN1_TRANSTOPC] = 1;
+	g_rtParams.U8Parameter[U8PARA_NETIN2_TRANSTOPC] = 1;
+
 
 	// print info
 	int i;
@@ -280,7 +283,7 @@ int main(void)
 
 
 	Task_SystemTime0(NULL);
-//	Task_SystemTime1(NULL);
+	Task_SystemTime1(NULL);
 
 	//
 	Init_IEC_9_2();
@@ -289,6 +292,8 @@ int main(void)
 
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;
+	uint16_t NoBytes;
+	MUTestMsgHeader *pEtheCMD_Frame ;
 
 	while(1)
 	{
@@ -317,13 +322,13 @@ int main(void)
 		pRecvFrm = (uint8_t*)MuTesterSystem.Device.exEth.EthRecv();
 		if(pRecvFrm)
 		{
-			FORWARD_ETHER_FRAME *pEtheCMD_Frame = ( FORWARD_ETHER_FRAME * )pRecvFrm;
+			NoBytes = *(uint16_t*)pRecvFrm;
+//			pEtheCMD_Frame = ( MUTestMsgHeader * )(pRecvFrm + 2);
 
-//			Comm_processCmd( (uint8_t*)pEtheCMD_Frame +2, pEtheCMD_Frame->NoBytes );
+			Comm_processCmd( pRecvFrm +2, NoBytes );
 
-			//DEBUG_PRINT ( " len:%d,   \n\n" , pEtheCMD_Frame->NoBytes );
-			DEBUG_STATEMENT("recv ok.\n\n");
-
+			DEBUG_PRINT ( " len:%d, \n\n" , NoBytes );
+//			DEBUG_STATEMENT("recv ok.\n\n");
 		}
 
 	}//while

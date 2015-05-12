@@ -9,6 +9,9 @@
 #define MSG_H_
 
 #include "mutester_comm_protocol.h"
+#include <stdlib.h>
+#include <string.h>
+#include <drivers/ethernet/adi_ether.h>
 
 /*******************************
 start：共享数据
@@ -121,12 +124,14 @@ INT32 msgPackU8ParaRead(UINT8 *netData,UINT16 netDataSize );
 
 UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  );
-UINT8 msgPackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  );
+UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  );
 
 //////////////////////////
 int PackSmvFrm( UINT8* OutBuf, UINT32 data[6], unsigned int SmpCnt, UINT8 Port );
 
-
+ADI_ETHER_BUFFER *PackForwardFrame( uint16_t CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
+										uint16_t FrmLen,
+										 ADI_ETHER_BUFFER *pXmtBuf);
 /*******************************
 end：导出接口
 *******************************/

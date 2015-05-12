@@ -10,7 +10,7 @@
 
 UINT8 PC_MAC[6] = {0x00, 0x02, 0x03, 0x04, 0x05, 0x81};
 
-RUNTIME_PARAMS g_rtParams;
+RUNTIME_PARAMS g_rtParams ={0};
 
 /*start：局部变量*/
 
@@ -192,7 +192,7 @@ int msgPackDefaultReply(UINT8 isRight, UINT16 order, UINT16 errorCode, char *inf
 
 	UINT16 DataLeng = tempPoint - StartPos;
 
-	UINT16 NetType  = NET_609_TRANSMIT;
+	UINT16 NetType  = NET_609_CONCROL;
 
 	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLeng );
 
@@ -317,7 +317,7 @@ INT32 msgPackSmvFormatRead(UINT8 *netData, UINT16 netDataSize )
 		tempPoint += tempSize;
 
 
-		NetType  = NET_609_TRANSMIT;
+		NetType  = NET_609_CONCROL;
 		CmdCode = TYPE609_CONT_SMV_FORMAT_READ;
 		DataLen = tempPoint - StartPos;
 
@@ -637,11 +637,13 @@ UINT8 msgUnpackU8ParaWrite(UINT8 *netData,UINT16 netDataSize )
 	UINT16 arraySize = *(UINT16*)tempPoint;
 	tempPoint += sizeof(UINT16);
 	UINT8 Index;
+	UINT8 *tempIndexPoint;
+	UINT8 *tempValuePoint;
 
 	if(netDataSize >= arraySize * (sizeof(UINT8) + sizeof(UINT8)) + 4)
 	{
-		UINT8 *tempIndexPoint = tempPoint;
-		UINT8 *tempValuePoint = tempPoint + sizeof(UINT8) * arraySize;
+		tempIndexPoint = tempPoint;
+		tempValuePoint = tempPoint + sizeof(UINT8) * arraySize;
 
 		for(int i = 0 ; i < arraySize; i ++)
 		{
@@ -684,7 +686,7 @@ INT32 msgPackU8ParaRead(UINT8 *netData,UINT16 netDataSize )
 	memcpy(tempPoint, g_rtParams.U8Parameter, U8_PARAMETER_COUNT * sizeof(UINT8));
 	tempPoint += (U8_PARAMETER_COUNT * sizeof(UINT8));
 
-	NetType  = NET_609_TRANSMIT;
+	NetType = NET_609_CONCROL;
 	CmdCode = TYPE609_CONT_UINT8_PAR_READ;
 	DataLen = tempPoint - StartPos;
 
@@ -874,7 +876,7 @@ INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  )
 //		comSendPackHead->code = TYPE609_CONT_GOOSE_FORMAT_READ;
 //		comSendPackHead->dataLeng = tempPoint - comSendPackDataStart;
 
-		NetType  = NET_609_TRANSMIT;
+		NetType  = NET_609_CONCROL;
 		CmdCode = TYPE609_CONT_GOOSE_FORMAT_READ;
 		DataLen = tempPoint - StartPos;
 
@@ -887,7 +889,7 @@ INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  )
 
 }
 
-UINT8 msgPackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
+UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
 {
 	UINT8 retValue = 0;
 
@@ -1136,4 +1138,50 @@ int PackSmvFrm( UINT8* OutBuf, UINT32 data[6], unsigned int SmpCnt, UINT8 Port )
 	memcpy(OutBuf, smvBuf, smvBufSize);
 
 	return 1;
+}
+
+
+///////////////////////////////////////////////////////
+
+ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
+										uint16_t FrmLen,
+										 ADI_ETHER_BUFFER *pXmtBuf)
+{
+
+	ADI_ETHER_BUFFER *tx = pXmtBuf;
+
+	uint8_t *head;
+
+	uint16_t  PayLoadLen ;
+	uint16_t TotalLen;
+
+	UINT8 MsgType;
+	UINT16 NetType;
+
+	head = (uint8_t*)tx->Data +2;
+//	TotalLen = msgPackForwardFrm ( head, CmdCode, PayLoadLen, unSecond, unNanoSecond );
+
+	UINT8 *tempPoint = head + sizeof(MUTestMsgHeader);
+
+	*(UINT32*)tempPoint = unSecond;
+	tempPoint += sizeof(UINT32);
+
+	*(UINT32*)tempPoint = unNanoSecond;
+	tempPoint += sizeof(UINT32);
+
+	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
+	NetType = NET_609_TRANSMIT ;
+
+	PayLoadLen  = MSG_FORWARD_FRM_HEADER_LEN + FrmLen;
+
+	TotalLen = msgPackHeader ( head, MsgType, NetType, CmdCode, PayLoadLen );
+
+
+	*(short*)tx->Data = TotalLen;
+
+	tx->ElementCount = TotalLen + 2; // total element count including 2 byte header
+	tx->PayLoad =  0; // payload is part of the packet
+	tx->StatusWord = 0; // changes from 0 to the status info
+
+	return tx;
 }
