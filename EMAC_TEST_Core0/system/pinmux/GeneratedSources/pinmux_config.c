@@ -1,6 +1,6 @@
 /*
  **
- ** pinmux_config.c source file generated on 四月 2, 2015 at 09:17:37.	
+ ** pinmux_config.c source file generated on 五月 13, 2015 at 14:50:12.	
  **
  ** Copyright (C) 2000-2015 Analog Devices Inc., All Rights Reserved.
  **

@@ -1214,22 +1214,22 @@ void EMACInterruptHandler ( uint32_t IID, void *pCBParm )
 		if ( dma_status & BITM_EMAC_DMA_STAT_RI )
 		{
 			STATS_INC ( pDev->Stats.RxIntCnt );
-		//			GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
+		//	GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
 			process_int2 ( pDev, &pDev->Rx );
-		//			GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
-		//			DEBUG_PRINT("rx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
+		//	GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
+		//	DEBUG_PRINT("rx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
 		}
 
 		/* transmit complete interrupt */
 		if ( dma_status &  BITM_EMAC_DMA_STAT_TI )
 		{
 			STATS_INC ( pDev->Stats.TxIntCnt );
-			GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
+//			GetSysTime(pCBParm, &nSeconds0, &nNanoSeconds0);
 
 			process_int2 ( pDev, &pDev->Tx );
 
-			GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
-			DEBUG_PRINT("tx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
+//			GetSysTime(pCBParm, &nSeconds2, &nNanoSeconds2);
+//			DEBUG_PRINT("tx  %d:%d,\n\n", nSeconds2-nSeconds0, nNanoSeconds2-nNanoSeconds0);
 		}
 
 		/* TU, no buffer to transmit - tx in suspended state check queued buffers */

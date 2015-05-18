@@ -290,10 +290,10 @@ int main(void)
 
 	Task_AD7608( NULL );
 
+	LoopQueueItem* pRecvItem;
 	uint8_t* pForwardFrm = NULL;
 	uint8_t* pRecvFrm = NULL;
 	uint16_t NoBytes;
-	MUTestMsgHeader *pEtheCMD_Frame ;
 
 	while(1)
 	{
@@ -319,15 +319,21 @@ int main(void)
 
 		}
 
+//		pRecvItem = (LoopQueueItem*)MuTesterSystem.Device.exEth.EthRecv();
 		pRecvFrm = (uint8_t*)MuTesterSystem.Device.exEth.EthRecv();
 		if(pRecvFrm)
 		{
+			//pRecvFrm = pRecvItem->Data;
+
 			NoBytes = *(uint16_t*)pRecvFrm;
-//			pEtheCMD_Frame = ( MUTestMsgHeader * )(pRecvFrm + 2);
 
-			Comm_processCmd( pRecvFrm +2, NoBytes );
+//			Comm_processCmd( pRecvFrm +2, NoBytes );
+			if( ( NoBytes == 512 )|| ( NoBytes == 1541 ))
+			{
+				//DEBUG_PRINT ( " L:%d,%0X\n\n" , NoBytes, pRecvItem->Size );
+				DEBUG_PRINT ( " L:%d,\n\n" , NoBytes );
+			}
 
-			DEBUG_PRINT ( " len:%d, \n\n" , NoBytes );
 //			DEBUG_STATEMENT("recv ok.\n\n");
 		}
 

@@ -80,11 +80,15 @@
 #include "dri_dm9000a.h"
 
 #include "dev_pwr.h"
+#include "dev_gpio.h"
 
+
+#include <stddef.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <ccblkfn.h>
 #include <math.h>
-#include <stdio.h>
+
 #include <services/gpio/adi_gpio.h>
 
 #include "post_debug.h"
@@ -155,10 +159,11 @@ static uint8_t MemDmaStreamMem2[160u];
 #define MEMCOPY_STREAM_ID2           ADI_DMA_MEMDMA_S2       /* Stream 3 */
 
 volatile int TxMDMA3_Param;
-volatile void* RxMDMA2_Param;
+volatile int RxMDMA2_Param;
 volatile int sended = 0;
 volatile int recved = 0;
-volatile bool g_bMDMAIsReady = true;
+volatile bool g_bTxMDMAIsReady = true;
+volatile bool g_bRxMDMAIsReady = true;
 
 
 static void TxMDAM_Callback3 (void *pCBParam, uint32_t event, void *pArg);
@@ -431,8 +436,7 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
 
 	// modified by wjm@2015-5-12
-//	if(RxReady & 0x01 == 1)
-//	{
+
 		/* start write the Read FIFO */
 		*pADDR_DM9000A = MRCMD;
 		*pADDR_DM9000A = MRCMD;
@@ -463,27 +467,22 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 
 		HalfRxLen = (RxLen + 1) >> 1;
 
+#if 1
 
+		eResult = adi_mdma_Copy1D (hMemDmaStream2, (void*)(buf+2), (void *)pDATA_DM9000A,
+				ADI_DMA_MSIZE_2BYTES,
+				HalfRxLen);
+		if(eResult != ADI_DMA_SUCCESS)
+		{
+			DEBUG_PRINT("Process_DM9000A_Recv: failed to copy memory : %d \n", eResult);
+		}
 
-//		eResult = adi_mdma_Copy1D (hMemDmaStream2, (void*)(buf+2), (void *)pDATA_DM9000A,  ADI_DMA_MSIZE_2BYTES, HalfRxLen);
-//		if(eResult != ADI_DMA_SUCCESS)
-//		{
-//			DEBUG_PRINT("Process_DM9000A_Recv: failed to copy memory : %d \n", eResult);
-//		}
-
+#else
 		for(int i = 0; i < HalfRxLen; i++ )
 		{
 			(( uint16_t *)(buf+2))[i] = *pDATA_DM9000A;
 		}
-
-//	}
-//
-//	else if(RxReady & 0x02 )
-//	{
-//		/* Ready状态不是0或者1为异常，需要重启 */
-//		DM9000A_Reset();
-//		return -1;
-//	}
+#endif
 
 	return 1;
 }
@@ -504,7 +503,7 @@ static void RxMDAM_Callback2 (void *pCBParam, uint32_t event, void *pArg)
 #else
 			/* Resume A25 in SMC mode */
 //			*pREG_PORTB_FER |= SMC0_A25_PORTB_FER;
-			//			g_IsReadySend = true;
+			g_bRxMDMAIsReady = true;
 #endif
 			break;
 		default:
@@ -542,7 +541,14 @@ static void Process_DM9000A_INT_Event( void )
 			{
 //				pItem->Size = RxStatusRegister;// modified by wjm@2015-5-12
 //				MDMA2_Param = (void*)pItem->Data;
+				g_bRxMDMAIsReady = false;
 				Process_DM9000A_Recv( pItem->Data, RxReady);
+			}
+
+			//wait for RX DMA work over to release SMC.
+			while(!g_bRxMDMAIsReady)
+			{
+
 			}
 
 			/* 读取Rx Ready，不偏移内存指针 */
@@ -654,7 +660,7 @@ int DM9000A_DMA_Send( void * buf, int len )
 
 	TxMDMA3_Param = len;
 
-	g_bMDMAIsReady = false;
+	g_bTxMDMAIsReady = false;
 
 	eResult = adi_mdma_Copy1D (hMemDmaStream3, (void *)pDATA_DM9000A, buf, ADI_DMA_MSIZE_2BYTES, (len +1 ) >> 1);
 	if(eResult != ADI_DMA_SUCCESS)
@@ -671,7 +677,7 @@ int DM9000A_DMA_Send( void * buf, int len )
 
 static bool MDMAIsReady(void)
 {
-	return g_bMDMAIsReady;
+	return g_bTxMDMAIsReady;
 }
 
 static bool IsSendOver(void)
@@ -704,7 +710,7 @@ static void TxMDAM_Callback3 (void *pCBParam, uint32_t event, void *pArg)
 			/* start send */
 			WriteReg( TCR, 0x1 );
 
-			g_bMDMAIsReady = true;
+			g_bTxMDMAIsReady = true;
 
 			break;
 		default:
@@ -733,16 +739,7 @@ void DM9000A_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt,const uint32_t event, void
 static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
 {
 	ADI_GPIO_RESULT result;
-	static uint8_t gpioMemory[64];
-	uint32_t gpioMaxCallbacks;
-	result = adi_gpio_Init(
-					(void*)gpioMemory,
-					64,
-					&gpioMaxCallbacks);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("adi_gpio_Init failed : %d\n", result);
-	}
+
 
 #if HAL_VER1_0
 
@@ -759,71 +756,23 @@ static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
 #else
 
 	/* set GPIO output DM9000A PIIN A25 */
-	result = adi_gpio_SetDirection(
-		ADI_GPIO_PORT_B,
-		ADI_GPIO_PIN_11,
-		ADI_GPIO_DIRECTION_OUTPUT);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		printf("%s failed\n", result);
-	}
+	result = Set_GPIO_PB11_IODirection(ADI_GPIO_DIRECTION_OUTPUT );
 
 #endif
 	/*
 	 * PD9 is IRQ pin for DM9000A, Setup in input mode
 	 */
-	result = adi_gpio_SetDirection(
-		ADI_GPIO_PORT_D,
-		ADI_GPIO_PIN_9,
-		ADI_GPIO_DIRECTION_INPUT);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("adi_gpio_SetDirection failed : %d\n", result);
-	}
+	result = Set_GPIO_PD09_IODirection(ADI_GPIO_DIRECTION_INPUT);
 
-	do
-	{
-		 //分配IRQ和字节
-		result = adi_gpio_PinInterruptAssignment(ADI_GPIO_PIN_INTERRUPT_3,
-				ADI_GPIO_PIN_ASSIGN_BYTE_1,
-				ADI_GPIO_PIN_ASSIGN_PDH_PINT3);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	  		  DEBUG_PRINT("\n\t Failed in function adi_gpio_PinInterruptAssignment : %d",result);
-	  		  break;
-	    }
 
-	    //分配具体引脚和中断方式
-	    result = adi_gpio_SetPinIntEdgeSense(ADI_GPIO_PIN_INTERRUPT_3,
-	    		ADI_GPIO_PIN_9,
-	    		ADI_GPIO_SENSE_RISING_EDGE);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	  		  DEBUG_PRINT("\n\t Failed in function adi_gpio_SetPinIntEdgeSense : %d",result);
-	  		  break;
-	    }
-
-	    //登记IRQ回调函数
-	    result = adi_gpio_RegisterCallback(ADI_GPIO_PIN_INTERRUPT_3,
-	    		ADI_GPIO_PIN_9,
-	    		DM9000A_ISR,
-	    		NULL);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	  		  DEBUG_PRINT("\n\t Failed in function adi_gpio_RegisterCallback : %d",result);
-	  		  break;
-	    }
-
-	    //使能中断
-	    result = adi_gpio_EnablePinInterruptMask(ADI_GPIO_PIN_INTERRUPT_3,
-	    		ADI_GPIO_PIN_9,
-	    		false);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	  		  DEBUG_PRINT("\n\t Failed in function adi_gpio_RegisterCallback : %d",result);
-	  		  break;
-	    }
-	}while(0);
+//	result = Init_GPIO_PD09_INT();
+//
+//	if(result == ADI_GPIO_SUCCESS)
+//	{
+//		Register_Callback_GPIO_PD09_INT(DM9000A_ISR, NULL);
+//
+//		Enable_GPIO_PD09_INT(false);
+//	}
 
 	return result;
 }
@@ -831,16 +780,7 @@ static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
 
 void Enable_MAC_INT_Interrupt( bool enable )
 {
-	ADI_GPIO_RESULT result;
-
-	result = adi_gpio_EnablePinInterruptMask(ADI_GPIO_PIN_INTERRUPT_3,
-		    		ADI_GPIO_PIN_9,
-		    		enable);
-	if(result != ADI_GPIO_SUCCESS)
-	{
-		  DEBUG_PRINT("\n\t Failed in function adi_gpio_RegisterCallback : %d",result);
-
-	}
+	Enable_GPIO_PD09_INT(enable);
 }
 
 
@@ -970,7 +910,8 @@ void Init_DM9000A(uint8_t* srcMac )
 	Setup_DM9000A( srcMac );
 
 	LoopQueue_init( &g_ExEthRecvQueue );
-	Init_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue );
+
+//	Init_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue );
 
 //	ReadID();
 //	ReadID();
@@ -1001,13 +942,19 @@ void* ExEthRecv(void)
 
 	LoopQueueItem* pRecvItem = NULL;
 
-	ENTER_CRITICAL_REGION();
+//	ENTER_CRITICAL_REGION();
+//
+//	ret = De_DM9000A_INT_EVENT_Queue(&g_Dm9000aIntEventQueue, &Elem);
+//
+//	EXIT_CRITICAL_REGION();
+//
+//	if(ret == 1 && Elem == 1)
+//	{
+//		Process_DM9000A_INT_Event();
+//	}
 
-	ret = De_DM9000A_INT_EVENT_Queue(&g_Dm9000aIntEventQueue, &Elem);
-
-	EXIT_CRITICAL_REGION();
-
-	if(ret == 1 && Elem == 1)
+	uint16_t irq = *pREG_PORTD_DATA & ADI_GPIO_PIN_9;
+	if(irq)
 	{
 		Process_DM9000A_INT_Event();
 	}

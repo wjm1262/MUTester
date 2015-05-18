@@ -7,6 +7,7 @@
 
 #include "dev_sport.h"
 #include "dev_pwr.h"
+#include "dev_gpio.h"
 #include "stdio.h"
 
 #define SPORT1_BCLK_PORTE_MUX  ((uint16_t) ((uint16_t) 2<<8))
@@ -110,11 +111,21 @@ static ADI_SPORT_RESULT  configureRx(void)
 /*
  * SPORT2-B init
  */
+static void Init_SPORT1B_FS_CLK_IO(void)
+{
+	// SPORT1B_FS
+	Set_GPIO_PE03_IODirection( ADI_GPIO_DIRECTION_OUTPUT );
+
+	//SPORT1B_CLK
+	Set_GPIO_PE04_IODirection( ADI_GPIO_DIRECTION_OUTPUT );
+}
 
 ADI_SPORT_RESULT Init_SPORT1B(void)
 {
 	/* Variable for storing the return code from UART device */
 	ADI_SPORT_RESULT  eSportResult;
+
+	Init_SPORT1B_FS_CLK_IO();
 
 	/* PORTx_MUX registers */
 	*pREG_PORTE_MUX |= SPORT1_BCLK_PORTE_MUX | SPORT1_BFS_PORTE_MUX

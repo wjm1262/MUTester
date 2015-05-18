@@ -49,10 +49,8 @@ void Task_AD7608( void* p_arg );
 
 
 void Task_exEth_Tx_Rx( void *p_arg );
-///
-void DM9000A_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt,const uint32_t event, void *pArg);
 
-extern DM9000A_INT_EVENT_QUEUE g_Dm9000aIntEventQueue;
+
 
 
 /*! Enters critical region */
