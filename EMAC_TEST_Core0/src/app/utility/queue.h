@@ -55,22 +55,6 @@ void Visit_Q ( QType *pQ );
 
 ////////////////////////////////////////////////////////
 
-#define DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE 100
-typedef struct
-{
-	int base[DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE];
-	int front;
-	int rear;
-} DM9000A_INT_EVENT_QUEUE;
-
-
-typedef DM9000A_INT_EVENT_QUEUE QueueType;
-
-int Init_DM9000A_INT_EVENT_Queue ( QueueType *pQ );
-
-int En_DM9000A_INT_EVENT_Queue( QueueType *pQ, int Elem);
-
-int De_DM9000A_INT_EVENT_Queue ( QueueType *pQ, int *pe );
 
 
 #endif

@@ -205,7 +205,7 @@ void RegisterExEthnetModual( void )
 	MuTesterSystem.Device.exEth.EthRecv				= ExEthRecv;
 
 //	MuTesterSystem.Device.exEth.RegisterMACIntCallback = RegisterMACIntCallback;
-	MuTesterSystem.Device.exEth.EnableMACIntInterrupt  = Enable_MAC_INT_Interrupt;
+//	MuTesterSystem.Device.exEth.EnableMACIntInterrupt  = Enable_MAC_INT_Interrupt;
 
 
 	MuTesterSystem.Device.exEth.InitExEthQueue		= init_exemac_queue;

@@ -156,40 +156,5 @@ void Visit_Q ( QType *pQ )  // 遍历队列
 }
 
 ////////////////////////
-int Init_DM9000A_INT_EVENT_Queue ( QueueType *pQ )
-{
-	pQ->front = pQ->rear = 0;
-	memset(pQ->base, 0, DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE*sizeof(int) );
-	return Q_OK;
-}
-
-int En_DM9000A_INT_EVENT_Queue( QueueType *pQ, int Elem)
-{
-	if ( ( pQ->rear + 1 ) % DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE == pQ->front )
-	{
-		return Q_ERROR;  // 入队前判断(预留一个存储单元)
-	}
-
-	*(pQ->base + pQ->rear ) = Elem;
-
-	pQ->rear = ( pQ->rear + 1 ) % DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE;  // 队列尾部指针增加1
-
-	return Q_OK;
-}
-
-int De_DM9000A_INT_EVENT_Queue ( QueueType *pQ, int *pe )
-{
-	if ( pQ->front == pQ->rear )
-	{
-		return Q_ERROR;  // 出队列前判断
-	}
-
-	*pe = *(pQ->base + pQ->front);
-
-	pQ->front = ( pQ->front + 1 ) % DM9000A_INT_EVENT_QUEUE_BUFFER_SIZE;
-
-	return Q_OK;
-}
-
 
 

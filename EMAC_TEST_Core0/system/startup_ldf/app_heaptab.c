@@ -1,5 +1,5 @@
 /*
-** ADSP-BF609 user heap source file generated on Apr 28, 2015 at 10:03:05.
+** ADSP-BF609 user heap source file generated on May 21, 2015 at 09:49:07.
 */
 /*
 ** Copyright (C) 2000-2014 Analog Devices Inc., All Rights Reserved.
@@ -32,9 +32,9 @@
 #endif /* _MISRA_RULES */
 
 
-
 extern "asm" unsigned long ldf_heap_space;
 extern "asm" unsigned long ldf_heap_length;
+
 extern "asm" int MyHeap3_space;
 extern "asm" int MyHeap3_length;
 extern "asm" int MyHeap2_space;

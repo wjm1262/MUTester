@@ -32,7 +32,7 @@ It provides information needed to link your code. It can be used to configure me
 					<crt>
 						<propertygroup name="cplb_init" value="true">
 							<property name="cplb_src_file" value="app_cplbtab.c"/>
-							<property name="cplb_ctrl" value="16"/>
+							<property name="cplb_ctrl" value="56"/>
 							<property name="cplb_obj_file" value="app_cplbtab.doj"/>
 							<property name="dcache_dcbs" value="unset"/>
 							<property name="cplb_src_alt" value="false"/>
@@ -55,7 +55,7 @@ It provides information needed to link your code. It can be used to configure me
 						<property name="use_default_handlers" value="true"/>
 						<property name="use_user_mod_crt" value="true"/>
 						<property name="use_custom_vector" value="false"/>
-						<property name="dcache_config" value="disable_dcache_and_cplb"/>
+						<property name="dcache_config" value="disable_dcache_and_enable_cplb"/>
 						<property name="detect_stackoverflow" value="false"/>
 						<property name="device_init" value="true"/>
 						<property name="icache_config" value="disable_icache_and_enable_cplb"/>
@@ -67,8 +67,8 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="size_units" value="MB"/>
 						</propertygroup>
 						<propertygroup name="system_heap" value="L1">
-							<property name="size_units" value="kB"/>
 							<property name="min_size" value="8"/>
+							<property name="size_units" value="kB"/>
 							<property name="customized" value="true"/>
 						</propertygroup>
 						<propertygroup name="system_stack" value="L1">
@@ -91,8 +91,8 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="heap_id" value="2"/>
 						</propertygroup>
 						<property name="use_eh" value="true"/>
-						<property name="use_full_cpplib" value="false"/>
 						<property name="user_heap_src_file" value="app_heaptab.c"/>
+						<property name="use_full_cpplib" value="false"/>
 						<property name="use_software_modules" value="false"/>
 						<property name="use_user_mod_ldf" value="true"/>
 						<property name="use_pgo_hw" value="false"/>
@@ -105,7 +105,6 @@ It provides information needed to link your code. It can be used to configure me
 				<peripheral description="EMAC Module" name="ETH0">
 					<signal bit="12" mux="0" name="MDC" pin="6" port="C"/>
 					<signal bit="14" mux="0" name="MDIO" pin="7" port="C"/>
-					<signal bit="12" mux="0" name="PHYINT" pin="6" port="D"/>
 					<signal bit="4" mux="0" name="TXD0" pin="2" port="C"/>
 					<signal bit="6" mux="0" name="TXD1" pin="3" port="C"/>
 					<signal bit="26" mux="0" name="TXEN" pin="13" port="B"/>
@@ -152,9 +151,6 @@ It provides information needed to link your code. It can be used to configure me
 					<signal bit="14" name="PC07" pin="7" port="C"/>
 					<signal bit="18" name="PC09" pin="9" port="C"/>
 					<signal bit="22" name="PC11" pin="11" port="C"/>
-				</gpio>
-				<gpio name="Port D">
-					<signal bit="12" name="PD06" pin="6" port="D"/>
 				</gpio>
 				<gpio name="Port E">
 					<signal bit="20" name="PE10" pin="10" port="E"/>

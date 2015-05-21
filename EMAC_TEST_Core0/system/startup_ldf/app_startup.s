@@ -1,5 +1,5 @@
 /*
-** ADSP-BF609 startup code generated on Apr 28, 2015 at 10:03:04.
+** ADSP-BF609 startup code generated on May 21, 2015 at 09:49:07.
 */
 /*
 ** Copyright (C) 2000-2014 Analog Devices Inc., All Rights Reserved.
@@ -266,7 +266,7 @@ supervisor_mode:
 #if WA_16000005 || WA_16000042  /* L1 I-Cache with Parity Enabled anomalies. */
       // If L1 instruction cache is enabled, then disable L1 instruction
       // parity checking (IMEM_CONTROL.RDCHK).
-      R0 = 16;              // cplb_ctrl = 16
+      R0 = 56;              // cplb_ctrl = 56
       CC = BITTST(R0, CPLB_ENABLE_ICACHE_P);
       IF !CC JUMP .skip_disable_l1_instruction_parity;
       LOADIMM32REG(P2, IMEM_CONTROL)
@@ -281,7 +281,7 @@ supervisor_mode:
 
       // initialize the CPLBs if they're needed. This was not possible
       // before we set up the stacks.
-      R0 = 16;              // cplb_ctrl = 16
+      R0 = 56;              // cplb_ctrl = 56
       .EXTERN _cplb_init;
       .TYPE _cplb_init,STT_FUNC;
       CALL.X _cplb_init;
@@ -289,7 +289,7 @@ supervisor_mode:
       // Define and initialize the CPLB control variable.
       .SECTION/DOUBLEANY cplb_data;
       .ALIGN 4;
-      .BYTE4 ___cplb_ctrl = 16;
+      .BYTE4 ___cplb_ctrl = 56;
       .GLOBAL ___cplb_ctrl;
       .TYPE ___cplb_ctrl,STT_OBJECT;
 

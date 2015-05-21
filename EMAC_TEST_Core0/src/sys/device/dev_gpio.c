@@ -169,7 +169,7 @@ ADI_GPIO_RESULT Init_GPIO_PD06_INT( void )
 	    //分配具体引脚和中断方式
 	    result = adi_gpio_SetPinIntEdgeSense(ADI_GPIO_PIN_INTERRUPT_3,
 	    		ADI_GPIO_PIN_6,
-	    		ADI_GPIO_SENSE_FALLING_EDGE);
+	    		ADI_GPIO_SENSE_FALLING_EDGE);//
 	    if(result != ADI_GPIO_SUCCESS)
 	    {
 	    	DEBUG_PRINT("Failed in function Init_GPIO_PD06_INT/adi_gpio_SetPinIntEdgeSense : %d\n\n",result);
@@ -346,7 +346,81 @@ ADI_GPIO_RESULT Set_GPIO_PB11_IODirection( ADI_GPIO_DIRECTION Direction )
 	return result;
 }
 
+/**************************************GPIO PG08***********************************/
+
+ADI_GPIO_RESULT Set_GPIO_PG08_IODirection( ADI_GPIO_DIRECTION Direction )
+{
+	ADI_GPIO_RESULT result;
+	result = adi_gpio_SetDirection(
+				ADI_GPIO_PORT_G,
+				ADI_GPIO_PIN_8,
+				Direction);
+
+	if (result != ADI_GPIO_SUCCESS)
+	{
+		DEBUG_PRINT("Set_GPIO_PD06_IODirection failed : %d\n\n", result);
+	}
+
+	return result;
+}
+
+ADI_GPIO_RESULT Init_GPIO_PG08_INT( void )
+{
+	ADI_GPIO_RESULT result;
+	do
+	{
+		 //分配IRQ和字节
+		result = adi_gpio_PinInterruptAssignment(ADI_GPIO_PIN_INTERRUPT_5,
+				ADI_GPIO_PIN_ASSIGN_BYTE_1,
+				ADI_GPIO_PIN_ASSIGN_PGH_PINT5);
+	    if(result != ADI_GPIO_SUCCESS)
+	    {
+	    	DEBUG_PRINT("Failed in function Init_GPIO_PG08_INT/adi_gpio_PinInterruptAssignment : %d\n\n",result);
+	  		  break;
+	    }
+
+	    //分配具体引脚和中断方式
+	    result = adi_gpio_SetPinIntEdgeSense(ADI_GPIO_PIN_INTERRUPT_3,
+	    		ADI_GPIO_PIN_8,
+	    		ADI_GPIO_SENSE_FALLING_EDGE);
+	    if(result != ADI_GPIO_SUCCESS)
+	    {
+	    	DEBUG_PRINT("Failed in function Init_GPIO_PG08_INT/adi_gpio_SetPinIntEdgeSense : %d\n\n",result);
+	  		  break;
+	    }
 
 
+	}while(0);
 
+	return result;
+}
+
+void Register_Callback_GPIO_PG08_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam )
+{
+	ADI_GPIO_RESULT result;
+	 //登记IRQ回调函数
+	result = adi_gpio_RegisterCallback(ADI_GPIO_PIN_INTERRUPT_5,
+										ADI_GPIO_PIN_8,
+										handler,
+										pCBParam);
+	if(result != ADI_GPIO_SUCCESS)
+	{
+		DEBUG_PRINT("Failed in function Register_Callback_GPIO_PG08_INT : %d\n\n",result);
+	}
+}
+
+void Enable_GPIO_PG08_INT(bool enable)
+{
+	ADI_GPIO_RESULT result;
+
+	//使能中断
+	result = adi_gpio_EnablePinInterruptMask(ADI_GPIO_PIN_INTERRUPT_5,
+											ADI_GPIO_PIN_8,
+											enable);
+	if(result != ADI_GPIO_SUCCESS)
+	{
+		DEBUG_PRINT("Failed in function Enable_GPIO_PG08_INT : %d\n\n",result);
+	}
+
+}
 

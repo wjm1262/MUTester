@@ -75,9 +75,9 @@ void myMDAM_Callback (void *pCBParam, uint32_t event, void *pArg)
 	switch ( event )
 	{
 		case ADI_DMA_EVENT_BUFFER_PROCESSED:
-//			memcpy(&ptr, &(((uint8_t *)pArg)[1540]), 4);
-			//send by eth1
-			MuTesterSystem.Device.Eth1.Write( g_hEthDev[1], ptr);
+
+			//send by eth0
+			MuTesterSystem.Device.Eth0.Write( g_hEthDev[0], ptr);
 
 //			//send by exEth
 //			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, ptr);
@@ -269,11 +269,12 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpC
 
 static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
 {
-
+#if 0
 	SubmitBuffer_SPORT1B();
 
 	/* Enable the SPORT2-B Rx  D0 and DMA */
 	Enable_SPORT1B();
+#endif
 }
 
 
@@ -318,14 +319,13 @@ static void SPORTCallbackRx(
         /* CASE (buffer processed) */
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
 
-        		/* user process the AD data*/
-//        		extern AD7608_DATA *pAD7608_DATA_Check;
+          		/* user process the AD data*/
+				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
+        		g_TaskADPara.pStandardADFrmSendBuf = des;
 
-
-        		/* user process the AD data*/
-				des = pop_queue( &user_net_config_info[1].xmt_buffers_queue );
-
-				g_TaskADPara.pStandardADFrmSendBuf = des;
+//        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
+//        		g_TaskADPara.pStandardADFrmSendBuf = des;
+//
 
 				pFrmData = (IEC61850_9_2 *)Packet_9_2Frame2( pArg, 2);
 
@@ -377,7 +377,7 @@ static void SPORTCallbackRx2(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
         	/* user process the AD data*/
 
-        	if(g_rtParams.U8Parameter[U8PARA_NET_SEND1] | g_rtParams.U8Parameter[U8PARA_NET_SEND2])
+        	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1]) || ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
         	{
         		ADData2SmvFrm( pArg, 32, g_TaskADPara.usSmpCnt);
         	}

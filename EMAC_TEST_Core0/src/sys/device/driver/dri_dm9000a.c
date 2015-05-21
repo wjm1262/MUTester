@@ -76,36 +76,36 @@
 #define SMC0_BG_PORTB_FER  ((uint32_t) ((uint32_t) 1<<12))
 #define SMC0_BGH_PORTB_FER  ((uint32_t) ((uint32_t) 1<<9))
 
-#include "dri_adi_gemac.h"
-#include "dri_dm9000a.h"
-
-#include "dev_pwr.h"
-#include "dev_gpio.h"
-
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <ccblkfn.h>
 #include <math.h>
-
 #include <services/gpio/adi_gpio.h>
+
+#include "dri_adi_gemac.h"
+#include "dri_dm9000a.h"
+
+#include "dev_pwr.h"
+#include "dev_gpio.h"
 
 #include "post_debug.h"
 
 #include "loop_queue.h"
-#include "queue.h"
+
 
 
 typedef LoopQueue EXETH_RECV_Queue;
 
 section ("sdram_bank0") EXETH_RECV_Queue g_ExEthRecvQueue;
-DM9000A_INT_EVENT_QUEUE g_Dm9000aIntEventQueue;
+
+
 
 static uint8_t DM9000A_MAC[6] = {0x00,0x02,0x03,0x04,0x05,0x06};//{0xe1,0x2e,0x4f,0xff,0x55,0xab};
 static uint8_t MulticastFilter[8]   = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};//{0xff , 0xff , 0xff , 0xff , 0xff, 0xff};
 
-#define HAL_VER1_0 0
+#define HAL_VER1_0 1
 
 
 /*
@@ -443,10 +443,10 @@ static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
 
 
 #if HAL_VER1_0
-		//		/* Use DMA we should cancel the multiplex. */
-		//		*pREG_PORTA_FER &= ~SMC0_A03_PORTA_FER;
-		//		/* set the A03 to 1, means always write data in DMA process. */
-		//		*pREG_PORTA_DATA_SET = ADI_GPIO_PIN_0;
+		/* Use DMA we should cancel the multiplex. */
+		*pREG_PORTA_FER &= ~SMC0_A03_PORTA_FER;
+		/* set the A03 to 1, means always write data in DMA process. */
+		*pREG_PORTA_DATA_SET = ADI_GPIO_PIN_0;
 #else
 
 //		*pREG_PORTB_FER &= ~SMC0_A25_PORTB_FER;
@@ -499,7 +499,7 @@ static void RxMDAM_Callback2 (void *pCBParam, uint32_t event, void *pArg)
 #if HAL_VER1_0
 			/* Resume A03 in SMC mode */
 			*pREG_PORTA_FER |= SMC0_A03_PORTA_FER;
-//			g_IsReadySend = true;
+			g_bRxMDMAIsReady = true;
 #else
 			/* Resume A25 in SMC mode */
 //			*pREG_PORTB_FER |= SMC0_A25_PORTB_FER;
@@ -722,17 +722,6 @@ static void TxMDAM_Callback3 (void *pCBParam, uint32_t event, void *pArg)
 
 
 /*
- * DM9000A IRQ ISR
- */
-void DM9000A_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt,const uint32_t event, void *pArg)
-{
-	//Push DM9000a INT Event Queue
-
-	En_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue, 1);
-
-}
-
-/*
  * DM9000A_IRQ_Init
  *
  */
@@ -765,22 +754,8 @@ static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
 	result = Set_GPIO_PD09_IODirection(ADI_GPIO_DIRECTION_INPUT);
 
 
-//	result = Init_GPIO_PD09_INT();
-//
-//	if(result == ADI_GPIO_SUCCESS)
-//	{
-//		Register_Callback_GPIO_PD09_INT(DM9000A_ISR, NULL);
-//
-//		Enable_GPIO_PD09_INT(false);
-//	}
 
 	return result;
-}
-
-
-void Enable_MAC_INT_Interrupt( bool enable )
-{
-	Enable_GPIO_PD09_INT(enable);
 }
 
 
@@ -911,7 +886,6 @@ void Init_DM9000A(uint8_t* srcMac )
 
 	LoopQueue_init( &g_ExEthRecvQueue );
 
-//	Init_DM9000A_INT_EVENT_Queue( &g_Dm9000aIntEventQueue );
 
 //	ReadID();
 //	ReadID();
@@ -942,16 +916,6 @@ void* ExEthRecv(void)
 
 	LoopQueueItem* pRecvItem = NULL;
 
-//	ENTER_CRITICAL_REGION();
-//
-//	ret = De_DM9000A_INT_EVENT_Queue(&g_Dm9000aIntEventQueue, &Elem);
-//
-//	EXIT_CRITICAL_REGION();
-//
-//	if(ret == 1 && Elem == 1)
-//	{
-//		Process_DM9000A_INT_Event();
-//	}
 
 	uint16_t irq = *pREG_PORTD_DATA & ADI_GPIO_PIN_9;
 	if(irq)

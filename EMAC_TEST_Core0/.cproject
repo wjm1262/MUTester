@@ -54,7 +54,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src/protocol&quot;"/>
 								</option>
 								<option id="compiler.option.threads.708385600" name="Enable toolchain RTOS support (-threads)" superClass="compiler.option.threads" value="false" valueType="boolean"/>
-								<option id="blackfin.compiler.option.cplbenable.1550947158" name="CPLBs are enabled (-cplbs)" superClass="blackfin.compiler.option.cplbenable" value="false" valueType="boolean"/>
+								<option id="blackfin.compiler.option.cplbenable.1550947158" name="CPLBs are enabled (-cplbs)" superClass="blackfin.compiler.option.cplbenable" value="true" valueType="boolean"/>
 								<inputType id="compiler.inputType.1763633288" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="blackfin.toolchain.linker.276524186" name="CrossCore Blackfin Linker" superClass="blackfin.toolchain.linker">
@@ -147,7 +147,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/system}&quot;"/>
 								</option>
 								<option id="compiler.option.threads.70507322" name="Enable toolchain RTOS support (-threads)" superClass="compiler.option.threads" value="false" valueType="boolean"/>
-								<option id="blackfin.compiler.option.cplbenable.1764100722" name="CPLBs are enabled (-cplbs)" superClass="blackfin.compiler.option.cplbenable" value="false" valueType="boolean"/>
+								<option id="blackfin.compiler.option.cplbenable.1764100722" name="CPLBs are enabled (-cplbs)" superClass="blackfin.compiler.option.cplbenable" value="true" valueType="boolean"/>
 								<inputType id="compiler.inputType.244434370" name="C/C++ Source" superClass="compiler.inputType"/>
 							</tool>
 							<tool id="blackfin.toolchain.linker.47080046" name="CrossCore Blackfin Linker" superClass="blackfin.toolchain.linker">

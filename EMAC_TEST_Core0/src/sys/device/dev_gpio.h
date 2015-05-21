@@ -36,5 +36,9 @@ ADI_GPIO_RESULT Set_GPIO_PE03_IODirection( ADI_GPIO_DIRECTION Direction );
 //////////// PE04 for SPORT1B_CLK
 ADI_GPIO_RESULT Set_GPIO_PE04_IODirection( ADI_GPIO_DIRECTION Direction );
 
-
+/**************************************GPIO PG08***********************************/
+ADI_GPIO_RESULT Set_GPIO_PG08_IODirection( ADI_GPIO_DIRECTION Direction );
+ADI_GPIO_RESULT Init_GPIO_PG08_INT( void );
+void Register_Callback_GPIO_PG08_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam );
+void Enable_GPIO_PG08_INT(bool enable);
 #endif /* DEV_GPIO_H_ */

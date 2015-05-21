@@ -854,8 +854,9 @@ static void process_int2 ( ADI_EMAC_DEVICE *pDev, ADI_EMAC_CHANNEL *pChannel )
 		/* if any descriptor is owned by host we will break */
 		if ( pCurDmaDesc->Status & ADI_EMAC_DMAOWN )
 		{
-			pLastBuf->pNext = NULL;
 			pLastDmaDesc->pNextDesc  = NULL;
+			pLastBuf->pNext = NULL;
+
 			break;
 		}
 

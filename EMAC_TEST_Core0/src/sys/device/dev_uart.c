@@ -18,7 +18,7 @@
 #include "dev_uart.h"
 
 #include "dev_timer_isr.h"
-
+#include "dev_pwr.h"
 
 
 /*******************************************************************
@@ -48,7 +48,7 @@ char UART_DEBUG_BUFFER[UART_DEBUG_BUFFER_LINE_SIZE];
 void Init_UART0(void)
 {
 	static bool bInitialized = false;
-
+	unsigned int sclk0;
 	*pREG_PORTD_FER_SET |= 0x180;
 	ssync();
 
@@ -82,7 +82,10 @@ void Init_UART0(void)
 //	*pREG_UART0_CLK = 0x8000058e;//SCLK,163.84m,115200
 //	*pREG_UART0_CLK = 0x800003e4;//SCLK,114.688m,115200
 //	*pREG_UART0_CLK = 0x8000043d;//SCLK0:125M,115200
-	*pREG_UART0_CLK = 0x800002B6;//SCLK0:85M,115200
+//	*pREG_UART0_CLK = 0x800002B6;//SCLK0:80M,115200
+	sclk0 = (SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL);
+	*pREG_UART0_CLK = 0x80000000 |(sclk0/115200);
+
 	/* reroute tx/rx interrupts to status interrupt output */
 	*pREG_UART0_IMSK_SET = 0x180;
 

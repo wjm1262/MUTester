@@ -34,7 +34,7 @@
 // 1600,1548
 
 /*! size of the memory block to allocate to the stack.  */
-const unsigned g_ctEthHeapSize[3]={1024*1024*12, 1024*1024*12,1024*1024*12};
+const unsigned g_ctEthHeapSize[3]={1024*1024*12, 1024*1024*12,1024*1024*14};
 
 
 //0:eth0; 1:eth1; 2:exEth;
@@ -83,7 +83,7 @@ ETH_CFG_INFO user_net_config_info[3] =
 	{
 		0,
 		0,//rx
-		12000,//tx
+		14000,//tx
 		648,
 		648,
 		0,

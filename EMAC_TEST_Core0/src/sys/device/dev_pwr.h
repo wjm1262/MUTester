@@ -33,7 +33,7 @@
 #define SYS_CLKIN 20000000
 /* Default values for the parameters */
 //#define  MULTIPLIER_SEL		14
-#define  MULTIPLIER_SEL		16
+#define  MULTIPLIER_SEL		20
 //#define  MULTIPLIER_SEL		16
 #define	 DF_SEL				0
 #define  CCLK_SEL			1

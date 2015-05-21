@@ -302,7 +302,7 @@ int main(void)
 		if(pXmtBuf)
 		{
 			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
-#if 1
+#if 0
 			if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
 			{
 				IntegrityTest0( pForwardFrm);
