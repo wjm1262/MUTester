@@ -12,6 +12,7 @@
 #include "dri_dm9000a.h"
 #include "loop_queue.h"
 #include "queue.h"
+
 /*! Frame queue */
 typedef struct EXEMAC_FRAME_Q
 {
@@ -24,8 +25,9 @@ typedef struct EXEMAC_FRAME_Q
 } EXEMAC_FRAME_Q;
 
 
-extern EXEMAC_FRAME_Q g_ExEthXmtQueue;
-
+extern EXEMAC_FRAME_Q g_ExEthXmtQueueEth0;
+extern EXEMAC_FRAME_Q g_ExEthXmtQueueEth1;
+extern EXEMAC_FRAME_Q g_ExEthXmtQueueAD;
 
 
 void RegisterExEthnetModual(void);

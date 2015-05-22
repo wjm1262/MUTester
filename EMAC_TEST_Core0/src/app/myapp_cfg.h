@@ -91,7 +91,7 @@ typedef struct eth_cfg_info
 
 } ETH_CFG_INFO;
 
-extern ETH_CFG_INFO user_net_config_info[3];
+extern ETH_CFG_INFO user_net_config_info[5];
 extern unsigned long int user_net_num_ifces;
 
 int Alloc_EthMem(void);

@@ -22,6 +22,7 @@
 
 
 
+
 #define CHECK_ETH_RESULT(result, message)           \
    if(result != ADI_ETHER_RESULT_SUCCESS)                       \
    {                                              \
@@ -267,9 +268,9 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 				//CHECK_ETH_RESULT(eResult, "Eth0.Read");
 #else
 				//send by exEth
-				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
+				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueEth0, pFrmHead);
 				// get n buffers
-				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
+				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueEth0, n );
 				// Add buffers to eth0
 				//MuTesterSystem.Device.Eth0.Read( g_hEthDev[0], pNewBuffer );
 				adi_ether_GemacRead( g_hEthDev[0], pNewBuffer );
@@ -371,9 +372,9 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 				MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
 #else
 				//send by exEth
-				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, pFrmHead);
+				MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueEth1, pFrmHead);
 				// get n buffers
-				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, n );
+				pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueEth1, n );
 				// Add buffers to eth1
 				MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
 #endif
@@ -410,10 +411,20 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 void Task_exEth_Tx_Rx( void *p_arg )
 {
 	//tx mem
-	MuTesterSystem.Device.exEth.InitExEthQueue(&g_ExEthXmtQueue,
+	MuTesterSystem.Device.exEth.InitExEthQueue(&g_ExEthXmtQueueEth0,
 			user_net_config_info[2].xmt_buffers_queue.pQueueHead);
 
 	clear_queue(&user_net_config_info[2].xmt_buffers_queue);
+
+	MuTesterSystem.Device.exEth.InitExEthQueue(&g_ExEthXmtQueueEth1,
+				user_net_config_info[3].xmt_buffers_queue.pQueueHead);
+
+	clear_queue(&user_net_config_info[3].xmt_buffers_queue);
+
+	MuTesterSystem.Device.exEth.InitExEthQueue(&g_ExEthXmtQueueAD,
+					user_net_config_info[4].xmt_buffers_queue.pQueueHead);
+
+	clear_queue(&user_net_config_info[4].xmt_buffers_queue);
 
 	//dev
 	MuTesterSystem.Device.exEth.InitExEthnet(user_net_config_info[2].hwaddr);

@@ -288,7 +288,7 @@ int main(void)
 	//
 	Init_IEC_9_2();
 
-//	Task_AD7608( NULL );
+	Task_AD7608( NULL );
 
 	LoopQueueItem* pRecvItem;
 	uint8_t* pForwardFrm = NULL;
@@ -298,25 +298,25 @@ int main(void)
 	while(1)
 	{
 		//
-		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueue );
+		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueueEth0 );
 		if(pXmtBuf)
 		{
 			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
-#if 0
-			if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
-			{
-				IntegrityTest0( pForwardFrm);
-			}
-			else if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x02) )
-			{
-				IntegrityTest1( pForwardFrm);
-			}
-#endif
-
 			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
+		}
 
-//			DEBUG_STATEMENT("send ok\n\n");
+		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueueEth1 );
+		if(pXmtBuf)
+		{
+			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
+			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
+		}
 
+		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueueAD );
+		if(pXmtBuf)
+		{
+			pForwardFrm = (uint8_t*)pXmtBuf->Data +2;
+			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 		}
 
 //		pRecvItem = (LoopQueueItem*)MuTesterSystem.Device.exEth.EthRecv();

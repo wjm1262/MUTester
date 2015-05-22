@@ -77,16 +77,11 @@ void myMDAM_Callback (void *pCBParam, uint32_t event, void *pArg)
 		case ADI_DMA_EVENT_BUFFER_PROCESSED:
 
 			//send by eth0
-			MuTesterSystem.Device.Eth0.Write( g_hEthDev[0], ptr);
+//			MuTesterSystem.Device.Eth0.Write( g_hEthDev[0], ptr);
 
-//			//send by exEth
-//			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, ptr);
-//
-//			// get n buffers
-//			pNewBuffer = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
-//
-//			// Add buffers to eth1
-//			MuTesterSystem.Device.Eth1.Read( g_hEthDev[1], pNewBuffer );
+			//send by exEth
+			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueAD, ptr);
+
 
 			break;
 		default:
@@ -235,7 +230,7 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpC
 	int nFrmLen = 0;
 
 	/* user process the AD data*/
-	pBuf = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
+	pBuf = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
 	g_TaskADPara.pStandardADFrmSendBuf = pBuf;
 
 	if(!pBuf)
@@ -261,7 +256,7 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpC
 	g_TaskADPara.pStandardADFrmSendBuf->StatusWord = 0; 	// changes from 0 to the status info
 
 	//send by exEth
-	MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueue, g_TaskADPara.pStandardADFrmSendBuf);
+	MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueAD, g_TaskADPara.pStandardADFrmSendBuf);
 	g_TaskADPara.pStandardADFrmSendBuf = NULL;
 }
 
@@ -269,7 +264,7 @@ void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpC
 
 static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
 {
-#if 0
+#if 1
 	SubmitBuffer_SPORT1B();
 
 	/* Enable the SPORT2-B Rx  D0 and DMA */
@@ -320,23 +315,22 @@ static void SPORTCallbackRx(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
 
           		/* user process the AD data*/
-				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
-        		g_TaskADPara.pStandardADFrmSendBuf = des;
-
-//        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueue, 1 );
+//				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
 //        		g_TaskADPara.pStandardADFrmSendBuf = des;
 //
+//        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
+//        		g_TaskADPara.pStandardADFrmSendBuf = des;
 
 				pFrmData = (IEC61850_9_2 *)Packet_9_2Frame2( pArg, 2);
 
-				des->ElementCount  = pFrmData->FrameLen + 2;
-				des->pNext         = NULL;
-
-				adi_mdma_Copy1D(hMemDmaStream,
-									(uint8_t *)des->Data+2,
-									(pFrmData->SendBuff + pFrmData->offset + 1),
-									ADI_DMA_MSIZE_1BYTE,
-									pFrmData->FrameLen);
+//				des->ElementCount  = pFrmData->FrameLen + 2;
+//				des->pNext         = NULL;
+//
+//				adi_mdma_Copy1D(hMemDmaStream,
+//									(uint8_t *)des->Data+2,
+//									(pFrmData->SendBuff + pFrmData->offset + 1),
+//									ADI_DMA_MSIZE_1BYTE,
+//									pFrmData->FrameLen);
 
             break;
         default:
