@@ -315,22 +315,22 @@ static void SPORTCallbackRx(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
 
           		/* user process the AD data*/
-//				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
-//        		g_TaskADPara.pStandardADFrmSendBuf = des;
-//
-//        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
-//        		g_TaskADPara.pStandardADFrmSendBuf = des;
+				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
+        		g_TaskADPara.pStandardADFrmSendBuf = des;
+
+        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
+        		g_TaskADPara.pStandardADFrmSendBuf = des;
 
 				pFrmData = (IEC61850_9_2 *)Packet_9_2Frame2( pArg, 2);
 
-//				des->ElementCount  = pFrmData->FrameLen + 2;
-//				des->pNext         = NULL;
-//
-//				adi_mdma_Copy1D(hMemDmaStream,
-//									(uint8_t *)des->Data+2,
-//									(pFrmData->SendBuff + pFrmData->offset + 1),
-//									ADI_DMA_MSIZE_1BYTE,
-//									pFrmData->FrameLen);
+				des->ElementCount  = pFrmData->FrameLen + 2;
+				des->pNext         = NULL;
+
+				adi_mdma_Copy1D(hMemDmaStream,
+									(uint8_t *)des->Data+2,
+									(pFrmData->SendBuff + pFrmData->offset + 1),
+									ADI_DMA_MSIZE_1BYTE,
+									pFrmData->FrameLen);
 
             break;
         default:

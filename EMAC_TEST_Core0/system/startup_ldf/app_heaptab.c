@@ -1,5 +1,5 @@
 /*
-** ADSP-BF609 user heap source file generated on May 21, 2015 at 09:49:07.
+** ADSP-BF609 user heap source file generated on May 26, 2015 at 17:42:31.
 */
 /*
 ** Copyright (C) 2000-2014 Analog Devices Inc., All Rights Reserved.
@@ -34,13 +34,13 @@
 
 extern "asm" unsigned long ldf_heap_space;
 extern "asm" unsigned long ldf_heap_length;
-
 extern "asm" int MyHeap3_space;
 extern "asm" int MyHeap3_length;
 extern "asm" int MyHeap2_space;
 extern "asm" int MyHeap2_length;
 extern "asm" int MyHeap1_space;
 extern "asm" int MyHeap1_length;
+
 struct heap_table_t
 {
   void          *base;
@@ -52,13 +52,12 @@ struct heap_table_t
 #pragma section("constdata")
 struct heap_table_t heap_table[5] =
 {
+	{ &ldf_heap_space, (unsigned long) &ldf_heap_length, 0 },
+	{ &MyHeap1_space, (unsigned long) &MyHeap1_length, 1 },
+	{ &MyHeap2_space, (unsigned long) &MyHeap2_length, 2 },
+	{ &MyHeap3_space, (unsigned long) &MyHeap3_length, 3 },
 
-  { &ldf_heap_space, (unsigned long) &ldf_heap_length, 0 },
-  { &MyHeap1_space, (unsigned long) &MyHeap1_length, 1 },
-  { &MyHeap2_space, (unsigned long) &MyHeap2_length, 2 },
-  { &MyHeap3_space, (unsigned long) &MyHeap3_length, 3 },
-
-  { 0, 0, 0 }
+	{ 0, 0, 0 }
 };
 
 #ifdef _MISRA_RULES

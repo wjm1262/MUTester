@@ -5,6 +5,7 @@
  *      Author: ChiliWang
  */
 #include "dev_smc.h"
+
 #include <ccblkfn.h>
 #include <services/int/adi_int.h>
 #include <services/int/adi_sec.h>
@@ -79,14 +80,6 @@
 #define SMC0_NORCLK_PORTB_FER  ((uint16_t) ((uint16_t) 1<<0))
 #define SMC0_BG_PORTB_FER  ((uint32_t) ((uint32_t) 1<<12))
 #define SMC0_BGH_PORTB_FER  ((uint32_t) ((uint32_t) 1<<9))
-
-
-#define pBANK1_ADDR_BASE        ((volatile unsigned short *)0XB4000000)
-#define pBANK1_EMAC_CTR_BASE    ((volatile unsigned short *)0XB4080000)
-#define pBANK1_ADHD_CTR_BASE    ((volatile unsigned short *)0XB4100000)
-#define pBANK1_ADS1278_CTR_BASE ((volatile unsigned short *)0XB4200000)
-#define pBANK1_AD7608_CTR_BASE  ((volatile unsigned short *)0XB4280000)
-
 
 
 /*

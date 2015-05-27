@@ -21,7 +21,7 @@
 							<tool id="blackfin.toolchain.assembler.268743446" name="CrossCore Blackfin Assembler" superClass="blackfin.toolchain.assembler">
 								<option id="assembler.option.debugcode.976791203" name="Generate debug information (-g)" superClass="assembler.option.debugcode"/>
 								<option id="assembler.option.proc.1137646123" name="-proc" superClass="assembler.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="assembler.option.sirevision.666364409" name="-si-revision" superClass="assembler.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="assembler.option.sirevision.666364409" name="-si-revision" superClass="assembler.option.sirevision" value=" any" valueType="string"/>
 								<option id="assembler.option.preprocessdefs.1701703270" name="Preprocessor definitions (-D):" superClass="assembler.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
@@ -36,7 +36,7 @@
 								<option id="compiler.option.optimization.1513706004" name="Enable optimization (-O)" superClass="compiler.option.optimization"/>
 								<option id="compiler.option.debugcode.616128218" name="Generate debug information (-g)" superClass="compiler.option.debugcode"/>
 								<option id="compiler.option.proc.1276916356" name="-proc" superClass="compiler.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="compiler.option.sirevision.1790335043" name="-si-revision" superClass="compiler.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="compiler.option.sirevision.1790335043" name="-si-revision" superClass="compiler.option.sirevision" value=" any" valueType="string"/>
 								<option id="compiler.option.preprocessdefs.1223008532" name="Preprocessor definitions (-D):" superClass="compiler.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="_DEBUG"/>
@@ -62,7 +62,7 @@
 								<option id="linker.option.eliminateunused.1695603260" name="Eliminate unused objects (-e)" superClass="linker.option.eliminateunused" value="true" valueType="boolean"/>
 								<option id="linker.option.usedbglib.1564483380" name="Use Debug System libraries (-add-debug-libpaths)" superClass="linker.option.usedbglib"/>
 								<option id="linker.option.proc.1364601201" name="-proc" superClass="linker.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="linker.option.sirevision.1947141006" name="-si-revision" superClass="linker.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="linker.option.sirevision.1947141006" name="-si-revision" superClass="linker.option.sirevision" value=" any" valueType="string"/>
 								<option id="linker.option.preprocessdefs.454112324" name="Preprocessor definitions (-MD)" superClass="linker.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -80,11 +80,11 @@
 							</tool>
 							<tool id="blackfin.toolchain.archiver.694195403" name="CrossCore Blackfin Archiver" superClass="blackfin.toolchain.archiver">
 								<option id="archiver.option.proc.1879151764" name="-proc" superClass="archiver.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="archiver.option.sirevision.363807706" name="-si-revision" superClass="archiver.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="archiver.option.sirevision.363807706" name="-si-revision" superClass="archiver.option.sirevision" value=" any" valueType="string"/>
 							</tool>
 							<tool id="blackfin.toolchain.loader.703748597" name="CrossCore Blackfin Loader" superClass="blackfin.toolchain.loader">
 								<option id="loader.option.proc.1113311898" name="-proc" superClass="loader.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="loader.option.sirevision.1917525530" name="-si-revision" superClass="loader.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="loader.option.sirevision.1917525530" name="-si-revision" superClass="loader.option.sirevision" value=" any" valueType="string"/>
 								<option id="blackfin.loader.option.enumerated.bootmode.1353707622" name="Boot mode (-b)" superClass="blackfin.loader.option.enumerated.bootmode" value="blackfin.loader.option.boot.enumerated.memory" valueType="enumerated"/>
 								<option id="blackfin.loader.option.enumerated.progflag.1170499565" name="Programmable flag" superClass="blackfin.loader.option.enumerated.progflag"/>
 								<option id="blackfin.loader.option.enumerated.bootformat.1130427360" name="Boot format (-f)" superClass="blackfin.loader.option.enumerated.bootformat" value="blackfin.loader.option.format.enumerated.binary" valueType="enumerated"/>
@@ -123,7 +123,7 @@
 							<tool id="blackfin.toolchain.assembler.341422476" name="CrossCore Blackfin Assembler" superClass="blackfin.toolchain.assembler">
 								<option id="assembler.option.debugcode.1284758929" name="Generate debug information (-g)" superClass="assembler.option.debugcode" value="false" valueType="boolean"/>
 								<option id="assembler.option.proc.1674701947" name="-proc" superClass="assembler.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="assembler.option.sirevision.1915985191" name="-si-revision" superClass="assembler.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="assembler.option.sirevision.1915985191" name="-si-revision" superClass="assembler.option.sirevision" value=" any" valueType="string"/>
 								<option id="assembler.option.preprocessdefs.1471875540" name="Preprocessor definitions (-D):" superClass="assembler.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
@@ -138,7 +138,7 @@
 								<option id="compiler.option.optimization.1455729009" name="Enable optimization (-O)" superClass="compiler.option.optimization" value="true" valueType="boolean"/>
 								<option id="compiler.option.debugcode.1850046781" name="Generate debug information (-g)" superClass="compiler.option.debugcode" value="false" valueType="boolean"/>
 								<option id="compiler.option.proc.1716068068" name="-proc" superClass="compiler.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="compiler.option.sirevision.756250005" name="-si-revision" superClass="compiler.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="compiler.option.sirevision.756250005" name="-si-revision" superClass="compiler.option.sirevision" value=" any" valueType="string"/>
 								<option id="compiler.option.preprocessdefs.149926378" name="Preprocessor definitions (-D):" superClass="compiler.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
@@ -155,7 +155,7 @@
 								<option id="linker.option.eliminateunused.889477865" name="Eliminate unused objects (-e)" superClass="linker.option.eliminateunused" value="true" valueType="boolean"/>
 								<option id="linker.option.usedbglib.179225161" name="Use Debug System libraries (-add-debug-libpaths)" superClass="linker.option.usedbglib" value="false" valueType="boolean"/>
 								<option id="linker.option.proc.1232053251" name="-proc" superClass="linker.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="linker.option.sirevision.1340671180" name="-si-revision" superClass="linker.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="linker.option.sirevision.1340671180" name="-si-revision" superClass="linker.option.sirevision" value=" any" valueType="string"/>
 								<option id="linker.option.preprocessdefs.856816513" name="Preprocessor definitions (-MD)" superClass="linker.option.preprocessdefs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CORE0"/>
 									<listOptionValue builtIn="false" value="RELEASE"/>
@@ -171,11 +171,11 @@
 							</tool>
 							<tool id="blackfin.toolchain.archiver.1099780957" name="CrossCore Blackfin Archiver" superClass="blackfin.toolchain.archiver">
 								<option id="archiver.option.proc.140609704" name="-proc" superClass="archiver.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="archiver.option.sirevision.1939742304" name="-si-revision" superClass="archiver.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="archiver.option.sirevision.1939742304" name="-si-revision" superClass="archiver.option.sirevision" value=" any" valueType="string"/>
 							</tool>
 							<tool id="blackfin.toolchain.loader.997668391" name="CrossCore Blackfin Loader" superClass="blackfin.toolchain.loader">
 								<option id="loader.option.proc.1524170220" name="-proc" superClass="loader.option.proc" value=" ADSP-BF609" valueType="string"/>
-								<option id="loader.option.sirevision.1926148059" name="-si-revision" superClass="loader.option.sirevision" value=" 0.2" valueType="string"/>
+								<option id="loader.option.sirevision.1926148059" name="-si-revision" superClass="loader.option.sirevision" value=" any" valueType="string"/>
 								<option id="blackfin.loader.option.enumerated.bootmode.221360899" name="Boot mode (-b)" superClass="blackfin.loader.option.enumerated.bootmode" value="Memory" valueType="enumerated"/>
 							</tool>
 						</toolChain>

@@ -875,13 +875,16 @@ static void process_int2 ( ADI_EMAC_DEVICE *pDev, ADI_EMAC_CHANNEL *pChannel )
 
 			//get the time stamp, modified by wjm @2014-7-21
 			pTmp = ( RX_TX_TIME_STAMP_BUFFER * ) pProcessedBuffer;
-			pTmp->RxTimeStamp.TimeStampLo = pCurDmaDesc->RxTimeStampLo;
-			pTmp->RxTimeStamp.TimeStampHi = pCurDmaDesc->RxTimeStampHi;
-
-//			if(( pCurDmaDesc->Status | 0x100) && (pCurDmaDesc->Status | 0x02) )
-//			{
-//				DEBUG_STATEMENT("Rx CRC ERROR. \n\n ");
-//			}
+			if(( pCurDmaDesc->Status | 0x100) && (pCurDmaDesc->Status | 0x80) )
+			{
+				pTmp->RxTimeStamp.TimeStampLo = pCurDmaDesc->RxTimeStampLo;
+				pTmp->RxTimeStamp.TimeStampHi = pCurDmaDesc->RxTimeStampHi;
+			}
+			else
+			{
+				pTmp->RxTimeStamp.TimeStampLo = pCurDmaDesc->Status;
+				DEBUG_PRINT("rx tm unavailable, EMAC:0X%, ST:%0X. \n\n ",pDev, pCurDmaDesc->Status);
+			}
 
 		}
 		else

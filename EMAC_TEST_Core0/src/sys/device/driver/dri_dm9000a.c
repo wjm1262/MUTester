@@ -89,6 +89,7 @@
 
 #include "dev_pwr.h"
 #include "dev_gpio.h"
+#include "dev_smc.h"
 
 #include "post_debug.h"
 
@@ -270,17 +271,39 @@ void ReadID(void)
 
 }
 
-
 static void Setup_DM9000A(uint8_t* dstMac)
 {
-	/* power on phy in the dm9000 */
-	WriteReg( GPR, 0x00 );
-	/* wait for phy power on*/
-	int clk = 10000;//20us
+	*pBANK1_EMAC_CTR_BASE    &= ~(1u << 1);
+
+	int clk = 3000;//>5us
 	while(clk--)
 	{
 		asm(" NOP; ");
 	}
+	*pBANK1_EMAC_CTR_BASE    |= (1u << 1);
+
+
+	for(int i  = 0; i < 2; i++)/* power on phy in the dm9000, setup twice to make sure done. */
+	{
+		/* power on phy in the dm9000 */
+		WriteReg( GPR, 0x00 );
+		/* wait for phy power on*/
+		clk = 100000;//200us
+		while(clk--)
+		{
+			asm(" NOP; ");
+		}
+	}
+
+
+//	/* power on phy in the dm9000 */
+//	WriteReg( GPR, 0x00 );
+//	/* wait for phy power on*/
+//	 clk = 10000;//20us
+//	while(clk--)
+//	{
+//		asm(" NOP; ");
+//	}
 
 	/* software reset 1, setup twice to make sure done. */
 	WriteReg( NCR, 0x03 );
@@ -302,14 +325,14 @@ static void Setup_DM9000A(uint8_t* dstMac)
 
 	WriteReg( NCR, 0x00 );
 
-
-	/* Reset the phy */
-	phy_w(0x00 , 0x8000);
-	clk = 10000;//20us
-	while(clk--)
-	{
-		asm(" NOP; ");
-	}
+//
+//	/* Reset the phy */
+//	phy_w(0x00 , 0x8000);
+//	clk = 10000;//20us
+//	while(clk--)
+//	{
+//		asm(" NOP; ");
+//	}
 
 	/* setup 100M full-duplex mode */
 	phy_w(0x00 , 0x2100);
@@ -390,7 +413,6 @@ static void Setup_DM9000A(uint8_t* dstMac)
 	/* auto send when 75% frame length */
 //		WriteReg(ETCSR, 0x83);
 }
-
 
 
 /*

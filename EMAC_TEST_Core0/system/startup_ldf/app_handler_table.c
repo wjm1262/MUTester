@@ -1,6 +1,6 @@
 
 /*
-** app_handler_table.c generated on 五月 21, 2015 at 09:49:08.
+** app_handler_table.c generated on 五月 26, 2015 at 17:42:31.
 **
 ** Copyright (C) 2000-2015 Analog Devices Inc., All Rights Reserved.
 **

@@ -46,7 +46,7 @@ static int init_exemac_queue ( EXEMAC_FRAME_Q *pQueue, ADI_ETHER_BUFFER  *pBuffe
 
 	}while ( pTempBuffer != NULL );
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 	/* Now insert and update the queue */
 	pQueue->pQueueHead = pBuffer;
@@ -57,7 +57,7 @@ static int init_exemac_queue ( EXEMAC_FRAME_Q *pQueue, ADI_ETHER_BUFFER  *pBuffe
 
 	pQueue->ProcessedElementCount = pQueue->ElementCount = NumInputBuffers;
 
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	return NumInputBuffers;
 }
@@ -83,7 +83,7 @@ static int push_unprocessed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQueue, ADI_ETHE
 
 	}while ( pTempBuffer != NULL );
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 	/* Now insert and update the queue */
 	if ( ( pQueue->pQueueHead == NULL ) && ( pQueue->pQueueTail == NULL ) )
@@ -101,7 +101,7 @@ static int push_unprocessed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQueue, ADI_ETHE
 	pQueue->pQueueTail    = pLastBuffer;
 	pQueue->ElementCount += NumInputBuffers;
 
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	return NumInputBuffers;
 }
@@ -114,7 +114,7 @@ static ADI_ETHER_BUFFER *pop_processed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQueu
 	ADI_ETHER_BUFFER *pOutTail  = NULL;
 	ADI_ETHER_BUFFER *pOutTmp  = NULL;
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 	pOutTmp = pOutTail = pOutHead = pQueue->pQueueHead;
 
@@ -156,7 +156,7 @@ static ADI_ETHER_BUFFER *pop_processed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQueu
 		pOutTail->pNext 	= NULL;
 	}
 
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	return pOutHead;
 }
@@ -166,7 +166,7 @@ static ADI_ETHER_BUFFER *get_unprocessed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQu
 {
 	ADI_ETHER_BUFFER *p = NULL;
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 
 	p = pQueue->pQueueProcessed;
@@ -189,7 +189,7 @@ static ADI_ETHER_BUFFER *get_unprocessed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQu
 		pQueue->ProcessedElementCount++;
 	}
 
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	return p;
 }
