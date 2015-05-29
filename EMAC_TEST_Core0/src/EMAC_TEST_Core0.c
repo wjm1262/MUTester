@@ -49,74 +49,8 @@ char VerDescripString[64] = "with Forward SMV frame. ";
 ///
 
 ///
-#if USE_OS
-OS_TCB  App_Satrt_TaskTCB;
-static  CPU_STK App_Satrt_TaskStack[APP_START_TASK_STACK_SIZE];
 
-OS_TCB  Eth0_Tx_TaskTCB;
-static  CPU_STK Eth0_Tx_TaskStack[Eth0_Tx_TASK_STACK_SIZE];
 
-OS_TCB  Eth0_Rx_TaskTCB;
-static  CPU_STK Eth0_Rx_TaskStack[Eth0_Rx_TASK_STACK_SIZE];
-
-OS_TCB  Eth1_Tx_TaskTCB;
-static  CPU_STK Eth1_Tx_TaskStack[Eth1_Tx_TASK_STACK_SIZE];
-
-OS_TCB  Eth1_Rx_TaskTCB;
-static  CPU_STK Eth1_Rx_TaskStack[Eth1_Rx_TASK_STACK_SIZE];
-
-OS_TCB  SysTime0_TaskTCB;
-static  CPU_STK SysTime0_TaskStack[SYSTIME_TASK_STACK_SIZE];
-
-OS_TCB  SysTime1_TaskTCB;
-static  CPU_STK SysTime1_TaskStack[SYSTIME_TASK_STACK_SIZE];
-
-OS_TCB  AD7608_TaskTCB;
-static  CPU_STK AD7608_TaskStack[AD_TASK_STACK_SIZE];
-
-///////////////////////////////
-extern int32_t adi_OS_Init(void);
-
-#define  SystemDatasBroadcast_PRIO            12 // 统计任务优先级最低，我这里是12，已经低于其他任务的优先级了
-#define  SystemDatasBroadcast_STK_SIZE       128 // 任务的堆栈大小，做统计一般够了，统计结果出来后不够再加..
-OS_TCB  SystemDatasBroadcast_TCB;		 // 定义统计任务的TCB
-CPU_STK SystemDatasBroadcast_STK [SystemDatasBroadcast_STK_SIZE];// 开辟数组作为任务栈给任务使用
-
-#endif
-
-//void  SystemDatasBroadcast (void *p_arg)
-//{
-//  OS_ERR err;
-//  CPU_STK_SIZE free,used;
-//  (void)p_arg;
-//  while(DEF_TRUE)
-//  {
-//	OSTaskStkChk (&App_Satrt_TaskTCB, &free, &used, &err);//  把统计任务本身的堆栈使用量也打印出来
-//								  // 然后从实验结果看看我们设置100字节给它是不是真的合适
-//	DEBUG_PRINT("App_Satrt  used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-//	OSTaskStkChk (&Eth0_Rx_TaskTCB,&free,&used,&err);
-//	DEBUG_PRINT("Eth0_Rx             used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-//	OSTaskStkChk (&Eth1_Tx_TaskTCB,&free,&used,&err);
-//	DEBUG_PRINT("Eth1_Tx             used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-//	OSTaskStkChk (&SysTime0_TaskTCB,&free,&used,&err);
-//	DEBUG_PRINT("SysTime0_Task       used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-//	OSTaskStkChk (&SysTime1_TaskTCB,&free,&used,&err);
-//	DEBUG_PRINT("SysTime1_Task       used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-////	OSTaskStkChk (&Calibrate_Process_TCB,&free,&used,&err);
-////	DEBUG_PRINT("Calibrate             used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-////
-////
-////	OSTaskStkChk (&Data_Process_TCB,&free,&used,&err);
-////	DEBUG_PRINT("Data_Process          used/free:%d/%d  usage:%%%d\n\n",used,free,(used*100)/(used+free));
-//
-//	OSTimeDlyHMSM(0,0,5,0,(OS_OPT)OS_OPT_TIME_DLY,(OS_ERR*)&err);
-//   }
-//}
 #if USE_OS
 void Task_App_Start(void*p_arg)
 {
@@ -475,8 +409,7 @@ int main(void)
 #endif
 
 
-//	Task_SystemTime0( NULL );
-//	Task_SystemTime1( NULL );
+
 
 #if 1
 	/* create Application task */

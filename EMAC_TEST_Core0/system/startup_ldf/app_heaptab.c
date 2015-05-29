@@ -1,5 +1,5 @@
 /*
-** ADSP-BF609 user heap source file generated on May 26, 2015 at 17:42:31.
+** ADSP-BF609 user heap source file generated on May 29, 2015 at 14:31:56.
 */
 /*
 ** Copyright (C) 2000-2014 Analog Devices Inc., All Rights Reserved.
@@ -52,14 +52,14 @@ struct heap_table_t
 #pragma section("constdata")
 struct heap_table_t heap_table[5] =
 {
-	{ &ldf_heap_space, (unsigned long) &ldf_heap_length, 0 },
-	{ &MyHeap1_space, (unsigned long) &MyHeap1_length, 1 },
-	{ &MyHeap2_space, (unsigned long) &MyHeap2_length, 2 },
-	{ &MyHeap3_space, (unsigned long) &MyHeap3_length, 3 },
 
-	{ 0, 0, 0 }
+  { &ldf_heap_space, (unsigned long) &ldf_heap_length, 0 },
+  { &MyHeap1_space, (unsigned long) &MyHeap1_length, 1 },
+  { &MyHeap2_space, (unsigned long) &MyHeap2_length, 2 },
+  { &MyHeap3_space, (unsigned long) &MyHeap3_length, 3 },
+
+  { 0, 0, 0 }
 };
-
 #ifdef _MISRA_RULES
 #pragma diag(pop)
 #endif /* _MISRA_RULES */

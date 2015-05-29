@@ -1,5 +1,5 @@
 /*
-** ADSP-BF609 startup code generated on May 26, 2015 at 17:42:30.
+** ADSP-BF609 startup code generated on May 29, 2015 at 14:31:55.
 */
 /*
 ** Copyright (C) 2000-2014 Analog Devices Inc., All Rights Reserved.

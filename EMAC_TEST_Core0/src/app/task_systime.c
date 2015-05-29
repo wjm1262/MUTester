@@ -229,6 +229,11 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 #if 1
 		if(!pTaskPara->bPPSIsRunning && pTaskPara->bSysTmIsSynced )
 		{
+
+			ProgrammingSysTimeFineCorrection( phDevice );//注意：如果调用了本函数，即使没有调用SetFixedPPSOutput，也会输出PPS，
+														//PPS脉冲宽度等于SCLKx的周期，因为只要Enable PTP Module + 系统时间在运行，
+													//就相当于SetFixedPPSOutput。
+
 			SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
 			pTaskPara->bPPSIsRunning = true;
 		}
@@ -324,7 +329,7 @@ void Task_SystemTime0( void* p_arg )
 {
 //	OS_ERR osErr;
 
-	int nRet;
+	int nRet=0;
 
 
 	MuTesterSystem.Device.Eth0.EnableAuxiTimeStamped( g_hEthDev[0] );
@@ -348,7 +353,7 @@ void Task_SystemTime1( void* p_arg )
 {
 //	OS_ERR osErr;
 
-	int nRet;
+	int nRet=0;
 
 
 	MuTesterSystem.Device.Eth1.EnableAuxiTimeStamped( g_hEthDev[1] );

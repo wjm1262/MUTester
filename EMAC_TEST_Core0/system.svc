@@ -22,7 +22,7 @@ It provides information needed to link your code. It can be used to configure me
 						<property name="startup_code_schema" value="14"/>
 					</propertygroup>
 					<propertygroup name="mandatory">
-						<property name="si_revision" value="any"/>
+						<property name="si_revision" value="0.2"/>
 						<property name="processor" value="ADSP-BF609"/>
 						<property name="product_name" value="CrossCore Embedded Studio"/>
 						<property name="crt_doj" value="app_startup.doj"/>
@@ -67,8 +67,8 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="size_units" value="MB"/>
 						</propertygroup>
 						<propertygroup name="system_heap" value="L1">
-							<property name="min_size" value="8"/>
 							<property name="size_units" value="kB"/>
+							<property name="min_size" value="8"/>
 							<property name="customized" value="true"/>
 						</propertygroup>
 						<propertygroup name="system_stack" value="L1">
@@ -91,8 +91,8 @@ It provides information needed to link your code. It can be used to configure me
 							<property name="heap_id" value="2"/>
 						</propertygroup>
 						<property name="use_eh" value="true"/>
-						<property name="user_heap_src_file" value="app_heaptab.c"/>
 						<property name="use_full_cpplib" value="false"/>
+						<property name="user_heap_src_file" value="app_heaptab.c"/>
 						<property name="use_software_modules" value="false"/>
 						<property name="use_user_mod_ldf" value="true"/>
 						<property name="use_pgo_hw" value="false"/>

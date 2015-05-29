@@ -51,22 +51,24 @@ void Init_GPIO(void)
 
 	}
 
-	result = adi_gpio_SetDirection(
-			ADI_GPIO_PORT_G,
-			ADI_GPIO_PIN_1,
-			ADI_GPIO_DIRECTION_OUTPUT);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("adi_gpio_SetDirection G1:%d failed \n\n", result);
-	}
+//	result = adi_gpio_SetDirection(
+//			ADI_GPIO_PORT_G,
+//			ADI_GPIO_PIN_1,
+//			ADI_GPIO_DIRECTION_OUTPUT);
+//	if (result != ADI_GPIO_SUCCESS)
+//	{
+//		DEBUG_PRINT("adi_gpio_SetDirection G1:%d failed \n\n", result);
+//	}
+//
+//	result = adi_gpio_Clear(ADI_GPIO_PORT_G, ADI_GPIO_PIN_1);
+//	if (result != ADI_GPIO_SUCCESS)
+//	{
+//		DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
+//
+//	}
 
-	result = adi_gpio_Clear(ADI_GPIO_PORT_G, ADI_GPIO_PIN_1);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
-
-	}
-
+	//光同步输入1（U150标准同步信号）、光同步输入2（U151被检同步信号）由609的PD00控制接到609的PTPAUXIN，
+	// 默认PD00为低选通光同步输入1，PD00为高选通光同步输入2。
 	result = adi_gpio_SetDirection(
 		ADI_GPIO_PORT_D,
 		ADI_GPIO_PIN_0,
@@ -78,11 +80,11 @@ void Init_GPIO(void)
 	}
 
 	result = adi_gpio_Clear(ADI_GPIO_PORT_D, ADI_GPIO_PIN_0);
-		if (result != ADI_GPIO_SUCCESS)
-		{
-			DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
+	if (result != ADI_GPIO_SUCCESS)
+	{
+		DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
 
-		}
+	}
 
 
 //	/* set GPIO output DM9000A PIIN A03 */
@@ -96,38 +98,7 @@ void Init_GPIO(void)
 	// AD7608
 
 
-//		/* set GPIO output ad7606 busy */
-//		result = adi_gpio_SetDirection(
-//			ADI_GPIO_PORT_D,
-//			ADI_GPIO_PIN_6,
-//			ADI_GPIO_DIRECTION_INPUT);
-//		if (result != ADI_GPIO_SUCCESS)
-//		{
-//			printf("adi_gpio_SetDirection failed : %d\n", result);
-//
-//		}
-//
-//		/* set GPIO output SPORT1-B-FS */
-//		result = adi_gpio_SetDirection(
-//			ADI_GPIO_PORT_E,
-//			ADI_GPIO_PIN_3,
-//			ADI_GPIO_DIRECTION_OUTPUT);
-//		if (result != ADI_GPIO_SUCCESS)
-//		{
-//			printf("adi_gpio_SetDirection failed : %d\n", result);
-//
-//		}
-//
-//		/* set GPIO output SPORT1-B-CLK, only used in SPORT 1 data line */
-//		result = adi_gpio_SetDirection(
-//			ADI_GPIO_PORT_E,
-//			ADI_GPIO_PIN_4,
-//			ADI_GPIO_DIRECTION_OUTPUT);
-//		if (result != ADI_GPIO_SUCCESS)
-//		{
-//			printf("adi_gpio_SetDirection failed : %d\n", result);
-//
-//		}
+
 
 }
 
