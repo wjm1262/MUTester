@@ -133,6 +133,18 @@ It provides information needed to link your code. It can be used to configure me
 					<signal bit="28" mux="0" name="RXERR" pin="14" port="E"/>
 					<signal bit="18" mux="0" name="PTPPPS" pin="9" port="C"/>
 				</peripheral>
+				<peripheral description="LP Module" name="LP2">
+					<signal bit="18" mux="2" name="CLK" pin="9" port="E"/>
+					<signal bit="16" mux="2" name="ACK" pin="8" port="E"/>
+					<signal bit="0" mux="2" name="D0" pin="0" port="F"/>
+					<signal bit="2" mux="2" name="D1" pin="1" port="F"/>
+					<signal bit="4" mux="2" name="D2" pin="2" port="F"/>
+					<signal bit="6" mux="2" name="D3" pin="3" port="F"/>
+					<signal bit="8" mux="2" name="D4" pin="4" port="F"/>
+					<signal bit="10" mux="2" name="D5" pin="5" port="F"/>
+					<signal bit="12" mux="2" name="D6" pin="6" port="F"/>
+					<signal bit="14" mux="2" name="D7" pin="7" port="F"/>
+				</peripheral>
 				<peripheral description="TIMER Module" name="TIMER0">
 					<signal bit="8" mux="1" name="TMR1" pin="4" port="G"/>
 				</peripheral>
@@ -157,12 +169,24 @@ It provides information needed to link your code. It can be used to configure me
 					<signal bit="12" name="PD06" pin="6" port="D"/>
 				</gpio>
 				<gpio name="Port E">
+					<signal bit="16" name="PE08" pin="8" port="E"/>
+					<signal bit="18" name="PE09" pin="9" port="E"/>
 					<signal bit="20" name="PE10" pin="10" port="E"/>
 					<signal bit="22" name="PE11" pin="11" port="E"/>
 					<signal bit="24" name="PE12" pin="12" port="E"/>
 					<signal bit="26" name="PE13" pin="13" port="E"/>
 					<signal bit="28" name="PE14" pin="14" port="E"/>
 					<signal bit="30" name="PE15" pin="15" port="E"/>
+				</gpio>
+				<gpio name="Port F">
+					<signal bit="0" name="PF00" pin="0" port="F"/>
+					<signal bit="2" name="PF01" pin="1" port="F"/>
+					<signal bit="4" name="PF02" pin="2" port="F"/>
+					<signal bit="6" name="PF03" pin="3" port="F"/>
+					<signal bit="8" name="PF04" pin="4" port="F"/>
+					<signal bit="10" name="PF05" pin="5" port="F"/>
+					<signal bit="12" name="PF06" pin="6" port="F"/>
+					<signal bit="14" name="PF07" pin="7" port="F"/>
 				</gpio>
 				<gpio name="Port G">
 					<signal bit="0" name="PG00" pin="0" port="G"/>

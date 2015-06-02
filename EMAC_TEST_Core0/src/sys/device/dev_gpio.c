@@ -17,6 +17,7 @@ void Init_GPIO(void)
 	static uint8_t gpioMemory[GPIO_CALLBACK_MEM_SIZE];
 	uint32_t gpioMaxCallbacks;
 
+	//注意：这个adi_gpio_Init只能被调用一次，否则之前注册的 callbackHandler会被后面的覆盖
 	result = adi_gpio_Init( (void*)gpioMemory,	GPIO_CALLBACK_MEM_SIZE,	&gpioMaxCallbacks);
 	if (result != ADI_GPIO_SUCCESS)
 	{
@@ -51,42 +52,6 @@ void Init_GPIO(void)
 
 	}
 
-//	result = adi_gpio_SetDirection(
-//			ADI_GPIO_PORT_G,
-//			ADI_GPIO_PIN_1,
-//			ADI_GPIO_DIRECTION_OUTPUT);
-//	if (result != ADI_GPIO_SUCCESS)
-//	{
-//		DEBUG_PRINT("adi_gpio_SetDirection G1:%d failed \n\n", result);
-//	}
-//
-//	result = adi_gpio_Clear(ADI_GPIO_PORT_G, ADI_GPIO_PIN_1);
-//	if (result != ADI_GPIO_SUCCESS)
-//	{
-//		DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
-//
-//	}
-
-	//光同步输入1（U150标准同步信号）、光同步输入2（U151被检同步信号）由609的PD00控制接到609的PTPAUXIN，
-	// 默认PD00为低选通光同步输入1，PD00为高选通光同步输入2。
-	result = adi_gpio_SetDirection(
-		ADI_GPIO_PORT_D,
-		ADI_GPIO_PIN_0,
-		ADI_GPIO_DIRECTION_OUTPUT);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		printf("adi_gpio_SetDirection failed : %d\n", result);
-
-	}
-
-	result = adi_gpio_Clear(ADI_GPIO_PORT_D, ADI_GPIO_PIN_0);
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("adi_gpio_Set G1:%d failed \n\n", result);
-
-	}
-
-
 //	/* set GPIO output DM9000A PIIN A03 */
 //	result = adi_gpio_SetDirection(
 //		ADI_GPIO_PORT_A,
@@ -104,25 +69,25 @@ void Init_GPIO(void)
 
 
 
-/**************************************GPIO PD06***********************************/
+/**************************************GPIO PD00***********************************/
 
-ADI_GPIO_RESULT Set_GPIO_PD06_IODirection( ADI_GPIO_DIRECTION Direction )
+ADI_GPIO_RESULT Set_GPIO_PD00_IODirection( ADI_GPIO_DIRECTION Direction )
 {
 	ADI_GPIO_RESULT result;
 	result = adi_gpio_SetDirection(
 				ADI_GPIO_PORT_D,
-				ADI_GPIO_PIN_6,
+				ADI_GPIO_PIN_0,
 				Direction);
 
 	if (result != ADI_GPIO_SUCCESS)
 	{
-		DEBUG_PRINT("Set_GPIO_PD06_IODirection failed : %d\n\n", result);
+		DEBUG_PRINT("Set_GPIO_PD00_IODirection failed : %d\n\n", result);
 	}
 
 	return result;
 }
 
-ADI_GPIO_RESULT Init_GPIO_PD06_INT( void )
+ADI_GPIO_RESULT Init_GPIO_PD00_INT( void )
 {
 	ADI_GPIO_RESULT result;
 	do
@@ -133,13 +98,13 @@ ADI_GPIO_RESULT Init_GPIO_PD06_INT( void )
 				ADI_GPIO_PIN_ASSIGN_PDL_PINT3);
 	    if(result != ADI_GPIO_SUCCESS)
 	    {
-	    	DEBUG_PRINT("Failed in function Init_GPIO_PD06_INT/adi_gpio_PinInterruptAssignment : %d\n\n",result);
+	    	DEBUG_PRINT("Failed in function Init_GPIO_PD00_INT/adi_gpio_PinInterruptAssignment : %d\n\n",result);
 	  		  break;
 	    }
 
 	    //分配具体引脚和中断方式
 	    result = adi_gpio_SetPinIntEdgeSense(ADI_GPIO_PIN_INTERRUPT_3,
-	    		ADI_GPIO_PIN_6,
+	    		ADI_GPIO_PIN_0,
 	    		ADI_GPIO_SENSE_FALLING_EDGE);//
 	    if(result != ADI_GPIO_SUCCESS)
 	    {
@@ -155,31 +120,31 @@ ADI_GPIO_RESULT Init_GPIO_PD06_INT( void )
 }
 
 
-void Register_Callback_GPIO_PD06_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam )
+void Register_Callback_GPIO_PD00_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam )
 {
 	ADI_GPIO_RESULT result;
 	 //登记IRQ回调函数
 	result = adi_gpio_RegisterCallback(ADI_GPIO_PIN_INTERRUPT_3,
-										ADI_GPIO_PIN_6,
+										ADI_GPIO_PIN_0,
 										handler,
 										pCBParam);
 	if(result != ADI_GPIO_SUCCESS)
 	{
-		DEBUG_PRINT("Failed in function Register_Callback_GPIO_PD06_INT : %d\n\n",result);
+		DEBUG_PRINT("Failed in function Register_Callback_GPIO_PD00_INT : %d\n\n",result);
 	}
 }
 
-void Enable_GPIO_PD06_INT(bool enable)
+void Enable_GPIO_PD00_INT(bool enable)
 {
 	ADI_GPIO_RESULT result;
 
 	//使能中断
 	result = adi_gpio_EnablePinInterruptMask(ADI_GPIO_PIN_INTERRUPT_3,
-											ADI_GPIO_PIN_6,
+											ADI_GPIO_PIN_0,
 											enable);
 	if(result != ADI_GPIO_SUCCESS)
 	{
-		DEBUG_PRINT("Failed in function Enable_GPIO_PD06_INT : %d\n\n",result);
+		DEBUG_PRINT("Failed in function Enable_GPIO_PD00_INT : %d\n\n",result);
 	}
 
 }
@@ -317,81 +282,4 @@ ADI_GPIO_RESULT Set_GPIO_PB11_IODirection( ADI_GPIO_DIRECTION Direction )
 	return result;
 }
 
-/**************************************GPIO PG08***********************************/
-
-ADI_GPIO_RESULT Set_GPIO_PG08_IODirection( ADI_GPIO_DIRECTION Direction )
-{
-	ADI_GPIO_RESULT result;
-	result = adi_gpio_SetDirection(
-				ADI_GPIO_PORT_G,
-				ADI_GPIO_PIN_8,
-				Direction);
-
-	if (result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("Set_GPIO_PD06_IODirection failed : %d\n\n", result);
-	}
-
-	return result;
-}
-
-ADI_GPIO_RESULT Init_GPIO_PG08_INT( void )
-{
-	ADI_GPIO_RESULT result;
-	do
-	{
-		 //分配IRQ和字节
-		result = adi_gpio_PinInterruptAssignment(ADI_GPIO_PIN_INTERRUPT_5,
-				ADI_GPIO_PIN_ASSIGN_BYTE_1,
-				ADI_GPIO_PIN_ASSIGN_PGH_PINT5);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	    	DEBUG_PRINT("Failed in function Init_GPIO_PG08_INT/adi_gpio_PinInterruptAssignment : %d\n\n",result);
-	  		  break;
-	    }
-
-	    //分配具体引脚和中断方式
-	    result = adi_gpio_SetPinIntEdgeSense(ADI_GPIO_PIN_INTERRUPT_3,
-	    		ADI_GPIO_PIN_8,
-	    		ADI_GPIO_SENSE_FALLING_EDGE);
-	    if(result != ADI_GPIO_SUCCESS)
-	    {
-	    	DEBUG_PRINT("Failed in function Init_GPIO_PG08_INT/adi_gpio_SetPinIntEdgeSense : %d\n\n",result);
-	  		  break;
-	    }
-
-
-	}while(0);
-
-	return result;
-}
-
-void Register_Callback_GPIO_PG08_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam )
-{
-	ADI_GPIO_RESULT result;
-	 //登记IRQ回调函数
-	result = adi_gpio_RegisterCallback(ADI_GPIO_PIN_INTERRUPT_5,
-										ADI_GPIO_PIN_8,
-										handler,
-										pCBParam);
-	if(result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("Failed in function Register_Callback_GPIO_PG08_INT : %d\n\n",result);
-	}
-}
-
-void Enable_GPIO_PG08_INT(bool enable)
-{
-	ADI_GPIO_RESULT result;
-
-	//使能中断
-	result = adi_gpio_EnablePinInterruptMask(ADI_GPIO_PIN_INTERRUPT_5,
-											ADI_GPIO_PIN_8,
-											enable);
-	if(result != ADI_GPIO_SUCCESS)
-	{
-		DEBUG_PRINT("Failed in function Enable_GPIO_PG08_INT : %d\n\n",result);
-	}
-
-}
 

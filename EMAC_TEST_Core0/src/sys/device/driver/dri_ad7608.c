@@ -38,7 +38,7 @@ uint32_t Init_AD7608_IO(void)
 #else
 
 	*pREG_PORTG_FER &= ~TIMER0_TMR3_PORTG_FER;
-	IO_result = Set_GPIO_PG08_IODirection( ADI_GPIO_DIRECTION_INPUT );
+	IO_result = Set_GPIO_PD00_IODirection( ADI_GPIO_DIRECTION_INPUT );
 
 #endif
 
@@ -55,7 +55,7 @@ ADI_GPIO_RESULT Init_Busy_IO_IRQ( void )
 #if _TEST_AD
 	return Init_GPIO_PD06_INT();
 #else
-	return Init_GPIO_PG08_INT();
+	return Init_GPIO_PD00_INT();
 #endif
 }
 
@@ -64,7 +64,7 @@ void Register_Buzy_IO_Callback( AD7608_Busy_ISR_Handler handler )
 #if _TEST_AD
 	Register_Callback_GPIO_PD06_INT( handler, NULL );
 #else
-	Register_Callback_GPIO_PG08_INT( handler, NULL );
+	Register_Callback_GPIO_PD00_INT( handler, NULL );
 #endif
 }
 
@@ -73,7 +73,7 @@ void Enable_Buzy_IO_Interrupt(bool enable)
 #if _TEST_AD
 	Enable_GPIO_PD06_INT(enable);
 #else
-	Enable_GPIO_PG08_INT(enable);
+	Enable_GPIO_PD00_INT(enable);
 #endif
 }
 

@@ -24,6 +24,13 @@
 #include "task.h"
 #include "adi_initialize.h"
 
+/*
+ * Init FT3 test
+ * user only need invoke this function in INIT code, then the FT3 send process is running in Timer6.
+ */
+void Init_FT3_Test(unsigned char FT3_heap_id);
+
+
 char VersionString[128] = "Version 1.0.0. ";
 char VerDescripString[64] = "with Forward SMV frame. ";
 
@@ -195,6 +202,9 @@ int main(void)
 
 	//get eth buffer
 	Alloc_EthMem();
+
+	//
+//	Init_FT3_Test(3);
 
 	//Gemac
 	g_hEthDev[0] = MuTesterSystem.Device.Eth0.Open();
