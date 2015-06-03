@@ -8,7 +8,7 @@
 #include "dev_gpio.h"
 #include "post_debug.h"
 
-#define GPIO_INT_CNT (5)
+#define GPIO_INT_CNT (10)
 #define GPIO_CALLBACK_MEM_SIZE (GPIO_INT_CNT* ADI_GPIO_CALLBACK_MEM_SIZE)
 
 void Init_GPIO(void)

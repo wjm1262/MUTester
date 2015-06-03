@@ -7,7 +7,6 @@
 
 #include "sys.h"
 #include "dev_ad.h"
-#include "dev_spi.h"
 
 #include "dev_sport.h"
 

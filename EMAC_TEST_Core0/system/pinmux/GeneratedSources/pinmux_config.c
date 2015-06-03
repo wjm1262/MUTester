@@ -1,6 +1,6 @@
 /*
  **
- ** pinmux_config.c source file generated on ÁùÔÂ 1, 2015 at 17:14:06.	
+ ** pinmux_config.c source file generated on ÁùÔÂ 2, 2015 at 15:57:53.	
  **
  ** Copyright (C) 2000-2015 Analog Devices Inc., All Rights Reserved.
  **
@@ -11,7 +11,7 @@
  **
  ** Selected Peripherals
  ** --------------------
- ** ETH0 (MDC, MDIO, PHYINT, TXD0, TXD1, TXEN, REFCLK, RXD0, RXD1, CRS, RXERR, PTPPPS)
+ ** ETH0 (MDC, MDIO, TXD0, TXD1, TXEN, REFCLK, RXD0, RXD1, CRS, RXERR, PTPPPS)
  ** ETH (PTPAUXIN)
  ** ETH1 (MDC, MDIO, PHYINT, TXD0, TXD1, TXEN, REFCLK, RXD0, RXD1, CRS, RXERR, PTPPPS)
  ** LP2 (CLK, ACK, D0, D1, D2, D3, D4, D5, D6, D7)
@@ -20,8 +20,8 @@
  ** GPIO (unavailable)
  ** ------------------
  ** PB13, PB14, PB15, PC00, PC01, PC02, PC03, PC04, PC05, PC06, PC07, PC09, PC11,
- ** PD06, PE08, PE09, PE10, PE11, PE12, PE13, PE14, PE15, PF00, PF01, PF02, PF03,
- ** PF04, PF05, PF06, PF07, PG00, PG02, PG03, PG04, PG05, PG06
+ ** PE08, PE09, PE10, PE11, PE12, PE13, PE14, PE15, PF00, PF01, PF02, PF03, PF04,
+ ** PF05, PF06, PF07, PG00, PG02, PG03, PG04, PG05, PG06
  */
 
 #include <sys/platform.h>
@@ -29,7 +29,6 @@
 
 #define ETH0_MDC_PORTC_MUX  ((uint16_t) ((uint16_t) 0<<12))
 #define ETH0_MDIO_PORTC_MUX  ((uint16_t) ((uint16_t) 0<<14))
-#define ETH0_PHYINT_PORTD_MUX  ((uint16_t) ((uint16_t) 0<<12))
 #define ETH0_TXD0_PORTC_MUX  ((uint16_t) ((uint16_t) 0<<4))
 #define ETH0_TXD1_PORTC_MUX  ((uint16_t) ((uint16_t) 0<<6))
 #define ETH0_TXEN_PORTB_MUX  ((uint32_t) ((uint32_t) 0<<26))
@@ -66,7 +65,6 @@
 
 #define ETH0_MDC_PORTC_FER  ((uint16_t) ((uint16_t) 1<<6))
 #define ETH0_MDIO_PORTC_FER  ((uint16_t) ((uint16_t) 1<<7))
-#define ETH0_PHYINT_PORTD_FER  ((uint16_t) ((uint16_t) 1<<6))
 #define ETH0_TXD0_PORTC_FER  ((uint16_t) ((uint16_t) 1<<2))
 #define ETH0_TXD1_PORTC_FER  ((uint16_t) ((uint16_t) 1<<3))
 #define ETH0_TXEN_PORTB_FER  ((uint32_t) ((uint32_t) 1<<13))
@@ -114,7 +112,6 @@ int32_t adi_initpinmux(void) {
      | ETH0_TXD0_PORTC_MUX | ETH0_TXD1_PORTC_MUX | ETH0_RXD0_PORTC_MUX
      | ETH0_RXD1_PORTC_MUX | ETH0_CRS_PORTC_MUX | ETH0_RXERR_PORTC_MUX
      | ETH_PTPAUXIN_PORTC_MUX | ETH1_PTPPPS_PORTC_MUX;
-    *pREG_PORTD_MUX = ETH0_PHYINT_PORTD_MUX;
     *pREG_PORTE_MUX = ETH1_MDC_PORTE_MUX | ETH1_MDIO_PORTE_MUX
      | ETH1_PHYINT_PORTE_MUX | ETH1_RXD1_PORTE_MUX | ETH1_CRS_PORTE_MUX
      | ETH1_RXERR_PORTE_MUX | LP2_CLK_PORTE_MUX | LP2_ACK_PORTE_MUX;
@@ -132,7 +129,6 @@ int32_t adi_initpinmux(void) {
      | ETH0_TXD0_PORTC_FER | ETH0_TXD1_PORTC_FER | ETH0_RXD0_PORTC_FER
      | ETH0_RXD1_PORTC_FER | ETH0_CRS_PORTC_FER | ETH0_RXERR_PORTC_FER
      | ETH_PTPAUXIN_PORTC_FER | ETH1_PTPPPS_PORTC_FER;
-    *pREG_PORTD_FER = ETH0_PHYINT_PORTD_FER;
     *pREG_PORTE_FER = ETH1_MDC_PORTE_FER | ETH1_MDIO_PORTE_FER
      | ETH1_PHYINT_PORTE_FER | ETH1_RXD1_PORTE_FER | ETH1_CRS_PORTE_FER
      | ETH1_RXERR_PORTE_FER | LP2_CLK_PORTE_FER | LP2_ACK_PORTE_FER;

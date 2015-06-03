@@ -203,8 +203,7 @@ int main(void)
 	//get eth buffer
 	Alloc_EthMem();
 
-	//
-//	Init_FT3_Test(3);
+
 
 	//Gemac
 	g_hEthDev[0] = MuTesterSystem.Device.Eth0.Open();
@@ -219,20 +218,30 @@ int main(void)
 	MuTesterSystem.Device.Eth0.hDev = g_hEthDev[0];
 	MuTesterSystem.Device.Eth1.hDev = g_hEthDev[1];
 
+
 	Task_exEth_Tx_Rx(NULL);
+
+
+
 	Task_Eth0_Tx(NULL);
 	Task_Eth1_Tx(NULL);
 	Task_Eth0_Rx(NULL);
 	Task_Eth1_Rx(NULL);
 
+	//
+	Init_FT3_Test(1);
 
 	Task_SystemTime0(NULL);
 	Task_SystemTime1(NULL);
+
+
 
 	//
 	Init_IEC_9_2();
 
 	Task_AD7608( NULL );
+
+
 
 	LoopQueueItem* pRecvItem;
 	uint8_t* pForwardFrm = NULL;

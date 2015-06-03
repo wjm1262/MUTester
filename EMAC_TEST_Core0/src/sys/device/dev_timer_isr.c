@@ -48,10 +48,10 @@ uint8_t TimerMemory[ADI_TMR_MEMORY];
 /* Timer callback function */
 static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg);
 
-#define TEST_TIMER_NUM      1
-#define TIMER_PERIOD        (SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL)/1000
-#define TIMER_WIDTH         (TIMER_PERIOD/2)
-#define TIMER_DELAY          (TIMER_WIDTH/2)
+#define TEST_TIMER0_NUM      1
+#define TIMER0_PERIOD        (SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL)/1000
+#define TIMER0_WIDTH         (TIMER0_PERIOD/2)
+#define TIMER0_DELAY          (TIMER0_WIDTH/2)
 
 
 /* Timer handle */
@@ -96,7 +96,7 @@ void Init_Timer_Interrupts(void)
     {
 		/* Open the timer */
 		if( (eTmrResult = adi_tmr_Open (
-				TEST_TIMER_NUM,
+				TEST_TIMER0_NUM,
 				TimerMemory,
 				ADI_TMR_MEMORY,
 				TimerHandler,
@@ -125,7 +125,7 @@ void Init_Timer_Interrupts(void)
 		/* Set the Period */
 		if((eTmrResult = adi_tmr_SetPeriod(
 				ghTimer,
-				TIMER_PERIOD)) != ADI_TMR_SUCCESS)
+				TIMER0_PERIOD)) != ADI_TMR_SUCCESS)
 		{
 			DEBUG_PRINT("Failed to set the timer Period 0x%08X \n\n", eTmrResult);
 		}
@@ -133,7 +133,7 @@ void Init_Timer_Interrupts(void)
 		/* Set the timer width */
 		if((eTmrResult = adi_tmr_SetWidth(
 				ghTimer,
-				TIMER_WIDTH)) != ADI_TMR_SUCCESS)
+				TIMER0_WIDTH)) != ADI_TMR_SUCCESS)
 		{
 			DEBUG_PRINT("Failed to set the timer Width 0x%08X \n\n", eTmrResult);
 		}
@@ -141,7 +141,7 @@ void Init_Timer_Interrupts(void)
 		/* Set the timer Delay */
 		if((eTmrResult = adi_tmr_SetDelay(
 				ghTimer,
-				TIMER_DELAY)) != ADI_TMR_SUCCESS)
+				TIMER0_DELAY)) != ADI_TMR_SUCCESS)
 		{
 			DEBUG_PRINT("Failed to set the timer Delay 0x%08X \n\n", eTmrResult);
 		}

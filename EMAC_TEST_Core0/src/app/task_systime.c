@@ -197,9 +197,8 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 	if( phDevice == g_hEthDev[0] )
 	{
 		pTaskPara = &g_TaskSysTimeParas[0];
-		pIEC61850_9_2->pASDU_info[0].SmpCnt = 3999;
+//		pIEC61850_9_2->pASDU_info[0].SmpCnt = 3999; //modify by wjm@2015-6-3
 	}
-
 	else if( phDevice == g_hEthDev[1] )
 	{
 		pTaskPara = &g_TaskSysTimeParas[1];

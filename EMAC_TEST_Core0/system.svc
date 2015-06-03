@@ -105,7 +105,6 @@ It provides information needed to link your code. It can be used to configure me
 				<peripheral description="EMAC Module" name="ETH0">
 					<signal bit="12" mux="0" name="MDC" pin="6" port="C"/>
 					<signal bit="14" mux="0" name="MDIO" pin="7" port="C"/>
-					<signal bit="12" mux="0" name="PHYINT" pin="6" port="D"/>
 					<signal bit="4" mux="0" name="TXD0" pin="2" port="C"/>
 					<signal bit="6" mux="0" name="TXD1" pin="3" port="C"/>
 					<signal bit="26" mux="0" name="TXEN" pin="13" port="B"/>
@@ -164,9 +163,6 @@ It provides information needed to link your code. It can be used to configure me
 					<signal bit="14" name="PC07" pin="7" port="C"/>
 					<signal bit="18" name="PC09" pin="9" port="C"/>
 					<signal bit="22" name="PC11" pin="11" port="C"/>
-				</gpio>
-				<gpio name="Port D">
-					<signal bit="12" name="PD06" pin="6" port="D"/>
 				</gpio>
 				<gpio name="Port E">
 					<signal bit="16" name="PE08" pin="8" port="E"/>
