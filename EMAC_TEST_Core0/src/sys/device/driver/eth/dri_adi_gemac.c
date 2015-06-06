@@ -59,12 +59,13 @@
 #include <ccblkfn.h>
 #include <cdefbf609.h>
 
-#include <drivers/ethernet/adi_ether.h>
+#include "adi_ether_header.h"
+
 #include <services/int/adi_int.h>
 #include "dri_adi_gemac.h"
 
 #include "dri_ptp_engine.h"
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"//define MSG_HEADER_LEN MSG_FORWARD_FRM_HEADER_LEN
 
 /*!  EMAC0 and EMAC1 Driver instances */
 //capture the rx time stamp and enable the auxiliary time stamp,

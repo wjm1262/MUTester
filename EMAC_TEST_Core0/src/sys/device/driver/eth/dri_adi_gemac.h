@@ -52,7 +52,7 @@
 #define _ADI_GEMAC_INT_H_
 #include <stdlib.h>
 #include <adi_types.h>
-#include <drivers/ethernet/adi_ether.h>
+#include "adi_ether_header.h"
 #include <drivers/ethernet/adi_ether_gemac.h>
 #include <drivers/ethernet/adi_ether_misra.h>
 #include <string.h>

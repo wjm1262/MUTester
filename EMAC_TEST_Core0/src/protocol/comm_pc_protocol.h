@@ -1,12 +1,12 @@
 /*
- * mutester_comm_protocol.h
+ * comm_pc_protocol.h
  *
  *  Created on: 2015-3-24
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
-#ifndef MUTESTER_COMM_PROTOCOL_H_
-#define MUTESTER_COMM_PROTOCOL_H_
+#ifndef COMM_PC_PROTOCOL_H_
+#define COMM_PC_PROTOCOL_H_
 
 //typedef unsigned long long UINT64;
 typedef unsigned int UINT32;
@@ -220,22 +220,27 @@ UINT32 netHostChangeL(UINT32 netlong);
 #define NET_609_TRANSMIT  0x0133
 #define NET_609_CONCROL  0x0134
 
+/*********************modify by wjm@2015-6-4**************************/
 //新609转发板通道定义
-#define NEW609_CHTYPE_0			 0x00
-#define	NEW609_CHTYPE_DELAY		 0x01
-#define	NEW609_CHTYPE_CNT		 0x02
-#define	NEW609_CHTYPE_MUA		 0x10
-#define	NEW609_CHTYPE_MUB		 0x11
-#define	NEW609_CHTYPE_MUC		 0x12
-#define	NEW609_CHTYPE_MIA		 0x13
-#define	NEW609_CHTYPE_MIB		 0x14
-#define	NEW609_CHTYPE_MIC		 0x15
-#define	NEW609_CHTYPE_PUA		 0x16
-#define	NEW609_CHTYPE_PUB		 0x17
-#define	NEW609_CHTYPE_PUC		 0x18
-#define	NEW609_CHTYPE_PIA		 0x19
-#define	NEW609_CHTYPE_PIB		 0x1A
-#define	NEW609_CHTYPE_PIC		 0x1B
+#define	NEW609_CHTYPE_BASE		 0x00
+
+#define	NEW609_CHTYPE_MUA		(NEW609_CHTYPE_BASE + 0)
+#define	NEW609_CHTYPE_MUB		(NEW609_CHTYPE_BASE + 1)
+#define	NEW609_CHTYPE_MUC		(NEW609_CHTYPE_BASE + 2)
+#define	NEW609_CHTYPE_MIA		(NEW609_CHTYPE_BASE + 3)
+#define	NEW609_CHTYPE_MIB		(NEW609_CHTYPE_BASE + 4)
+#define	NEW609_CHTYPE_MIC		(NEW609_CHTYPE_BASE + 5)
+#define	NEW609_CHTYPE_PUA		(NEW609_CHTYPE_BASE + 6)
+#define	NEW609_CHTYPE_PUB		(NEW609_CHTYPE_BASE + 7)
+#define	NEW609_CHTYPE_PUC		(NEW609_CHTYPE_BASE + 8)
+#define	NEW609_CHTYPE_PIA		(NEW609_CHTYPE_BASE + 9)
+#define	NEW609_CHTYPE_PIB		(NEW609_CHTYPE_BASE + 10)
+#define	NEW609_CHTYPE_PIC		(NEW609_CHTYPE_BASE + 11)
+
+#define NEW609_CHTYPE_0			(NEW609_CHTYPE_BASE + 12)
+#define	NEW609_CHTYPE_DELAY		(NEW609_CHTYPE_BASE + 13)
+#define	NEW609_CHTYPE_CNT		(NEW609_CHTYPE_BASE + 14)
+/********************************************************************/
 #define	NEW609_CHTYPE_CRC_START	 0x80			//校验码起始标识
 #define	NEW609_CHTYPE_CRC_STOP	 0xA0			//校验码结束标识
 

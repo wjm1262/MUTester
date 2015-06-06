@@ -6,7 +6,7 @@
 
 #include "EMAC_TEST_Core0.h"
 //#include "xl-6004_forward_protocol.h"
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"
 #include "msg.h"
 #include "comm_cmd_process.h"
 
@@ -189,6 +189,7 @@ int main(void)
 	MuTesterSystem.Initialize();
 	g_rtParams.U8Parameter[U8PARA_NETIN1_TRANSTOPC] = 1;
 	g_rtParams.U8Parameter[U8PARA_NETIN2_TRANSTOPC] = 1;
+	g_rtParams.U8Parameter[U8PARA_FT3_SEND2] =1;
 
 
 	// print info
@@ -202,6 +203,8 @@ int main(void)
 
 	//get eth buffer
 	Alloc_EthMem();
+
+
 
 
 

@@ -2,7 +2,7 @@
  * comm_cmd_process.c
  *
  *  Created on: 2015-4-22
- *      Author: Administrator
+ *      Author: Wu JM
  */
 #include <stddef.h>
 #include "sys.h"
@@ -64,12 +64,23 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
 
 			break;
-//		case TYPE609_CONT_FT3_FORMAT_WRITE:
-//			return COMM_isFT3FormatWrite(netData,netDataSize,sendData,sendSize);
-////			break;
-//		case TYPE609_CONT_FT3_FORMAT_READ:
-//			return COMM_isFT3FormatRead(netData,netDataSize,sendData,sendSize);
-////			break;
+		case TYPE609_CONT_FT3_FORMAT_WRITE:
+
+			ret = msgUnpackFT3FormatWrite( netData, netDataSize );
+
+			MsgLen = msgPackDefaultReply(1,TYPE609_CONT_FT3_FORMAT_WRITE,COMM_ACK_RIGHT, NULL);
+
+			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+
+			break;
+
+		case TYPE609_CONT_FT3_FORMAT_READ:
+
+			MsgLen =  msgPackFT3FormatRead(netData, netDataSize );
+
+			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+
+			break;
 //		case TYPE609_CONT_VIRTUAL_WIRTE:
 //			return COMM_isVirtualWrite(netData,netDataSize,sendData,sendSize);
 ////			break;

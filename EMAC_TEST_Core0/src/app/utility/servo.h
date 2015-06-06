@@ -2,7 +2,7 @@
  * servo.h
  *
  *  Created on: 2014-7-30
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 #ifndef SERVO_H_

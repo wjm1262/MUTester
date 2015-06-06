@@ -2,7 +2,7 @@
  * sys.h
  *
  *  Created on: 2015-2-6
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 #ifndef SYS_H_
@@ -97,10 +97,10 @@ typedef struct Dev_AD
 
 	void (*EnableBuzyIOInterrupt) (bool enable);
 
-	void (*RegisterSPI0Callback)( SPI_CallbackFn pfCallback);
+//	void (*RegisterSPI0Callback)( SPI_CallbackFn pfCallback);
 	void (*RegisterSportCallback) ( SPORT_CallbackFn pfCallback);
 
-
+	//
 
 }DEV_AD;
 

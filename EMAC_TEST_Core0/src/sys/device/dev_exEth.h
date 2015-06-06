@@ -11,7 +11,6 @@
 #include "dri_adi_gemac.h"
 #include "dri_dm9000a.h"
 #include "loop_queue.h"
-#include "queue.h"
 
 /*! Frame queue */
 typedef struct EXEMAC_FRAME_Q

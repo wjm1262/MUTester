@@ -2,7 +2,7 @@
  * myapp_cfg.c
  *
  *  Created on: 2015-2-9
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
 
@@ -34,7 +34,7 @@
 // 1600,1548
 
 /*! size of the memory block to allocate to the stack.  */
-const unsigned g_ctEthHeapSize[5]={1024*1024*12, 1024*1024*12,1024*1024*4,1024*1024*4,1024*1024*7};
+const unsigned g_ctEthHeapSize[5]={1024*1024*12, 1024*1024*12,1024*1024*4,1024*1024*4,1024*1024*1};
 
 
 //0:eth0; 1:eth1; 2:exEth;
@@ -79,7 +79,7 @@ ETH_CFG_INFO user_net_config_info[5] =
 		{NULL, NULL, 0},
 	},
 
-	//exEth
+	//exEth for eth0
 	{
 		0,
 		0,//rx
@@ -98,7 +98,7 @@ ETH_CFG_INFO user_net_config_info[5] =
 		0,
 		{NULL, NULL, 0},
 	},
-	//exEth
+	//exEth for eth1
 		{
 			0,
 			0,//rx
@@ -117,13 +117,13 @@ ETH_CFG_INFO user_net_config_info[5] =
 			0,
 			{NULL, NULL, 0},
 		},
-		//exEth
+		//exEth for standard ad frm
 			{
 				0,
 				0,//rx
-				8000,//tx
-				648,
-				648,
+				4000,//tx
+				128,
+				128,
 				0,
 				0,
 				0,
@@ -414,22 +414,21 @@ int Alloc_EthMem(void)
 
 
 		/* allocate memory  */
-			EthHeapBlock = heap_malloc ( 3, g_ctEthHeapSize[4] );
-			if ( EthHeapBlock == NULL )
-			{
-				DEBUG_PRINT ( " heap_malloc: in heap %d, failed to allocate memory to the stack \n\n" , 3);
-				return -1;
-			}
-			/* init buf mem */
-			nRet = Init_EthCfgInfo (EthHeapBlock, g_ctEthHeapSize[4], 2, &user_net_config_info[4] );
-			if( nRet < 0 )
-			{
-				DEBUG_STATEMENT ( " Init_EthCfgInfo: failed!\n\n" );
-				return nRet;
-			}
+		EthHeapBlock = heap_malloc ( 3, g_ctEthHeapSize[4] );
+		if ( EthHeapBlock == NULL )
+		{
+			DEBUG_PRINT ( " heap_malloc: in heap %d, failed to allocate memory to the stack \n\n" , 3);
+			return -1;
+		}
+		/* init buf mem */
+		nRet = Init_EthCfgInfo (EthHeapBlock, g_ctEthHeapSize[4], 2, &user_net_config_info[4] );
+		if( nRet < 0 )
+		{
+			DEBUG_STATEMENT ( " Init_EthCfgInfo: failed!\n\n" );
+			return nRet;
+		}
 
 
 	return 0;
 }
-
 

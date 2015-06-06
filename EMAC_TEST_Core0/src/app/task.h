@@ -2,15 +2,15 @@
  * app.h
  *
  *  Created on: 2015-2-10
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 #ifndef APP_H_
 #define APP_H_
 
-#include "queue.h"
 
 #include <services/gpio/adi_gpio.h> //should before adi_initialize.h
+#include "adi_ether_header.h"
 
 /// task eth
 void Task_Eth0_Rx( void *p_arg );
@@ -33,8 +33,6 @@ void Task_SystemTime1( void* p_arg );
 
 
 
-extern AUXI_SNAPSHOT_TM_QUEUE  g_Eth0AuxiTMQueue;
-extern AUXI_SNAPSHOT_TM_QUEUE  g_Eth1AuxiTMQueue;
 
 
 // TASK_AD

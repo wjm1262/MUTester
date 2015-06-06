@@ -2,13 +2,13 @@
  * comm_cmd_process.h
  *
  *  Created on: 2015-4-22
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
 #ifndef COMM_CMD_PROCESS_H_
 #define COMM_CMD_PROCESS_H_
 
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"
 
 /*
 功能：	PC通信口参数通信

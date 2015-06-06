@@ -2,13 +2,13 @@
  * msg.h
  *
  *  Created on: 2015-3-24
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
 #ifndef MSG_H_
 #define MSG_H_
 
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"
 #include <stdlib.h>
 #include <string.h>
 #include <drivers/ethernet/adi_ether.h>
@@ -17,19 +17,15 @@
 start：共享数据
 *******************************/
 
-
+#define MAX_FT3_OUTPUT_NUM (6)
 typedef struct sRUNTIME_PARAMS
 {
 
 	SMV_PROTOCOL_PARA NetSend1SmvPara;		//点对点1发送参数
 	SMV_PROTOCOL_PARA NetSend2SmvPara;		//点对点2发送参数
 
-	FT3_PROTOCOL_PARA FT3Send1Para;
-	FT3_PROTOCOL_PARA FT3Send2Para;
-	FT3_PROTOCOL_PARA FT3Send3Para;
-	FT3_PROTOCOL_PARA FT3Send4Para;
-	FT3_PROTOCOL_PARA FT3Send5Para;
-	FT3_PROTOCOL_PARA FT3Send6Para;
+	FT3_PROTOCOL_PARA FT3SendPara[MAX_FT3_OUTPUT_NUM];
+
 
 	VIRTUAL_DATA_TYPE virtualData;					//虚拟发生器缓存,数组大小为VIRTUAL_DATA_SIZE
 
@@ -126,9 +122,12 @@ UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  );
 UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  );
 
-//////////////////////////
-int PackSmvFrm( UINT8* OutBuf, UINT32 data[6], unsigned int SmpCnt, UINT8 Port );
+UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize );
+UINT8 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize );
 
+//////////////////////////
+int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pStandADData, UINT8 Port );
+int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData);
 ADI_ETHER_BUFFER *PackForwardFrame( uint16_t CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
 										uint16_t FrmLen,
 										 ADI_ETHER_BUFFER *pXmtBuf);

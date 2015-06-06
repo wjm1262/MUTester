@@ -2,7 +2,7 @@
  * task_ad.c
  *
  *  Created on: 2015-3-17
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
 
@@ -13,7 +13,7 @@
 
 #include "myapp_cfg.h"
 
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"
 //#include "xl-6004_forward_protocol.h"
 #include "msg.h"
 
@@ -119,20 +119,85 @@ uint32_t MDMA_Init(void)
     return 0;
 }
 
+///////////////////
+static int ADData2StandardSmpData(STAND_SAMP_TYPE* OutStandardSmpData,
+		void *pAD_Value,
+		uint8_t AD_ByteLength,
+		uint16_t SmpCnt)
+{
+
+	STAND_SAMP_TYPE  *pPktAD = OutStandardSmpData;
+
+	AD7608_DATA*pAD7608_Data = (AD7608_DATA*)pAD_Value;
+
+	if( !pPktAD || !pAD7608_Data)
+	{
+		return 0;
+	}
+
+	pPktAD->stateLabel		= 0;		//状态标识
+ 	pPktAD->sampCnt			= SmpCnt;			//采样序号
+//	pPktAD->sampTMark		=;		//采样延时
+//	pPktAD->netSendTMark	=;	//点对点发送延时
+//	pPktAD->FT3SendTMark	=;	//FT3发送延时
 
 
-void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength, uint16_t smpCnt)
+	pPktAD->UaSampData   = (pAD7608_Data[0].ad *5000./0x1ffff);
+	pPktAD->UbSampData   = (pAD7608_Data[1].ad *5000./0x1ffff);
+	pPktAD->UcSampData   = (pAD7608_Data[2].ad *5000./0x1ffff);
+
+	pPktAD->IaSampData   = (pAD7608_Data[3].ad *5000./0x1ffff);
+	pPktAD->IbSampData   = (pAD7608_Data[4].ad *5000./0x1ffff);
+	pPktAD->IbSampData   = (pAD7608_Data[5].ad *5000./0x1ffff);
+
+	return 1;
+}
+
+int OutputStandardADFrm( const STAND_SAMP_TYPE*  pStandSmpData)
 {
 	ADI_ETHER_BUFFER *pNewBuffer = NULL;
 	ADI_ETHER_BUFFER *pBuf = NULL;
 	uint8_t* pADDataBuf = NULL;
+
+	int nFrmLen = 0;
+
+
+	/* user process the AD data*/
+	pBuf = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
+	if(!pBuf)
+	{
+		DEBUG_PRINT("%s[#%d]:exEth.PopProcessedElem failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
+
+	pADDataBuf = (uint8_t*)pBuf->Data + 2
+					+ sizeof(MUTestMsgHeader)
+					+ sizeof(STAND_SAMP_HEAD_TYPE);
+
+
+	//注意：在这里，StandSmpData填充到FRM里面没有大小端转换
+	memcpy(pADDataBuf, pStandSmpData, sizeof(STAND_SAMP_TYPE));
+	nFrmLen = msgPackStandADFrm( (uint8_t*)pBuf->Data + 2, 1);
+
+	*( unsigned short * ) pBuf->Data = nFrmLen;
+	pBuf->ElementCount  = nFrmLen + 2;
+	pBuf->PayLoad =  0; 	// payload is part of the packet
+	pBuf->StatusWord = 0; 	// changes from 0 to the status info
+
+	//send by exEth
+	MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueAD, pBuf);
+
+	return 1;
+}
+
+int OutputStandardSmvFrm(const STAND_SAMP_TYPE*  pStandSmpData )
+{
+	ADI_ETHER_BUFFER *pBuf = NULL;
 	int nFrmLen = 0;
 	uint8_t PortNo = 0;
 
-	AD7608_DATA*pAD7608_Data = (AD7608_DATA*)pAD_Value;
 
 	/* user process the AD data*/
-
 	if( g_rtParams.U8Parameter[U8PARA_NET_SEND1] )
 	{
 		//send by eth0
@@ -148,42 +213,31 @@ void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength, uint16_t smpCnt)
 	else
 	{
 		DEBUG_PRINT("%s[#%d]:bad U8 Parameter setting for no eth send port...\n\n", __FILE__, __LINE__);
+		return 0;
 	}
 
 	if(!pBuf)
 	{
 		//ERROR
 		DEBUG_PRINT("%s[#%d]:pop_queue failed...\n\n", __FILE__, __LINE__);
-		return ;
+		return 0;
 	}
 
-	uint32_t data[6];
-
-	data[0]   = netHostChangeL(pAD7608_Data[0].ad *5000./0x1ffff);
-	data[1]   = netHostChangeL(pAD7608_Data[1].ad *5000./0x1ffff);
-	data[2]   = netHostChangeL(pAD7608_Data[2].ad *5000./0x1ffff);
-
-	data[3]   = netHostChangeL(pAD7608_Data[3].ad *5000./0x1ffff);
-	data[4]   = netHostChangeL(pAD7608_Data[4].ad *5000./0x1ffff);
-	data[5]   = netHostChangeL(pAD7608_Data[5].ad *5000./0x1ffff);
-
 	nFrmLen = PackSmvFrm( (uint8_t*)pBuf->Data + 2,
-			data,
-			smpCnt, PortNo );
-
-//	g_TaskADPara.unSmpCnt++;
+								pStandSmpData,
+								PortNo );
 
 	*( unsigned short * ) pBuf->Data = nFrmLen;
 	pBuf->ElementCount  = nFrmLen + 2;
 	pBuf->PayLoad =  0; 	// payload is part of the packet
 	pBuf->StatusWord = 0; 	// changes from 0 to the status info
 
-	if( g_rtParams.U8Parameter[U8PARA_NET_SEND1] )
+	if(1 == PortNo )
 	{
 		//send by eth0
 		MuTesterSystem.Device.Eth0.Write ( g_hEthDev[0], pBuf);
 	}
-	else if( g_rtParams.U8Parameter[U8PARA_NET_SEND2]  )
+	else if(2 == PortNo )
 	{
 		//send by eth1
 		MuTesterSystem.Device.Eth1.Write ( g_hEthDev[1], pBuf);
@@ -191,33 +245,78 @@ void ADData2SmvFrm( void *pAD_Value, uint8_t AD_ByteLength, uint16_t smpCnt)
 	else
 	{
 		DEBUG_PRINT("%s[#%d]:bad U8 Parameter setting for no eth send port...\n\n", __FILE__, __LINE__);
+
+		return 0;
 	}
 
+	return 1;
+
 }
 
 
-static void PackStandADData(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
-		uint16_t SmpCnt)
+int CreateFT3Frm( const STAND_SAMP_TYPE*  pStandSmpData)
 {
-	STAND_SAMP_TYPE  *pPktAD =(STAND_SAMP_TYPE*)( OutBuf );
+	//get buffer
+	Ft3FrmItem* pFrmItem = PushFt3FrmQueue(&g_Ft3FrmQueue );
+	if(!pFrmItem)
+	{
+		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
 
-	AD7608_DATA*pAD7608_Data = (AD7608_DATA*)pAD_Value;
-
-	pPktAD->stateLabel		= 0;		//状态标识
- 	pPktAD->sampCnt			= SmpCnt;			//采样序号
-//	pPktAD->sampTMark		=;		//采样延时
-//	pPktAD->netSendTMark	=;	//点对点发送延时
-//	pPktAD->FT3SendTMark	=;	//FT3发送延时
+	pFrmItem->FrmLen = PackFT3Frm(pFrmItem->Ft3FrmData, pStandSmpData);
 
 
-	pPktAD->UaSampData   = netHostChangeL(pAD7608_Data[0].ad *5000./0x1ffff);
-	pPktAD->UbSampData   = netHostChangeL(pAD7608_Data[1].ad *5000./0x1ffff);
-	pPktAD->UcSampData   = netHostChangeL(pAD7608_Data[2].ad *5000./0x1ffff);
-
-	pPktAD->IaSampData   = netHostChangeL(pAD7608_Data[3].ad *5000./0x1ffff);
-	pPktAD->IbSampData   = netHostChangeL(pAD7608_Data[4].ad *5000./0x1ffff);
-	pPktAD->IbSampData   = netHostChangeL(pAD7608_Data[5].ad *5000./0x1ffff);
+	return 1;
 }
+
+int OutputFT3Frm(void)
+{
+	Ft3FrmItem* pFrmItem = PopFt3FrmQueue(&g_Ft3FrmQueue );
+	if(!pFrmItem)
+	{
+		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
+
+	/* set the FPGA trigger pin in low */
+	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
+
+	Send_FT3_Data(pFrmItem->Ft3FrmData, pFrmItem->FrmLen );
+
+	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+
+	return 1;
+}
+
+int ProcessStandardSmpDataOutput()
+{
+	STAND_SAMP_TYPE* pStandSmpData = PopQueue( &g_StandardSmpDataQueue );
+
+
+	//9-2组帧发送
+	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
+			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
+	{
+		OutputStandardSmvFrm(pStandSmpData );
+	}
+
+	//FT3组帧发送
+	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
+	       )
+	{
+		CreateFT3Frm( pStandSmpData);
+		OutputFT3Frm();
+	}
+
+	return 1;
+}
+
 
 /*
  * net to 16
@@ -251,6 +350,7 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	 */
 	pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
 	pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[0].data1[1] = 1;
 
 	/* cal 16 bytes crc*/
 	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
@@ -264,7 +364,8 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 
 	pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
-	pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 2;
+	pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[1].data1[1] = 2;
 
 	/* cal 16 bytes crc*/
 //	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
@@ -277,7 +378,8 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
 
 	pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
-	pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 3;
+	pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[2].data1[1] = 3;
 
 	/* cal 16 bytes crc*/
 //	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
@@ -296,6 +398,7 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	 */
 	pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
 	pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[0].data1[1]  = 4;
 
 	/* cal 16 bytes crc*/
 	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
@@ -305,7 +408,7 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	/* cal 16 bytes crc */
 	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
 	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 111;
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
 
 	/* cal 8 bytes crc */
 	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
@@ -314,12 +417,13 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 
 	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
-	pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 5;
+	pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[1].data1[1]  = 5;
 
 	/* cal 16 bytes crc*/
 //	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
 //	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 11111;
+	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 1111;
 
 	/* cal 16 bytes crc */
 //	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
@@ -333,7 +437,8 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 
 	pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
-	pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 6;
+	pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[2].data1[1]  = 6;
 
 	/* cal 16 bytes crc*/
 //	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
@@ -348,7 +453,7 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	/* cal 8 bytes crc */
 //	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
 //	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 11111;
+	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
 
 	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
 	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
@@ -414,49 +519,6 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 }
 
-
-
-void ADData2StandardADFrm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpCnt)
-{
-	ADI_ETHER_BUFFER *pNewBuffer = NULL;
-	ADI_ETHER_BUFFER *pBuf = NULL;
-	uint8_t* pADDataBuf = NULL;
-
-	int nFrmLen = 0;
-
-	/* user process the AD data*/
-	pBuf = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
-	g_TaskADPara.pStandardADFrmSendBuf = pBuf;
-
-	if(!pBuf)
-	{
-		//ERROR
-		DEBUG_PRINT("%s[#%d]:pop_queue failed...\n\n", __FILE__, __LINE__);
-		return ;
-	}
-
-	pADDataBuf = (uint8_t*)g_TaskADPara.pStandardADFrmSendBuf->Data + 2
-			+ sizeof(MUTestMsgHeader)
-			+ sizeof(STAND_SAMP_HEAD_TYPE);
-
-	PackStandADData( pADDataBuf, pAD_Value,  AD_ByteLength, smpCnt );
-
-//	g_TaskADPara.unSmpCnt++;
-
-	nFrmLen = msgPackStandADFrm( (uint8_t*)g_TaskADPara.pStandardADFrmSendBuf->Data + 2, 1);
-
-	*( unsigned short * ) g_TaskADPara.pStandardADFrmSendBuf->Data = nFrmLen;
-	g_TaskADPara.pStandardADFrmSendBuf->ElementCount  = nFrmLen + 2;
-	g_TaskADPara.pStandardADFrmSendBuf->PayLoad =  0; 	// payload is part of the packet
-	g_TaskADPara.pStandardADFrmSendBuf->StatusWord = 0; 	// changes from 0 to the status info
-
-	//send by exEth
-	MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueAD, g_TaskADPara.pStandardADFrmSendBuf);
-	g_TaskADPara.pStandardADFrmSendBuf = NULL;
-}
-
-
-
 static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
 {
 #if 1
@@ -467,16 +529,6 @@ static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t
 #endif
 }
 
-
-/*********************************************************************
-
-    Function:       SPORTCallbackRx
-
-    Description:    This is a callback function registered with the  driver.
-                    This function will be called when the RX completes the data
-            transfer.
-
-*********************************************************************/
 
 static void SPORTCallbackRx(
     void        *pAppHandle,
@@ -541,11 +593,10 @@ static void SPORTCallbackRx2(
 {
 
     ADI_SPORT_RESULT eResult;
-    static int i = 0;
+
     AD7608_DATA *pAD7608_Data = pArg;
 
-    ADI_ETHER_BUFFER *des = NULL;
-    IEC61850_9_2 *pFrmData   = NULL;
+    STAND_SAMP_TYPE* pStandardSmpData, *pOutStandardSmpData;
    /*
 	 * Disable the SPORT1-B, stop the SPORT process
 	 */
@@ -566,16 +617,43 @@ static void SPORTCallbackRx2(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
         	/* user process the AD data*/
 
-        	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1]) || ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
+        	pStandardSmpData = PushQueue( &g_StandardSmpDataQueue );
+        	if(!pStandardSmpData)
         	{
-        		ADData2SmvFrm( pArg, 32, g_TaskADPara.usSmpCnt);
+        		DEBUG_STATEMENT("in SPORTCallbackRx2: PushQueue failed!\n\n");
+        		return;
         	}
 
-        	//
-        	ADData2StandardADFrm( pArg, 32, g_TaskADPara.usSmpCnt);
+        	ADData2StandardSmpData(pStandardSmpData,
+									pArg,
+									32,
+									g_TaskADPara.usSmpCnt);
 
         	//
-        	ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
+        	pOutStandardSmpData = PopQueue( &g_StandardSmpDataQueue );
+
+        	//标准数据组帧发送
+        	OutputStandardADFrm( pOutStandardSmpData );
+
+        	//9-2组帧发送
+        	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
+        			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
+			{
+        		OutputStandardSmvFrm(pOutStandardSmpData);
+			}
+
+        	//FT3组帧发送
+        	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
+        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
+        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
+        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
+        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
+        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
+        	       )
+			{
+        		ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
+			}
+
 
         	g_TaskADPara.usSmpCnt = (g_TaskADPara.usSmpCnt + 1)%4000;
 
@@ -585,6 +663,9 @@ static void SPORTCallbackRx2(
     }
     /* return */
 }
+
+
+
 ///////////////////////////////////////////
 
 void Task_AD7608( void* p_arg )

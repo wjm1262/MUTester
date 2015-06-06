@@ -9,7 +9,7 @@
 #include <stdio.h>
 //#include "post_debug.h"
 #include "xl-6004_forward_protocol.h"
-#include "mutester_comm_protocol.h"
+#include "comm_pc_protocol.h"
 
 #include "msg.h"
 

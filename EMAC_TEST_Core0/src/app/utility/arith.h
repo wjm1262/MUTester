@@ -2,7 +2,7 @@
  * arith.h
  *
  *  Created on: 2014-7-30
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 #ifndef ARITH_H_

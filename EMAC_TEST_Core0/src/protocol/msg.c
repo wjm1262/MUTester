@@ -1,3 +1,10 @@
+
+/*
+ * msg.c
+ *
+ *  Created on: 2015-3-24
+ *      Author: Wu JM
+ */
 #include "msg.h"
 
 #include "myapp_cfg.h"
@@ -43,7 +50,7 @@ UINT8 COMM_clearBuf()
 }
 
 
-UINT16 netHostChangeS(UINT16 netshort)
+inline UINT16 netHostChangeS(UINT16 netshort)
 {
 	UINT16 retValue;
 	*((UINT8*)&retValue) = *(((UINT8*)&netshort)+1);
@@ -52,7 +59,7 @@ UINT16 netHostChangeS(UINT16 netshort)
 }
 
 
-UINT32 netHostChangeL(UINT32 netlong)
+inline UINT32 netHostChangeL(UINT32 netlong)
 {
 	UINT32 retValue;
 	*(((UINT8*)&retValue)+0) = *(((UINT8*)&netlong)+3);
@@ -329,207 +336,113 @@ INT32 msgPackSmvFormatRead(UINT8 *netData, UINT16 netDataSize )
 	}
 }
 
-UINT8 COMM_isFT3FormatWrite(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UINT16* sendSize)
+UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize )
 {
+	int i = 0, len =0;
 	UINT8 retValue = 0;
 
-//	UINT8 *tempPoint = netData;
-//
-//	UINT16 sampCount = *(UINT16*)tempPoint;
-//	g_rtParams.FT3Send1Para.sampCount = sampCount;
-//	g_rtParams.FT3Send2Para.sampCount = sampCount;
-//	g_rtParams.FT3Send3Para.sampCount = sampCount;
-//	g_rtParams.FT3Send4Para.sampCount = sampCount;
-//	g_rtParams.FT3Send5Para.sampCount = sampCount;
-//	g_rtParams.FT3Send6Para.sampCount = sampCount;
-//	tempPoint += sizeof(UINT16);
-//
-//	//测试用
-//	FT3_PROTOCOL_PARA *tt1 = FT3Send1Para;
-//	FT3_PROTOCOL_PARA *tt2 = FT3Send2Para;
-//	FT3_PROTOCOL_PARA *tt3 = FT3Send3Para;
-//	FT3_PROTOCOL_PARA *tt4 = FT3Send4Para;
-//	FT3_PROTOCOL_PARA *tt5 = FT3Send5Para;
-//	FT3_PROTOCOL_PARA *tt6 = FT3Send6Para;
-//	//end 测试用
-//
-//
-//	g_rtParams.FT3Send1Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send2Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send3Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send4Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send5Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send6Para.mapCount = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//
-//	if(g_rtParams.FT3Send1Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send1Para.chMap,tempPoint,g_rtParams.FT3Send1Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send1Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//	if(g_rtParams.FT3Send2Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send2Para.chMap,tempPoint,g_rtParams.FT3Send2Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send2Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//	if(g_rtParams.FT3Send3Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send3Para.chMap,tempPoint,g_rtParams.FT3Send3Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send3Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//	if(g_rtParams.FT3Send4Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send4Para.chMap,tempPoint,g_rtParams.FT3Send4Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send4Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//	if(g_rtParams.FT3Send5Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send5Para.chMap,tempPoint,g_rtParams.FT3Send5Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send5Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//	if(g_rtParams.FT3Send6Para.mapCount)
-//	{
-//		memcpy(g_rtParams.FT3Send6Para.chMap,tempPoint,g_rtParams.FT3Send6Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-//		tempPoint += g_rtParams.FT3Send6Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-//	}
-//
-//	g_rtParams.FT3Send1Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send2Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send3Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send4Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send5Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//	g_rtParams.FT3Send6Para.frameLen = *tempPoint;
-//	tempPoint += sizeof(UINT8);
-//
-//	if(g_rtParams.FT3Send1Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send1Para.frame,tempPoint,g_rtParams.FT3Send1Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send1Para.frameLen;
-//	}
-//	if(g_rtParams.FT3Send2Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send2Para.frame,tempPoint,g_rtParams.FT3Send2Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send2Para.frameLen;
-//	}
-//	if(g_rtParams.FT3Send3Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send3Para.frame,tempPoint,g_rtParams.FT3Send3Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send3Para.frameLen;
-//	}
-//	if(g_rtParams.FT3Send4Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send4Para.frame,tempPoint,g_rtParams.FT3Send4Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send4Para.frameLen;
-//	}
-//	if(g_rtParams.FT3Send5Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send5Para.frame,tempPoint,g_rtParams.FT3Send5Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send5Para.frameLen;
-//	}
-//	if(g_rtParams.FT3Send6Para.frameLen)
-//	{
-//		memcpy(g_rtParams.FT3Send6Para.frame,tempPoint,g_rtParams.FT3Send6Para.frameLen);
-//		tempPoint += g_rtParams.FT3Send6Para.frameLen;
-//	}
-//
-//	retValue = msgPackDefaultReply(1,TYPE609_CONT_FT3_FORMAT_WRITE,COMM_ACK_RIGHT, NULL);
-//
-//
-//	if(retValue)
-//		return COMM_returnData(sendData,sendSize);
-//	else
-		return 0;
-}
+	UINT8 *tempPoint = netData;
 
-UINT8 COMM_isFT3FormatRead(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UINT16* sendSize )
-{
-	UINT8 retValue = 0;
+	UINT16 sampCount = *(UINT16*)tempPoint;
 
-	UINT8 *tempPoint = g_ControlPackSendBuf + sizeof(MUTestMsgHeader);
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		g_rtParams.FT3SendPara[i].sampCount = sampCount;
+	}
 
-	*(UINT16*)tempPoint = g_rtParams.FT3Send1Para.sampCount;
 	tempPoint += sizeof(UINT16);
 
-	*tempPoint = g_rtParams.FT3Send1Para.mapCount;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send2Para.mapCount;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send3Para.mapCount;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send4Para.mapCount;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send5Para.mapCount;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send6Para.mapCount;
-	tempPoint += sizeof(UINT8);
-
-	memcpy(tempPoint,g_rtParams.FT3Send1Para.chMap,g_rtParams.FT3Send1Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send1Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-
-	memcpy(tempPoint,g_rtParams.FT3Send2Para.chMap,g_rtParams.FT3Send2Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send2Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-
-	memcpy(tempPoint,g_rtParams.FT3Send3Para.chMap,g_rtParams.FT3Send3Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send3Para.mapCount * sizeof(FT3_CH_Map_TYPE);
-
-	memcpy(tempPoint,g_rtParams.FT3Send4Para.chMap,g_rtParams.FT3Send4Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send4Para.mapCount * sizeof(FT3_CH_Map_TYPE);
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		g_rtParams.FT3SendPara[i].mapCount = *tempPoint;
+		tempPoint += sizeof(UINT8);
+	}
 
 
-	memcpy(tempPoint,g_rtParams.FT3Send5Para.chMap,g_rtParams.FT3Send5Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send5Para.mapCount * sizeof(FT3_CH_Map_TYPE);
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		if(g_rtParams.FT3SendPara[i].mapCount)
+		{
+			len = g_rtParams.FT3SendPara[i].mapCount * sizeof(FT3_CH_Map_TYPE);
+			memcpy(g_rtParams.FT3SendPara[i].chMap, tempPoint, len);
+			tempPoint += len;
+		}
+
+	}
+
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		g_rtParams.FT3SendPara[i].frameLen = *tempPoint;
+		tempPoint += sizeof(UINT8);
+	}
 
 
-	memcpy(tempPoint,g_rtParams.FT3Send6Para.chMap,g_rtParams.FT3Send6Para.mapCount * sizeof(FT3_CH_Map_TYPE));
-	tempPoint += g_rtParams.FT3Send6Para.mapCount * sizeof(FT3_CH_Map_TYPE);
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		len = g_rtParams.FT3SendPara[i].frameLen;
+		if(len)
+		{
+			memcpy(g_rtParams.FT3SendPara[i].frame, tempPoint,len);
+			tempPoint += len;
+		}
+	}
 
-	*tempPoint = g_rtParams.FT3Send1Para.frameLen;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send2Para.frameLen;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send3Para.frameLen;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send4Para.frameLen;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send5Para.frameLen;
-	tempPoint += sizeof(UINT8);
-	*tempPoint = g_rtParams.FT3Send6Para.frameLen;
-	tempPoint += sizeof(UINT8);
+	return 1;
+}
+
+UINT8 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize )
+{
+	UINT8 *OutBuf = g_ControlPackSendBuf;
+	UINT8  MsgType = MSG_CONTROL_FRM_TYPE;
+	UINT16 NetType;
+	UINT16 CmdCode;
+	UINT16 DataLen;
+
+	UINT8* StartPos ;
+
+	int i = 0, len = 0;
+	UINT8 retValue = 0;
+
+	UINT8 *tempPoint ;
+
+	StartPos = tempPoint = OutBuf + sizeof(MUTestMsgHeader);
+
+	*(UINT16*)tempPoint = g_rtParams.FT3SendPara[0].sampCount;
+	tempPoint += sizeof(UINT16);
+
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		*tempPoint = g_rtParams.FT3SendPara[i].mapCount;
+		tempPoint += sizeof(UINT8);
+	}
+
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		len = g_rtParams.FT3SendPara[i].mapCount * sizeof(FT3_CH_Map_TYPE);
+		memcpy(tempPoint,g_rtParams.FT3SendPara[i].chMap, len);
+		tempPoint += len;
+	}
+
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		*tempPoint = g_rtParams.FT3SendPara[i].frameLen;
+		tempPoint += sizeof(UINT8);
+	}
 
 
-	memcpy(tempPoint,g_rtParams.FT3Send1Para.frame,g_rtParams.FT3Send1Para.frameLen);
-	tempPoint += g_rtParams.FT3Send1Para.frameLen;
+	for(i =0; i < MAX_FT3_OUTPUT_NUM; i++)
+	{
+		len = g_rtParams.FT3SendPara[i].frameLen;
+		memcpy(tempPoint,g_rtParams.FT3SendPara[i].frame, len);
+		tempPoint += len;
+	}
 
-	memcpy(tempPoint,g_rtParams.FT3Send2Para.frame,g_rtParams.FT3Send2Para.frameLen);
-	tempPoint += g_rtParams.FT3Send2Para.frameLen;
 
-	memcpy(tempPoint,g_rtParams.FT3Send3Para.frame,g_rtParams.FT3Send3Para.frameLen);
-	tempPoint += g_rtParams.FT3Send3Para.frameLen;
+	NetType  = NET_609_CONCROL;
+	CmdCode = TYPE609_CONT_FT3_FORMAT_READ;
+	DataLen = tempPoint - StartPos;
 
-	memcpy(tempPoint,g_rtParams.FT3Send4Para.frame,g_rtParams.FT3Send4Para.frameLen);
-	tempPoint += g_rtParams.FT3Send4Para.frameLen;
-
-	memcpy(tempPoint,g_rtParams.FT3Send5Para.frame,g_rtParams.FT3Send5Para.frameLen);
-	tempPoint += g_rtParams.FT3Send5Para.frameLen;
-
-	memcpy(tempPoint,g_rtParams.FT3Send6Para.frame,g_rtParams.FT3Send6Para.frameLen);
-	tempPoint += g_rtParams.FT3Send6Para.frameLen;
-
-//	comSendPackHead->code = TYPE609_CONT_FT3_FORMAT_READ;
-//	comSendPackHead->dataLeng = tempPoint - comSendPackDataStart;
-//	retValue = COMM_returnData(sendData,sendSize);
-
-	return retValue;
+	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLen );
 }
 
 UINT8 COMM_isVirtualWrite(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UINT16* sendSize)
@@ -1024,14 +937,18 @@ UINT8 COMM_transmitStandData(PTR_STAND_SAMP_TYPE data,UINT8** sendData,UINT16* s
 	return 0;
 }
 
+enum
+{
+	MUA=0,MUB,MUC,MIA,MIB,MIC,PUA,PUB,PUC,PIA,PIB,PIC,ZERO_VAL,DELAY,CNT
+};
 
-
-//only one ASDU for each SV frame
-int PackSmvFrm( UINT8* OutBuf, UINT32 data[6], unsigned int SmpCnt, UINT8 Port )
+//
+int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pSmpData, UINT8 Port )
 {
 	SMV_PROTOCOL_PARA *pSmvPara = 0;
 	UINT8 uChNo = 0;
 	UINT8 uAsduNo = 0;
+	unsigned int SmpCnt = pSmpData->sampCnt;
 
 	if(Port == 1)
 	{
@@ -1047,97 +964,144 @@ int PackSmvFrm( UINT8* OutBuf, UINT32 data[6], unsigned int SmpCnt, UINT8 Port )
 		return 0;
 	}
 
-	UINT32 IA, IB, IC, UA, UB, UC;
-
-	IA   = data[0];
-	IB   = data[1];
-	IC   = data[2];
-
-	UA   = data[3];
-	UB   = data[4];
-	UC   = data[5];
-
-
-	UINT8 *smvBuf = pSmvPara->frame;
-	UINT16 smvBufSize = pSmvPara->frameLen;
-
-	//
-	UINT16 cntIndex = pSmvPara->cntIndex[0];		//采样序号的位置
-	UINT16 *cntPoint = (UINT16*)smvBuf + cntIndex;
-	*cntPoint = netHostChangeS(SmpCnt);
-
-	UINT16 ch1Index;
-	SMV_92_CH_TYPE *chValuePoint = NULL;
-	UINT8 cType;
-
-	///
-	ch1Index = pSmvPara->firstValueIndex[0];
-
-	chValuePoint = (SMV_92_CH_TYPE*) (smvBuf+ ch1Index);
-
-	for( uChNo = 0; uChNo < pSmvPara->chNum; uChNo++,chValuePoint++)
-	{
-		cType = pSmvPara->chType[uChNo];
-
-		switch(cType)
-		{
-		case NEW609_CHTYPE_MUA:
-			chValuePoint->value = UA;
-			break;
-		case NEW609_CHTYPE_MUB:
-			chValuePoint->value = UB;
-			break;
-		case NEW609_CHTYPE_MUC:
-			chValuePoint->value = UC;
-			break;
-		case NEW609_CHTYPE_MIA:
-			chValuePoint->value = IA;
-			break;
-		case NEW609_CHTYPE_MIB:
-			chValuePoint->value = IB;
-			break;
-		case NEW609_CHTYPE_MIC:
-			chValuePoint->value = IC;
-			break;
-		case NEW609_CHTYPE_PUA:
-			chValuePoint->value = UA;
-			break;
-		case NEW609_CHTYPE_PUB:
-			chValuePoint->value = UB;
-			break;
-		case NEW609_CHTYPE_PUC:
-			chValuePoint->value = UC;
-			break;
-		case NEW609_CHTYPE_PIA:
-			chValuePoint->value = IA;
-			break;
-		case NEW609_CHTYPE_PIB:
-			chValuePoint->value = IB;
-			break;
-		case NEW609_CHTYPE_PIC:
-			chValuePoint->value = IC;
-			break;
-		case NEW609_CHTYPE_0:
-			chValuePoint->value = 0;
-			break;
-		case NEW609_CHTYPE_CNT:
-			chValuePoint->value = netHostChangeL(SmpCnt);
-			break;
-		case NEW609_CHTYPE_DELAY:
-			chValuePoint->value = 1;//额定延时 需要测试
-			break;
-		case NEW609_CHTYPE_CRC_START:
-			break;
-		case NEW609_CHTYPE_CRC_STOP:
-			break;
-		}//switch
-
-	}//for each channel
+	UINT8 *smvBuf = OutBuf ;
 
 	// 换成MDMA
-	memcpy(OutBuf, smvBuf, smvBufSize);
+	memcpy(smvBuf, pSmvPara->frame,  pSmvPara->frameLen);
+
+	//
+	UINT16 cntIndex ;		//采样序号的位置
+
+	UINT16 ch1Index;//第一个通道的在帧中的位置
+	SMV_92_CH_TYPE *chValuePoint = NULL;
+	UINT8 chType;
+
+	///
+	UINT32 MapValueArray[15];// 需要转成 大端
+	MapValueArray[MUA]		= netHostChangeL( (UINT32)pSmpData->UaSampData );
+	MapValueArray[MUB]		= netHostChangeL( (UINT32)pSmpData->UbSampData );
+	MapValueArray[MUC]		= netHostChangeL( (UINT32)pSmpData->UcSampData );
+
+	MapValueArray[MIA]		= netHostChangeL( (UINT32)pSmpData->IaSampData );
+	MapValueArray[MIB]		= netHostChangeL( (UINT32)pSmpData->IbSampData );
+	MapValueArray[MIC]		= netHostChangeL( (UINT32)pSmpData->IcSampData );
+
+	MapValueArray[PUA]		= netHostChangeL( (UINT32)pSmpData->UaSampData );
+	MapValueArray[PUB]		= netHostChangeL( (UINT32)pSmpData->UbSampData );
+	MapValueArray[PUC]		= netHostChangeL( (UINT32)pSmpData->UcSampData );
+
+	MapValueArray[PIA]		= netHostChangeL( (UINT32)pSmpData->IaSampData );
+	MapValueArray[PIB]		= netHostChangeL( (UINT32)pSmpData->IbSampData );
+	MapValueArray[PIC]		= netHostChangeL( (UINT32)pSmpData->IcSampData );
+
+	MapValueArray[ZERO_VAL]	= 0;
+	MapValueArray[DELAY]	=  netHostChangeS( (UINT16)pSmpData->netSendTMark);
+	MapValueArray[CNT]		=  netHostChangeS( (UINT16)pSmpData->sampCnt);
+
+	for(uAsduNo = 0; uAsduNo < pSmvPara->asduNum; uAsduNo++)
+	{
+		//采样序号的位置
+		cntIndex = pSmvPara->cntIndex[uAsduNo];
+
+		*(smvBuf + cntIndex) = (SmpCnt + uAsduNo)>>8 ;
+		*(smvBuf + cntIndex+1) = (SmpCnt + uAsduNo)&0x00ff;
+
+		//the first channel
+		ch1Index = pSmvPara->firstValueIndex[uAsduNo];
+		chValuePoint = (SMV_92_CH_TYPE*) (smvBuf+ ch1Index);
+
+		for( uChNo = 0; uChNo < pSmvPara->chNum; uChNo++, chValuePoint++)
+		{
+			chType = pSmvPara->chType[uChNo];
+
+			chValuePoint->value = MapValueArray[chType - NEW609_CHTYPE_BASE];
+
+		}//for each channel
+
+	}
 
 	return 1;
+}
+
+int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData)
+{
+	uint8_t *pDestFrm = OutBuf;
+	FT3_PROTOCOL_PARA *pFT3_Protocol_Para;
+	uint8_t *pOriginFrm        ;
+	uint8_t ucChannelNum       ;
+	FT3_CH_Map_TYPE *pMapArray ;
+	uint8_t ucFrmLen           ;
+	int32_t totalLen=0;
+
+	uint8_t index = 0;
+	uint8_t chType;
+	uint16_t* pChData;
+
+	uint8_t  CRC_CheckLen;
+	uint8_t  CRC_Start;
+	uint16_t CRC ;
+
+	UINT16 MapValueArray[15];//注意：FT3的只还需要根据 有效值、量化因子量化，并转成 大端
+	MapValueArray[MUA]		= netHostChangeS((UINT16)pSmpData->UaSampData);
+	MapValueArray[MUB]		= netHostChangeS((UINT16)pSmpData->UbSampData);
+	MapValueArray[MUC]		= netHostChangeS((UINT16)pSmpData->UcSampData);
+
+	MapValueArray[MIA]		= netHostChangeS((UINT16)pSmpData->IaSampData);
+	MapValueArray[MIB]		= netHostChangeS((UINT16)pSmpData->IbSampData);
+	MapValueArray[MIC]		= netHostChangeS((UINT16)pSmpData->IcSampData);
+
+	MapValueArray[PUA]		= netHostChangeS((UINT16)pSmpData->UaSampData);
+	MapValueArray[PUB]		= netHostChangeS((UINT16)pSmpData->UbSampData);
+	MapValueArray[PUC]		= netHostChangeS((UINT16)pSmpData->UcSampData);
+
+	MapValueArray[PIA]		= netHostChangeS((UINT16)pSmpData->IaSampData);
+	MapValueArray[PIB]		= netHostChangeS((UINT16)pSmpData->IbSampData);
+	MapValueArray[PIC]		= netHostChangeS((UINT16)pSmpData->IcSampData);
+
+	MapValueArray[ZERO_VAL]	= 0;
+	MapValueArray[DELAY]	= netHostChangeS((UINT16)pSmpData->netSendTMark);
+	MapValueArray[CNT]		= netHostChangeS((UINT16)pSmpData->sampCnt);
+
+	int i,j;
+	for(i = 0; i < MAX_FT3_OUTPUT_NUM; i++ )
+	{
+		pFT3_Protocol_Para = g_rtParams.FT3SendPara + i;
+
+		pOriginFrm         = pFT3_Protocol_Para->frame;
+		ucChannelNum       = pFT3_Protocol_Para->mapCount;
+		pMapArray 		   = pFT3_Protocol_Para->chMap;
+		ucFrmLen           = pFT3_Protocol_Para->frameLen;
+		totalLen		  += ucFrmLen;
+
+		memcpy(pDestFrm, pOriginFrm, ucFrmLen);
+
+		for(j = 0; j < ucChannelNum; j++ )
+		{
+			index  = pMapArray[i].index;
+			chType = pMapArray[i].chType;
+
+
+			/* used for FT3 CRC map */
+			if(chType < NEW609_CHTYPE_CRC_START )
+			{
+				pChData = (uint16_t*)(pDestFrm + index);
+				*pChData = MapValueArray[chType - NEW609_CHTYPE_BASE];
+			}
+			else if((chType >= NEW609_CHTYPE_CRC_START ) && (chType < NEW609_CHTYPE_CRC_STOP))
+			{
+				CRC_CheckLen 		= chType - 0x80;
+				CRC_Start    		= index - CRC_CheckLen;
+				CRC          		= Cal_CRC16_ByByte(pDestFrm + CRC_Start, CRC_CheckLen);
+				pDestFrm[index]     = CRC >> 8;
+				pDestFrm[index + 1] = CRC & 0XFF;
+			}
+		}//for each channel
+
+		pDestFrm += ucFrmLen;
+
+	}// for each port
+
+	return totalLen;
 }
 
 

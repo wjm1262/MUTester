@@ -7,7 +7,6 @@
 
 #include "dri_ptp_engine.h"
 
-#include "queue.h"
 #include "arith.h"
 #include "servo.h"
 
@@ -585,8 +584,6 @@ void TimeStampStatusInterruptHandler ( 	ADI_ETHER_HANDLE phDevice, uint32_t tm_s
 
 	static TimeInternal AuxiTimeStamps[4] = {0};
 
-	TIME_STAMP_TYPE tmTypeElem;
-
 	uint32_t uCurAuxiFIFOCounter = (tm_status & BITM_EMAC_TM_STMPSTAT_ATSNS) >> BITP_EMAC_TM_STMPSTAT_ATSNS;
 
 	for( i = 0; i < uCurAuxiFIFOCounter; i++)
@@ -627,15 +624,6 @@ void TimeStampStatusInterruptHandler ( 	ADI_ETHER_HANDLE phDevice, uint32_t tm_s
 	//RC/NW
 	if( tm_status & BITM_EMAC_TM_STMPSTAT_ATSTS)
 	{
-//		if( EnQueue(&g_AuxiSnapshotTMQueue, &AuxiTimeStamps[i-1], false, false ) != Q_OK )
-//		{
-//			DEBUG_STATEMENT("EnQueue: AuxiSnapshotTMQueue Failed!\n\n ");
-//		}
-
-//		tmTypeElem.SnapshotTm 			= AuxiTimeStamps[i-1];
-//		tmTypeElem.bIsDoTimingTest 		= false;
-//		tmTypeElem.bTimingTestStarted 	= false;
-//		pDev->pAuxiTMTriggerHandler( &tmTypeElem );
 
 //		handle_auxiliary_tm_interrupt(	phDevice, &AuxiTimeStamps[i-1], false);
 		if(pDev->pAuxiTMTriggerHandler)

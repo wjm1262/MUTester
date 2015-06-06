@@ -1,13 +1,13 @@
 
 /**************************************
-***  循环队列 Circular Queue
+***  Circular Queue
 ***
 **************************************/
 
 
 #include "stdlib.h"
 #include "stdlib_bf.h"
-#include "queue.h"
+#include "queue_ad_modual.h"
 #include "post_debug.h"
 
 
@@ -24,52 +24,44 @@ int QueueLength ( QType Q )
 
 
 
-int EnQueue( QType *pQ, QElem* pElem)
+QElem* PushQueue( QType *pQ )
 {
 	if ( ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE == pQ->front )
 	{
-		return Q_ERROR;  // 入队前判断(预留一个存储单元)
+		DEBUG_PRINT("%s[#%d]:PushQueue overflow...\n\n", __FILE__, __LINE__);
+		return NULL;  // 入队前判断(预留一个存储单元)
 	}
 
 
-//	pQ->base[pQ->rear].bTimingTestStarted = bTimingTestStarted;
-//	pQ->base[pQ->rear].bIsDoTimingTest =  bIsDoTimingTest;
-//
-//	pQ->base[pQ->rear].SnapshotTm.nanoseconds = SnapshotTm->nanoseconds;
-//	pQ->base[pQ->rear].SnapshotTm.seconds = SnapshotTm->seconds;
-
-	pQ->base[pQ->rear] = *pElem;
+	QElem* pElem = pQ->base + pQ->rear;
 
 	pQ->rear = ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE;  // 队列尾部指针增加1
 
-	return Q_OK;
+	return pElem;
 }
 
 
-int DeQueue ( QType *pQ, QElem *pe )
+QElem * PopQueue ( QType *pQ )
 {
-	//算法2－2 出队操作
+
 //	ENTER_CRITICAL_REGION();
 
 	if ( pQ->front == pQ->rear )
 	{
+
 //		EXIT_CRITICAL_REGION();
-		return Q_ERROR;  // 出队列前判断
+		DEBUG_PRINT("%s[#%d]:PopQueue overflow...\n\n", __FILE__, __LINE__);
+		return NULL;  // 出队列前判断
 	}
 	
 //	EXIT_CRITICAL_REGION();
 
-	//DEBUG_STATEMENT ( " DeQueue\n\n" );
-	pe->bTimingTestStarted =  pQ->base[pQ->front].bTimingTestStarted;
-	pe->bIsDoTimingTest = pQ->base[pQ->front].bIsDoTimingTest;
-	pe->SnapshotTm.nanoseconds  = pQ->base[pQ->front].SnapshotTm.nanoseconds ;
-	pe->SnapshotTm.seconds = pQ->base[pQ->front].SnapshotTm.seconds;
+	QElem* pElem = pQ->base + pQ->front;
 	
 	pQ->front = ( pQ->front + 1 ) % QUEUE_BUFFER_SIZE;
 
-	//DEBUG_STATEMENT ( " exit DeQueue\n\n" );
 
-	return Q_OK;
+	return pElem;
 }
 
 
@@ -77,27 +69,11 @@ int GetHead ( QType *pQ, QElem *pe )
 {
 	if ( pQ->front == pQ->rear ) return Q_ERROR;   // 首尾指针相等则出错
 	
-	pe->bTimingTestStarted =  pQ->base[pQ->front].bTimingTestStarted;
-	pe->bIsDoTimingTest = pQ->base[pQ->front].bIsDoTimingTest;
-	pe->SnapshotTm.nanoseconds  = pQ->base[pQ->front].SnapshotTm.nanoseconds ;
-	pe->SnapshotTm.seconds = pQ->base[pQ->front].SnapshotTm.seconds;
+	*pe =  pQ->base[pQ->front];
 
-//
 	return Q_OK;
 }
-int GetLatest ( QType *pQ, QElem *pe )
-{
-	if ( pQ->front == pQ->rear ) return Q_ERROR;   // 首尾指针相等则出错
 
-//	pe->bTimingTestStarted =  pQ->base[pQ->front].bTimingTestStarted;
-//	pe->bIsDoTimingTest = pQ->base[pQ->front].bIsDoTimingTest;
-//	pe->SnapshotTm.nanoseconds  = pQ->base[pQ->front].SnapshotTm.nanoseconds ;
-//	pe->SnapshotTm.seconds = pQ->base[pQ->front].SnapshotTm.seconds;
-	*pe = pQ->latest_elem;
-
-//
-	return Q_OK;
-}
 //pe是Input and Output
 int GetElem ( QType *pQ, QElem *pe )
 {
@@ -157,4 +133,55 @@ void Visit_Q ( QType *pQ )  // 遍历队列
 
 ////////////////////////
 
+int InitFt3FrmQueue ( Ft3FrmQueue *pQ )
+{
+	pQ->front = pQ->rear = 0;
+	return Q_OK;
+}
+
+int Ft3FrmQueueLength ( Ft3FrmQueue Q )
+{
+	return ( Q.rear - Q.front + QUEUE_BUFFER_SIZE ) % QUEUE_BUFFER_SIZE;
+}
+
+
+
+Ft3FrmItem* PushFt3FrmQueue( Ft3FrmQueue *pQ )
+{
+	if ( ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE == pQ->front )
+	{
+		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
+		return NULL;  // 入队前判断(预留一个存储单元)
+	}
+
+
+	QElem* pElem = pQ->base + pQ->rear;
+
+	pQ->rear = ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE;  // 队列尾部指针增加1
+
+	return pElem;
+}
+
+
+Ft3FrmItem * PopFt3FrmQueue ( Ft3FrmQueue *pQ )
+{
+
+//	ENTER_CRITICAL_REGION();
+
+	if ( pQ->front == pQ->rear )
+	{
+//		EXIT_CRITICAL_REGION();
+		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
+		return NULL;  // 出队列前判断
+	}
+
+//	EXIT_CRITICAL_REGION();
+
+	QElem* pElem = pQ->base + pQ->front;
+
+	pQ->front = ( pQ->front + 1 ) % QUEUE_BUFFER_SIZE;
+
+
+	return pElem;
+}
 

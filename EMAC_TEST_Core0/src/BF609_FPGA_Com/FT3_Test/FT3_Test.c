@@ -256,7 +256,7 @@ static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 	/* cal 16 bytes crc */
 	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
 	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 111;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
 
 	/* cal 8 bytes crc */
 	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
@@ -270,7 +270,7 @@ static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 	/* cal 16 bytes crc*/
 //	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
 //	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 11111;
+	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 1111;
 
 	/* cal 16 bytes crc */
 //	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
@@ -299,7 +299,7 @@ static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 	/* cal 8 bytes crc */
 //	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
 //	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 11111;
+	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
 
 	Send_FT3_Data(g_pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
 	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);

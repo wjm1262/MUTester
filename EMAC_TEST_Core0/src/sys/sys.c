@@ -2,7 +2,7 @@
  * sys.c
  *
  *  Created on: 2015-2-9
- *      Author: WU jm
+ *      Author: wu jm
  */
 
 #include "sys.h"

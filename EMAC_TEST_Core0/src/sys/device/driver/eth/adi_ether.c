@@ -51,7 +51,7 @@
  *****************************************************************************/
 #include <stdio.h>
 #include <adi_types.h>
-#include <drivers/ethernet/adi_ether.h>
+#include "adi_ether_header.h"
 
 /*
  * adi_ether_misra.h suppresses certain MISRA warnings  */

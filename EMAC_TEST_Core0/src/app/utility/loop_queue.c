@@ -2,7 +2,7 @@
  * loop_LoopQueue_pointer.c
  *
  *  Created on: 2015-4-3
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 

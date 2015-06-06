@@ -2,7 +2,7 @@
  * loop_Queue_pointer.h
  *
  *  Created on: 2015-4-3
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 #ifndef LOOP_Queue_H_

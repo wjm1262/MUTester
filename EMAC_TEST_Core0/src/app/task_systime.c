@@ -10,7 +10,6 @@
 #include "task.h"
 #include "sys.h"
 
-#include "queue.h"
 #include "arith.h"
 #include "servo.h"
 
@@ -365,33 +364,6 @@ void Task_SystemTime1( void* p_arg )
 
 	MuTesterSystem.Device.SysTime1.SetAuxiTMTriggerHandler( g_hEthDev[1], handle_auxiliary_tm_interrupt );
 	MuTesterSystem.Device.SysTime1.EnableTimeStampAuxinInterrupt( g_hEthDev[1] );
-
-//	while(1)
-//	{
-//		QRet = DeQueue ( &g_Eth1AuxiTMQueue, &SnapshotTMType );
-//
-//		if(Q_OK == QRet)
-//		{
-//			if(SnapshotTMType.bIsDoTimingTest == false)
-//			{
-//
-//				nRet = handle_systime_calibration(g_hEthDev[1],
-//						&SnapshotTMType.SnapshotTm,
-//						SnapshotTMType.bTimingTestStarted);
-//
-////				bRet = SysTmIsSynchronizted(nRet);
-//			}
-//		}
-//		else
-//		{
-//			OSTimeDly(10, OS_OPT_TIME_DLY, &osErr);
-//			if(osErr != OS_ERR_NONE)
-//			{
-//				DEBUG_PRINT("Task_SystemTime1 : OSTimeDly Error:%d \n\n", osErr);
-//
-//			}
-//		}
-//	}
 
 //	OSTaskDel((OS_TCB*)0, &osErr);
 }

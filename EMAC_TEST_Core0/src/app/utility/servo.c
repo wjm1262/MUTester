@@ -2,7 +2,7 @@
  * servo.c
  *
  *  Created on: 2015-3-11
- *      Author: Administrator
+ *      Author: wu jm
  */
 
 

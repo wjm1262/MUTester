@@ -2,7 +2,7 @@
  * app_cfg.h
  *
  *  Created on: 2015-2-9
- *      Author: Administrator
+ *      Author: Wu JM
  */
 
 #ifndef APP_CFG_H_

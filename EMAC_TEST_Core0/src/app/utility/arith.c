@@ -2,7 +2,7 @@
  * arith.c
  *
  *  Created on: 2014-12-1
- *      Author: Administrator
+ *      Author: Wu jm
  */
 
 #include "arith.h"

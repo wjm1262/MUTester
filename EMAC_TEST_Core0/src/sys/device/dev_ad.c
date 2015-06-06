@@ -12,48 +12,15 @@
 
 #include "dev_smc.h"
 
+
 #include "post_debug.h"
 
 
-/*
- * ad7608 init
- */
-//static uint32_t Init_AD7608(void)
-//{
-//	uint32_t result = (uint32_t)-1;
-//	do
-//	{
-//		/* setup Pin for control the ad7608*/
-//		if((result = Init_AD7608_IO()) != 0)
-//		{
-//			DEBUG_PRINT("Failed in function Pin_Init : %d \n\n",result);
-//			break;
-//		}
-//
-//		/* setup SPI for data receive*/
-//		if((result = Init_SPI0()) != 0)
-//		{
-//			DEBUG_PRINT("Failed in function SPI_Init : %d \n\n",result);
-//			break;
-//		}
-//
-//		/* init the AD7608 BUSY pin IRQ*/
-//		if((result = Init_Busy_IO_IRQ() ) != 0)
-//		{
-//			DEBUG_PRINT("Failed in function BusyIRQ_Init : %d \n\n",result);
-//			break;
-//		}
-//
-//		RESET_HIGH(); 	//Rising edge of RESET reset the ad7608,
-//		RESET_LOW();	//restore the RESET pin
-//
-//	}while(0);
-//
-////	GP_Timer_Init();
-//
-//	return result;
-//}
+section ("sdram_bank0") AD_STAND_SMPDATA_Q g_StandardSmpDataQueue;
 
+section ("sdram_bank0") Ft3FrmQueue g_Ft3FrmQueue;
+
+/////////////
 static uint32_t Init_AD7608(void)
 {
 	uint32_t result = (uint32_t)-1;
@@ -99,11 +66,6 @@ static void EnableBuzyIOInterrupt(bool enable)
 	Enable_Buzy_IO_Interrupt( enable);
 }
 
-static void RegisterSPI0Callback( SPI_CallbackFn pfCallback)
-{
-	Register_SPI0_Callback( pfCallback );
-}
-
 static void RegisterSportCallback( SPORT_CallbackFn pfCallback)
 {
 	Register_SPORT1B_Callback( pfCallback);
@@ -111,11 +73,16 @@ static void RegisterSportCallback( SPORT_CallbackFn pfCallback)
 
 void RegisterADModual(void)
 {
+	InitQueue(&g_StandardSmpDataQueue);
+
+	InitFt3FrmQueue(&g_Ft3FrmQueue);
+
 	MuTesterSystem.Device.AD7608.InitADDevice = Init_AD7608;
 	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback = RegisterBuzyIOCallback;
 	MuTesterSystem.Device.AD7608.EnableBuzyIOInterrupt  = EnableBuzyIOInterrupt;
 
-	MuTesterSystem.Device.AD7608.RegisterSPI0Callback   = RegisterSPI0Callback;
+//	MuTesterSystem.Device.AD7608.RegisterSPI0Callback   = RegisterSPI0Callback;
 
 	MuTesterSystem.Device.AD7608.RegisterSportCallback  = RegisterSportCallback;
+
 }
