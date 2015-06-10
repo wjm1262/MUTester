@@ -10,7 +10,7 @@
 
 
 #include <services/gpio/adi_gpio.h> //should before adi_initialize.h
-#include "adi_ether_header.h"
+#include "dri_ether_header.h"
 
 /// task eth
 void Task_Eth0_Rx( void *p_arg );
@@ -26,12 +26,12 @@ void Ethernet0_Callback ( void *arg1, unsigned int event, void *FrameBuffers );
 void Ethernet1_Callback ( void *arg1, unsigned int event, void *FrameBuffers );
 
 
+void Task_exEth_Tx_Rx( void *p_arg );
+
 /// task sys time
 void Task_SystemTime0( void* p_arg );
 
 void Task_SystemTime1( void* p_arg );
-
-
 
 
 
@@ -46,8 +46,11 @@ extern TASK_AD_PARA g_TaskADPara;
 
 void Task_AD7608( void* p_arg );
 
+//StandardSmpData convert to SV and FT3
+int StandardSmpDataFormatConverter();
 
-void Task_exEth_Tx_Rx( void *p_arg );
+
+
 
 
 

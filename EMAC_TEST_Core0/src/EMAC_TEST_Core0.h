@@ -13,9 +13,10 @@
  */
 #if defined( __ADSPBF60x__)
 #include <adi_osal.h>
-#include <drivers/ethernet/adi_ether_gemac.h>
+#include "adi_ether_gemac.h"
 #include <services/int/adi_int.h>
 #include <services/int/adi_sec.h>
+
 
 #if defined(__ADSPBF609__)
 #include <cdefbf609.h>

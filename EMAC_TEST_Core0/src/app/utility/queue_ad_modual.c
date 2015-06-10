@@ -10,6 +10,7 @@
 #include "queue_ad_modual.h"
 #include "post_debug.h"
 
+#include "dri_adi_gemac.h"
 
 int InitQueue ( QType *pQ )
 {
@@ -26,12 +27,14 @@ int QueueLength ( QType Q )
 
 QElem* PushQueue( QType *pQ )
 {
+	ENTER_CRITICAL_REGION();
 	if ( ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE == pQ->front )
 	{
-		DEBUG_PRINT("%s[#%d]:PushQueue overflow...\n\n", __FILE__, __LINE__);
+		EXIT_CRITICAL_REGION();
+//		DEBUG_PRINT("%s[#%d]:PushQueue overflow...\n\n", __FILE__, __LINE__);
 		return NULL;  // 入队前判断(预留一个存储单元)
 	}
-
+	EXIT_CRITICAL_REGION();
 
 	QElem* pElem = pQ->base + pQ->rear;
 
@@ -44,17 +47,17 @@ QElem* PushQueue( QType *pQ )
 QElem * PopQueue ( QType *pQ )
 {
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 	if ( pQ->front == pQ->rear )
 	{
 
-//		EXIT_CRITICAL_REGION();
-		DEBUG_PRINT("%s[#%d]:PopQueue overflow...\n\n", __FILE__, __LINE__);
+		EXIT_CRITICAL_REGION();
+//		DEBUG_PRINT("%s[#%d]:PopQueue overflow...\n\n", __FILE__, __LINE__);
 		return NULL;  // 出队列前判断
 	}
 	
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	QElem* pElem = pQ->base + pQ->front;
 	
@@ -148,11 +151,14 @@ int Ft3FrmQueueLength ( Ft3FrmQueue Q )
 
 Ft3FrmItem* PushFt3FrmQueue( Ft3FrmQueue *pQ )
 {
+	ENTER_CRITICAL_REGION();
 	if ( ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE == pQ->front )
 	{
-		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
+		EXIT_CRITICAL_REGION();
+//		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
 		return NULL;  // 入队前判断(预留一个存储单元)
 	}
+	EXIT_CRITICAL_REGION();
 
 
 	QElem* pElem = pQ->base + pQ->rear;
@@ -166,16 +172,16 @@ Ft3FrmItem* PushFt3FrmQueue( Ft3FrmQueue *pQ )
 Ft3FrmItem * PopFt3FrmQueue ( Ft3FrmQueue *pQ )
 {
 
-//	ENTER_CRITICAL_REGION();
+	ENTER_CRITICAL_REGION();
 
 	if ( pQ->front == pQ->rear )
 	{
-//		EXIT_CRITICAL_REGION();
-		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
+		EXIT_CRITICAL_REGION();
+//		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
 		return NULL;  // 出队列前判断
 	}
 
-//	EXIT_CRITICAL_REGION();
+	EXIT_CRITICAL_REGION();
 
 	QElem* pElem = pQ->base + pQ->front;
 

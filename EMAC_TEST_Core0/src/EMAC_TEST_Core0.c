@@ -32,7 +32,7 @@ void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "with Forward SMV frame. ";
+char VerDescripString[64] = "send FT3 in main. ";
 
 //define STACK SIZE
 #define APPLICATION_TASK_STACK_SIZE (2048)
@@ -292,6 +292,8 @@ int main(void)
 
 //			DEBUG_STATEMENT("recv ok.\n\n");
 		}
+
+//		StandardSmpDataFormatConverter();
 
 	}//while
 

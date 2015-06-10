@@ -14,7 +14,7 @@
 #define Q_OK 1
 #define Q_ERROR 0
 #define Q_OVERFLOW -2
-#define QUEUE_BUFFER_SIZE (4000)
+#define QUEUE_BUFFER_SIZE (8000)
 
 
 typedef STAND_SAMP_TYPE QElem;

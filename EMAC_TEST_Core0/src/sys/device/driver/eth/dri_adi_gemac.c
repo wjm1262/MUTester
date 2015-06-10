@@ -59,7 +59,7 @@
 #include <ccblkfn.h>
 #include <cdefbf609.h>
 
-#include "adi_ether_header.h"
+#include "dri_ether_header.h"
 
 #include <services/int/adi_int.h>
 #include "dri_adi_gemac.h"

@@ -24,6 +24,10 @@
 #include "FT3_Test.h"
 #include "post_debug.h"
 
+
+#define _TEST_output_in_main 0
+
+
 TASK_AD_PARA g_TaskADPara ={NULL, 0};
 
 #define SPI0_RX_SIZE  18
@@ -254,68 +258,7 @@ int OutputStandardSmvFrm(const STAND_SAMP_TYPE*  pStandSmpData )
 }
 
 
-int CreateFT3Frm( const STAND_SAMP_TYPE*  pStandSmpData)
-{
-	//get buffer
-	Ft3FrmItem* pFrmItem = PushFt3FrmQueue(&g_Ft3FrmQueue );
-	if(!pFrmItem)
-	{
-		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
-		return 0;
-	}
 
-	pFrmItem->FrmLen = PackFT3Frm(pFrmItem->Ft3FrmData, pStandSmpData);
-
-
-	return 1;
-}
-
-int OutputFT3Frm(void)
-{
-	Ft3FrmItem* pFrmItem = PopFt3FrmQueue(&g_Ft3FrmQueue );
-	if(!pFrmItem)
-	{
-		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
-		return 0;
-	}
-
-	/* set the FPGA trigger pin in low */
-	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
-
-	Send_FT3_Data(pFrmItem->Ft3FrmData, pFrmItem->FrmLen );
-
-	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
-
-	return 1;
-}
-
-int ProcessStandardSmpDataOutput()
-{
-	STAND_SAMP_TYPE* pStandSmpData = PopQueue( &g_StandardSmpDataQueue );
-
-
-	//9-2组帧发送
-	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
-			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
-	{
-		OutputStandardSmvFrm(pStandSmpData );
-	}
-
-	//FT3组帧发送
-	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
-	       )
-	{
-		CreateFT3Frm( pStandSmpData);
-		OutputFT3Frm();
-	}
-
-	return 1;
-}
 
 
 /*
@@ -401,19 +344,19 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	pBF609_FPGA_FT3->ThreePhaseData[0].data1[1]  = 4;
 
 	/* cal 16 bytes crc*/
-	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
 
 	/* cal 16 bytes crc */
-	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
 
 	/* cal 8 bytes crc */
-	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
 
 
 	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
@@ -519,6 +462,265 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 }
 
+static void ADData2Ft3_EX(uint8_t* OutBuf, const STAND_SAMP_TYPE* pStandSmpData)
+{
+
+	uint16_t crc;
+
+	FT3_TEST_DATA *pBF609_FPGA_FT3 = (FT3_TEST_DATA*)OutBuf;
+
+	/* set the FPGA trigger pin in low */
+	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
+
+#if 1
+//	SmpCnt = (SmpCnt + 1) % 4000;
+	uint16_t tmp_cnt = myHtons(pStandSmpData->sampCnt);
+	/*
+	 *
+	 *  single phase FT3 data
+	 *
+	 */
+	pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
+	pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[0].data1[1] = 1;
+
+	/* cal 16 bytes crc*/
+	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
+	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = 1111;
+
+	/* cal 4 bytes crc */
+	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[0].Status), 4);
+	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = 1111;
+
+
+	pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
+	pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[1].data1[1] = 2;
+
+	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
+//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = 1111;
+
+	/* cal 4 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[1].Status), 4);
+//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
+
+	pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
+	pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 1;
+	pBF609_FPGA_FT3->SinglePhaseData[2].data1[1] = 3;
+
+	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
+//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = 1111;
+
+	/* cal 4 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[2].Status), 4);
+//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = 1111;
+
+	/*
+	 *
+	 *  Three phase FT3 data
+	 *
+	 */
+	pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
+	pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[0].data1[1]  = 4;
+
+	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
+
+	/* cal 16 bytes crc */
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
+
+	/* cal 8 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
+
+
+	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
+	pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[1].data1[1]  = 5;
+
+	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 1111;
+
+	/* cal 16 bytes crc */
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = 1111;
+
+	/* cal 8 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[1].CphaseData), 8);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = 1111;
+
+
+	pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
+	pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 4;
+	pBF609_FPGA_FT3->ThreePhaseData[2].data1[1]  = 6;
+
+	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = 1111;
+
+	/* cal 16 bytes crc */
+//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data2), 16);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = 1111;
+
+	/* cal 8 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
+	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
+
+//	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+
+#else   /* 12.8k sample rate */
+	SmpCnt = (SmpCnt + 1) % 12800;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data1[15] = SmpCnt;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].data1[15] = SmpCnt;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].data1[15] = SmpCnt;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].data1[15] = SmpCnt;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].data1[15] = SmpCnt;
+
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].data1[14] = SmpCnt >> 8;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].data1[15] = SmpCnt;
+
+
+	crc = Cal_CRC16_ByByte(pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data1, 16);
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].CRC1      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].CRC1      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].CRC1      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].CRC1      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].CRC1      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].CRC1      = crc;
+
+
+	crc = Cal_CRC16_ByByte(pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data2, 16);
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].CRC2      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].CRC2      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].CRC2      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].CRC2      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].CRC2      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].CRC2      = crc;
+
+	crc = Cal_CRC16_ByByte(pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data3, 16);
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].CRC3      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].CRC3      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].CRC3      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].CRC3      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].CRC3      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].CRC3      = crc;
+
+	crc = Cal_CRC16_ByByte(pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].data4, 16);
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[0].CRC4      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[1].CRC4      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[2].CRC4      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[3].CRC4      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[4].CRC4      = crc;
+	pBF609_FPGA_FT3_ex->FT3_Extend_Data_sa[5].CRC4      = crc;
+//	Send_FT3_Data(pBF609_FPGA_FT3_ex, sizeof(EX_FT3_TEST_DATA));
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+
+#endif
+
+}
+
+int CreateFT3Frm( const STAND_SAMP_TYPE*  pStandSmpData)
+{
+	//get buffer
+	Ft3FrmItem* pFrmItem = PushFt3FrmQueue(&g_Ft3FrmQueue );
+	if(!pFrmItem)
+	{
+//		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
+
+	ADData2Ft3_EX(pFrmItem->Ft3FrmData, pStandSmpData);
+
+//	pFrmItem->FrmLen = PackFT3Frm(pFrmItem->Ft3FrmData, pStandSmpData);
+
+	return 1;
+}
+
+int OutputFT3Frm(void)
+{
+	Ft3FrmItem* pFrmItem = PopFt3FrmQueue(&g_Ft3FrmQueue );
+	if(!pFrmItem)
+	{
+//		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
+
+	/* set the FPGA trigger pin in low */
+	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
+
+	Send_FT3_Data(pFrmItem->Ft3FrmData, pFrmItem->FrmLen );
+
+	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+
+	return 1;
+}
+
+//StandardSmpData convert to SV and FT3
+int StandardSmpDataFormatConverter()
+{
+	STAND_SAMP_TYPE* pStandSmpData = PopQueue( &g_StandardSmpDataQueue );
+	if(!pStandSmpData)
+	{
+//		DEBUG_PRINT("%s[#%d]:PopFt3FrmQueue failed...\n\n", __FILE__, __LINE__);
+		return 0;
+	}
+
+	//9-2组帧发送
+	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
+			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
+	{
+		OutputStandardSmvFrm(pStandSmpData );
+	}
+
+	//FT3组帧发送
+	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
+	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
+	       )
+	{
+		CreateFT3Frm( pStandSmpData);
+		OutputFT3Frm();
+	}
+
+	return 1;
+}
+
+//////////////////////////
 static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t event, void *pArg)
 {
 #if 1
@@ -629,32 +831,36 @@ static void SPORTCallbackRx2(
 									32,
 									g_TaskADPara.usSmpCnt);
 
-        	//
-        	pOutStandardSmpData = PopQueue( &g_StandardSmpDataQueue );
-
+#if _TEST_output_in_main
         	//标准数据组帧发送
-        	OutputStandardADFrm( pOutStandardSmpData );
+            OutputStandardADFrm( pStandardSmpData );
+#else
+            //
+			pOutStandardSmpData = PopQueue( &g_StandardSmpDataQueue );
 
-        	//9-2组帧发送
-        	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
-        			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
+			//标准数据组帧发送
+			OutputStandardADFrm( pOutStandardSmpData );
+
+			//9-2组帧发送
+			if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
+					|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
 			{
-        		OutputStandardSmvFrm(pOutStandardSmpData);
+				OutputStandardSmvFrm(pOutStandardSmpData);
 			}
 
-        	//FT3组帧发送
-        	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
-        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
-        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
-        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
-        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
-        	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
-        	       )
+			//FT3组帧发送
+			if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
+				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
+				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
+				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
+				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
+				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
+				   )
 			{
-        		ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
+				ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
 			}
 
-
+#endif
         	g_TaskADPara.usSmpCnt = (g_TaskADPara.usSmpCnt + 1)%4000;
 
             break;

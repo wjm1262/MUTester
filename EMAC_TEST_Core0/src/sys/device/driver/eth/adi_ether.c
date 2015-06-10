@@ -51,13 +51,13 @@
  *****************************************************************************/
 #include <stdio.h>
 #include <adi_types.h>
-#include "adi_ether_header.h"
+#include "dri_ether_header.h"
 
 /*
  * adi_ether_misra.h suppresses certain MISRA warnings  */
 #ifdef _MISRA_RULES
 #pragma diag(push)
-#include <drivers/ethernet/adi_ether_misra.h>
+#include "adi_ether_misra.h"
 #endif
 
 /** \addtogroup Ethernet_Driver Ethernet Driver Interface
