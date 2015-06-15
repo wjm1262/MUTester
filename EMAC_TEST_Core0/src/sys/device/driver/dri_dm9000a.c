@@ -275,20 +275,27 @@ static void Setup_DM9000A(uint8_t* dstMac)
 {
 	*pBANK1_EMAC_CTR_BASE    &= ~(1u << 1);
 
-	int clk = 3000;//>5us
+	int clk = 2000;//>5us,  3000
 	while(clk--)
 	{
 		asm(" NOP; ");
 	}
 	*pBANK1_EMAC_CTR_BASE    |= (1u << 1);
 
+	// 2015-6-11
+	clk = 2000;//>5us,  3000
+	while(clk--)
+	{
+		asm(" NOP; ");
+	}
+	///
 
 	for(int i  = 0; i < 2; i++)/* power on phy in the dm9000, setup twice to make sure done. */
 	{
 		/* power on phy in the dm9000 */
 		WriteReg( GPR, 0x00 );
 		/* wait for phy power on*/
-		clk = 100000;//200us
+		clk = 1000;//200us 100000
 		while(clk--)
 		{
 			asm(" NOP; ");
@@ -296,18 +303,9 @@ static void Setup_DM9000A(uint8_t* dstMac)
 	}
 
 
-//	/* power on phy in the dm9000 */
-//	WriteReg( GPR, 0x00 );
-//	/* wait for phy power on*/
-//	 clk = 10000;//20us
-//	while(clk--)
-//	{
-//		asm(" NOP; ");
-//	}
-
 	/* software reset 1, setup twice to make sure done. */
 	WriteReg( NCR, 0x03 );
-	clk = 10000;//20us
+	clk = 1000;//20us 10000
 	while(clk--)
 	{
 		asm(" NOP; ");
@@ -315,7 +313,7 @@ static void Setup_DM9000A(uint8_t* dstMac)
 	WriteReg( NCR, 0x00 );
 	/* software reset 2, setup twice to make sure done. */
 	WriteReg( NCR, 0x03 );
-	clk = 10000;//20us
+	clk = 1000;//20us 10000
 	while(clk--)
 	{
 		asm(" NOP; ");
@@ -323,25 +321,19 @@ static void Setup_DM9000A(uint8_t* dstMac)
 	WriteReg( NCR, 0x00 );
 
 
-	WriteReg( NCR, 0x00 );
+//	WriteReg( NCR, 0x00 ); //2015-6-11
 
-//
-//	/* Reset the phy */
-//	phy_w(0x00 , 0x8000);
-//	clk = 10000;//20us
-//	while(clk--)
-//	{
-//		asm(" NOP; ");
-//	}
 
-	/* setup 100M full-duplex mode */
-	phy_w(0x00 , 0x2100);
+
+//	/* setup 100M full-duplex mode */
+//	phy_w(0x00 , 0x2100); // 2015-6-11
+
 	/* setup 100M full-duplex mode */
 	phy_w(0x00 , 0x2100);
 	/* power on phy in the dm9000 */
 	WriteReg( GPR, 0x00 );
 	/* wait for phy power on*/
-	clk = 10000;//20us
+	clk = 1000;//20us 10000
 	while(clk--)
 	{
 		asm(" NOP; ");
@@ -363,13 +355,6 @@ static void Setup_DM9000A(uint8_t* dstMac)
 		WriteReg(MAR_BASE + i, MulticastFilter[i]);
 	}
 
-	/* discard multicast frame, the following code means filt the multicast frame */
-	/* Çå³ý Íø¿¨¶à²¥ÉèÖÃ */
-//		for(int i = 0; i < 6; i++)
-//		{
-//			printf("%2x ", ReadReg(MAR_BASE + i));
-//		}
-//		multicast_set(0, DM9000A_MultiMac);
 
 	/* turn off the INT to prevent INIT err */
 	WriteReg(IMR, 0x80);

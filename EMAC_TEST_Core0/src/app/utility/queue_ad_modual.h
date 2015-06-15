@@ -47,11 +47,11 @@ void Visit_Q ( QType *pQ );
 ////////////////////////////////////////////////////////
 
 
-#define MAX_FT3_FRM_SIZE 600
-#define MAX_FT3_FRM_Q_SIZE 4000
+#define MAX_FT3_FRM_SIZE 512
+#define MAX_FT3_FRM_Q_SIZE 4096
 typedef struct
 {
-    unsigned short  FrmLen;
+    unsigned int  FrmLen;
     unsigned char   Ft3FrmData[MAX_FT3_FRM_SIZE];
 }  Ft3FrmItem;
 

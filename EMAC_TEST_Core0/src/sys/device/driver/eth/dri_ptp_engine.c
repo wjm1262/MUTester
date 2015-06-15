@@ -482,7 +482,7 @@ int SetPtpPPSOut(void* hDev, int tmStartSec, int tmStartNanoSec )
 	{
 		SetEth0FlexiblePPSOutput( hDev, PULSE_TRAIN,
 				tmStartSec, tmStartNanoSec,
-				_4K_PPS_INTERVAL_VAL, _4K_PPS_WIDTH_VAL);
+				_SMP_PPS_INTERVAL_VAL, _SMP_PPS_WIDTH_VAL);
 //				PPS_INTERVAL_VAL-1, PPS_WIDTH_VAL-1);
 	}
 	else

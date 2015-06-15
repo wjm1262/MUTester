@@ -48,7 +48,7 @@ void Task_AD7608( void* p_arg );
 
 //StandardSmpData convert to SV and FT3
 int StandardSmpDataFormatConverter();
-
+int OutputFT3Frm(void);
 
 
 

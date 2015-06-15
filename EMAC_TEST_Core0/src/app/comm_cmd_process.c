@@ -87,12 +87,28 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 //		case TYPE609_CONT_VIRTUAL_READ:
 //			return COMM_isVirtualRead(netData,netDataSize,sendData,sendSize);
 ////			break;
-//		case TYPE609_CONT_UINT32_PAR_WRITE:
-//			return COMM_isU32ParaWrite(netData,netDataSize,sendData,sendSize);
-////			break;
-//		case TYPE609_CONT_UINT32_PAR_READ:
-//			return COMM_isU32ParaRead(netData,netDataSize,sendData,sendSize);
-////			break;
+		case TYPE609_CONT_UINT32_PAR_WRITE:
+
+			ret =  msgUnpackU32ParaWrite( netData, netDataSize );
+			if (ret)
+			{
+				MsgLen = msgPackDefaultReply(1,TYPE609_CONT_UINT32_PAR_WRITE,COMM_ACK_RIGHT, NULL);
+			}
+			else
+			{
+				MsgLen = msgPackDefaultReply(0,TYPE609_CONT_UINT32_PAR_WRITE,COMM_ACK_ERROR, NULL);
+			}
+
+			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+			break;
+
+		case TYPE609_CONT_UINT32_PAR_READ:
+
+			MsgLen = msgPackU32ParaRead(netData, netDataSize );
+
+			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+			break;
+
 		case TYPE609_CONT_UINT8_PAR_WRITE:
 
 			ret =  msgUnpackU8ParaWrite(netData,netDataSize);

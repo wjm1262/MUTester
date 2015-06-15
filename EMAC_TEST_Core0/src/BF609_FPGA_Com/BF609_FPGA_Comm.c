@@ -1021,7 +1021,7 @@ int32_t Send_FT3_Data(void *pBF609_FPGA_data, uint16_t size)
     /* Submit the  buffer for Tx  */
     if((elpResult = adi_linkport_SubmitBuffer(hDeviceTx,pBF609_FPGA_data, (size+3) / 4U))!= ADI_LINKPORT_SUCCESS)
     {
-       printf("\n\t Failed to submit the buffer for Tx channel:  %d",elpResult);
+       printf("\n\t LP Failed to submit the buffer for Tx channel:  %d",elpResult);
     }
 
     /* Trigge the FPGA for FT3 receive */
@@ -1030,7 +1030,7 @@ int32_t Send_FT3_Data(void *pBF609_FPGA_data, uint16_t size)
 	/* Enable the data flow for TX */
 	if((elpResult = adi_linkport_Enable(hDeviceTx, true))!= ADI_LINKPORT_SUCCESS)
 	{
-	   printf("\n\t Failed to disable the Tx:  %d",elpResult);
+	   printf("\n\t LP Failed to disable the Tx:  %d",elpResult);
 	}
 	return elpResult;
 }

@@ -183,6 +183,7 @@ typedef struct
 	UINT32 pinzi;
 }SMV_92_CH_TYPE,*pSMV_92_CH_TYPE;
 
+
 typedef struct
 {
 	UINT16 stateLabel;		//×´Ì¬±êÊ¶

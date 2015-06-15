@@ -25,7 +25,7 @@
 #include "post_debug.h"
 
 
-#define _TEST_output_in_main 0
+#define _TEST_ft3_send_in_sport 1
 
 
 TASK_AD_PARA g_TaskADPara ={NULL, 0};
@@ -344,19 +344,19 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 	pBF609_FPGA_FT3->ThreePhaseData[0].data1[1]  = 4;
 
 	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
+	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
 
 	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
+	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
 
 	/* cal 8 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
+	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
 
 
 	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
@@ -462,12 +462,23 @@ static void ADData2Ft3(uint8_t* OutBuf, void *pAD_Value, uint8_t AD_ByteLength,
 
 }
 
-static void ADData2Ft3_EX(uint8_t* OutBuf, const STAND_SAMP_TYPE* pStandSmpData)
+static int ADData2Ft3_EX(uint8_t* OutBuf, const STAND_SAMP_TYPE* pStandSmpData)
 {
 
 	uint16_t crc;
 
 	FT3_TEST_DATA *pBF609_FPGA_FT3 = (FT3_TEST_DATA*)OutBuf;
+
+	/* set the frame start code */
+	pBF609_FPGA_FT3->SinglePhaseData[0].StartCode = 0x6405;
+	pBF609_FPGA_FT3->SinglePhaseData[1].StartCode = 0x6405;
+	pBF609_FPGA_FT3->SinglePhaseData[2].StartCode = 0x6405;
+
+
+	pBF609_FPGA_FT3->ThreePhaseData[0].StartCode  = 0x6405;
+	pBF609_FPGA_FT3->ThreePhaseData[1].StartCode  = 0x6405;
+	pBF609_FPGA_FT3->ThreePhaseData[2].StartCode  = 0x6405;
+
 
 	/* set the FPGA trigger pin in low */
 	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
@@ -587,8 +598,14 @@ static void ADData2Ft3_EX(uint8_t* OutBuf, const STAND_SAMP_TYPE* pStandSmpData)
 //	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
 	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
 
-//	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
-//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+#if _TEST_ft3_send_in_sport
+
+	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
+	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+#endif
+
+
+	return sizeof(FT3_TEST_DATA);
 
 #else   /* 12.8k sample rate */
 	SmpCnt = (SmpCnt + 1) % 12800;
@@ -661,7 +678,7 @@ int CreateFT3Frm( const STAND_SAMP_TYPE*  pStandSmpData)
 		return 0;
 	}
 
-	ADData2Ft3_EX(pFrmItem->Ft3FrmData, pStandSmpData);
+	pFrmItem->FrmLen = ADData2Ft3_EX(pFrmItem->Ft3FrmData, pStandSmpData);
 
 //	pFrmItem->FrmLen = PackFT3Frm(pFrmItem->Ft3FrmData, pStandSmpData);
 
@@ -697,6 +714,22 @@ int StandardSmpDataFormatConverter()
 		return 0;
 	}
 
+	//FT3组帧发送
+	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
+		   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
+		   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
+		   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
+		   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
+		   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
+		   )
+	{
+		CreateFT3Frm( pStandSmpData);
+		OutputFT3Frm();
+	}
+
+	//标准数据组帧发送
+	OutputStandardADFrm( pStandSmpData );
+
 	//9-2组帧发送
 	if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
 			|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
@@ -704,18 +737,6 @@ int StandardSmpDataFormatConverter()
 		OutputStandardSmvFrm(pStandSmpData );
 	}
 
-	//FT3组帧发送
-	if( (g_rtParams.U8Parameter[U8PARA_FT3_SEND1])
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND2] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND3] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND4] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND5] )
-	       || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
-	       )
-	{
-		CreateFT3Frm( pStandSmpData);
-		OutputFT3Frm();
-	}
 
 	return 1;
 }
@@ -797,13 +818,12 @@ static void SPORTCallbackRx2(
     ADI_SPORT_RESULT eResult;
 
     AD7608_DATA *pAD7608_Data = pArg;
-
+    STAND_SAMP_TYPE StandardSmpData;
     STAND_SAMP_TYPE* pStandardSmpData, *pOutStandardSmpData;
    /*
 	 * Disable the SPORT1-B, stop the SPORT process
 	 */
     Disable_SPORT1B();
-
 
 	/*
 	 * Avoiding data offset, we should cancel the SPORT1-B-CLK, set clk in high default.
@@ -819,33 +839,30 @@ static void SPORTCallbackRx2(
         case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
         	/* user process the AD data*/
 
-        	pStandardSmpData = PushQueue( &g_StandardSmpDataQueue );
-        	if(!pStandardSmpData)
-        	{
-        		DEBUG_STATEMENT("in SPORTCallbackRx2: PushQueue failed!\n\n");
-        		return;
-        	}
+//        	pStandardSmpData = PushQueue( &g_StandardSmpDataQueue );
+//        	if(!pStandardSmpData)
+//        	{
+//        		DEBUG_STATEMENT("in SPORTCallbackRx2: PushQueue failed!\n\n");
+//        		return;
+//        	}
 
-        	ADData2StandardSmpData(pStandardSmpData,
+        	ADData2StandardSmpData(&StandardSmpData,
 									pArg,
 									32,
 									g_TaskADPara.usSmpCnt);
 
-#if _TEST_output_in_main
-        	//标准数据组帧发送
-            OutputStandardADFrm( pStandardSmpData );
-#else
             //
-			pOutStandardSmpData = PopQueue( &g_StandardSmpDataQueue );
 
-			//标准数据组帧发送
-			OutputStandardADFrm( pOutStandardSmpData );
+//        	pOutStandardSmpData = PopQueue( &g_StandardSmpDataQueue );
+
+  			//标准数据组帧发送
+			OutputStandardADFrm( &StandardSmpData );
 
 			//9-2组帧发送
 			if( (g_rtParams.U8Parameter[U8PARA_NET_SEND1])
 					|| ( g_rtParams.U8Parameter[U8PARA_NET_SEND2] ) )
 			{
-				OutputStandardSmvFrm(pOutStandardSmpData);
+				OutputStandardSmvFrm(&StandardSmpData);
 			}
 
 			//FT3组帧发送
@@ -857,11 +874,15 @@ static void SPORTCallbackRx2(
 				   || ( g_rtParams.U8Parameter[U8PARA_FT3_SEND6] )
 				   )
 			{
-				ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
+#if _TEST_ft3_send_in_sport
+				//ADData2Ft3( (uint8_t*)g_pBF609_FPGA_FT3, pArg, 32, g_TaskADPara.usSmpCnt);
+				ADData2Ft3_EX( (uint8_t*)g_pBF609_FPGA_FT3, &StandardSmpData);
+#else
+				CreateFT3Frm( &StandardSmpData);
+#endif
 			}
 
-#endif
-        	g_TaskADPara.usSmpCnt = (g_TaskADPara.usSmpCnt + 1)%4000;
+			g_TaskADPara.usSmpCnt = (g_TaskADPara.usSmpCnt + 1)%4000;
 
             break;
         default:

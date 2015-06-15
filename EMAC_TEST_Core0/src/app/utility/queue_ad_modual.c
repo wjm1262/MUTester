@@ -144,7 +144,7 @@ int InitFt3FrmQueue ( Ft3FrmQueue *pQ )
 
 int Ft3FrmQueueLength ( Ft3FrmQueue Q )
 {
-	return ( Q.rear - Q.front + QUEUE_BUFFER_SIZE ) % QUEUE_BUFFER_SIZE;
+	return ( Q.rear - Q.front + MAX_FT3_FRM_Q_SIZE ) &(MAX_FT3_FRM_Q_SIZE-1);
 }
 
 
@@ -152,7 +152,7 @@ int Ft3FrmQueueLength ( Ft3FrmQueue Q )
 Ft3FrmItem* PushFt3FrmQueue( Ft3FrmQueue *pQ )
 {
 	ENTER_CRITICAL_REGION();
-	if ( ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE == pQ->front )
+	if ( ( ( pQ->rear + 1 ) &(MAX_FT3_FRM_Q_SIZE-1) ) == pQ->front )
 	{
 		EXIT_CRITICAL_REGION();
 //		DEBUG_PRINT("%s[#%d]:PushFt3FrmQueue overflow...\n\n", __FILE__, __LINE__);
@@ -161,9 +161,9 @@ Ft3FrmItem* PushFt3FrmQueue( Ft3FrmQueue *pQ )
 	EXIT_CRITICAL_REGION();
 
 
-	QElem* pElem = pQ->base + pQ->rear;
+	Ft3FrmItem* pElem = pQ->base + pQ->rear;
 
-	pQ->rear = ( pQ->rear + 1 ) % QUEUE_BUFFER_SIZE;  // 队列尾部指针增加1
+	pQ->rear = ( pQ->rear + 1 ) &(MAX_FT3_FRM_Q_SIZE-1);  // 队列尾部指针增加1
 
 	return pElem;
 }
@@ -183,9 +183,9 @@ Ft3FrmItem * PopFt3FrmQueue ( Ft3FrmQueue *pQ )
 
 	EXIT_CRITICAL_REGION();
 
-	QElem* pElem = pQ->base + pQ->front;
+	Ft3FrmItem* pElem = pQ->base + pQ->front;
 
-	pQ->front = ( pQ->front + 1 ) % QUEUE_BUFFER_SIZE;
+	pQ->front = ( pQ->front + 1 ) &(MAX_FT3_FRM_Q_SIZE-1);
 
 
 	return pElem;

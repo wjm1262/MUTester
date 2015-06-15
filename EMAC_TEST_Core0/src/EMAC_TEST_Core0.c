@@ -32,7 +32,7 @@ void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "send FT3 in main. ";
+char VerDescripString[64] = "send FT3 in sport int. ";
 
 //define STACK SIZE
 #define APPLICATION_TASK_STACK_SIZE (2048)
@@ -156,8 +156,12 @@ static void IntegrityTest1(uint8_t* pForwardFrm)
 		PreSmpCnt1 = CurSmpCnt;
 	}
 }
+void Timer5_Event_Handler(void *pCBParam, uint32_t Event, void *pArg)
+{
 
 
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+}
 
 
 int main(void)
@@ -205,9 +209,6 @@ int main(void)
 	Alloc_EthMem();
 
 
-
-
-
 	//Gemac
 	g_hEthDev[0] = MuTesterSystem.Device.Eth0.Open();
 	g_hEthDev[1] = MuTesterSystem.Device.Eth1.Open();
@@ -224,8 +225,6 @@ int main(void)
 
 	Task_exEth_Tx_Rx(NULL);
 
-
-
 	Task_Eth0_Tx(NULL);
 	Task_Eth1_Tx(NULL);
 	Task_Eth0_Rx(NULL);
@@ -234,16 +233,21 @@ int main(void)
 	//
 	Init_FT3_Test(1);
 
+
 	Task_SystemTime0(NULL);
 	Task_SystemTime1(NULL);
 
 
 
 	//
-	Init_IEC_9_2();
+//	Init_IEC_9_2();
 
 	Task_AD7608( NULL );
 
+	///
+//	Init_GP_Timer5();
+
+//	SetTimerEventHandler(Timer5_Event_Handler);
 
 
 	LoopQueueItem* pRecvItem;

@@ -13,6 +13,19 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "crc_calculator.h"
+
+/*
+ * The following two intrinsics are available for
+ * changing data from big-endian to little-endian, or vice versa.
+
+#include <ccblkfn.h>
+int byteswap4(int);
+short byteswap2(short);
+For example, byteswap2(0x1234) returns 0x3412.
+Blackfin processors use a little-endian architecture.
+ *
+ */
 
 
 UINT8 PC_MAC[6] = {0x00, 0x02, 0x03, 0x04, 0x05, 0x81};
@@ -22,14 +35,12 @@ RUNTIME_PARAMS g_rtParams ={0};
 /*start：局部变量*/
 
 UINT8 g_ControlPackSendBuf[MAX_COMM_PACK_LEN];			//发送控制帧的缓冲区
-//UINT8 netRecv1DataSendBuf[MAX_COMM_PACK_LEN];			//点对点转发帧的缓冲区
-//UINT8 netRecv2DataSendBuf[MAX_COMM_PACK_LEN];			//点对点转发帧的缓冲区
+
 UINT8 g_FT3Recv1DataSendBuf[MAX_COMM_PACK_LEN];			//FT3转发帧的缓冲区
 UINT8 g_FT3Recv2DataSendBuf[MAX_COMM_PACK_LEN];			//FT3转发帧的缓冲区
 UINT8 g_netGoose1SendBuf[MAX_COMM_PACK_LEN];			//抄送点对点GOOSE1发送信息缓冲区
 UINT8 g_netGoose2SendBuf[MAX_COMM_PACK_LEN];			//抄送点对点GOOSE2发送信息缓冲区
 
-UINT8 g_standardDataSendBuf[MAX_COMM_PACK_LEN];			//发送标准采样数据缓冲区
 
 UINT8 g_timeErrorSendBuf[MAX_COMM_PACK_LEN];			//对时误差上报缓冲区
 UINT8 g_DIEventSendBuf[MAX_COMM_PACK_LEN];				//开关量输入转发缓冲区
@@ -37,17 +48,8 @@ UINT8 g_DOEventSendBuf[MAX_COMM_PACK_LEN];				//开关量输出转发缓冲区
 
 /*end：局部变量*/
 
-UINT8 COMM_clearBuf();
 
-UINT8 COMM_initBuf()
-{
-	return 1;
-}
 
-UINT8 COMM_clearBuf()
-{
-	return 1;
-}
 
 
 inline UINT16 netHostChangeS(UINT16 netshort)
@@ -483,61 +485,71 @@ UINT8 COMM_isVirtualRead(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UINT
 	return retValue;
 }
 
-UINT8 COMM_isU32ParaWrite(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UINT16 *sendSize )
-{
-//	UINT8 retValue = 0;
-//
-//	UINT8 *tempPoint = netData;
-//
-//	tempPoint += 2;		//保留
-//
-//	UINT16 arraySize = *(UINT16*)tempPoint;
-//	tempPoint += sizeof(UINT16);
-//
-//	if(netDataSize >= arraySize * (sizeof(UINT8) + sizeof(UINT32)) + 4)
-//	{
-//		UINT8 *tempIndexPoint = tempPoint;
-//		UINT32 *tempValuePoint = (UINT32*)&tempPoint[sizeof(UINT8) * arraySize];
-//
-//		for(int i = 0 ; i < arraySize; i ++)
-//		{
-//			if(tempIndexPoint[i])
-//			{
-//				U32Parameter[tempIndexPoint[i]] = tempValuePoint[i];
-//				U32ParaChange[tempIndexPoint[i]] = 1;		//标识参数变化
-//			}
-//		}
-//		retValue = msgPackDefaultReply(1,TYPE609_CONT_UINT32_PAR_WRITE,COMM_ACK_RIGHT, NULL);
-//	}else
-//	{//长度错误
-//		retValue = msgPackDefaultReply(0,TYPE609_CONT_UINT32_PAR_WRITE,COMM_ACK_ERROR, NULL);
-//	}
-//	if(retValue)
-//		return COMM_returnData(sendData,sendSize);
-//	else
-		return 0;
-}
-
-UINT8 COMM_isU32ParaRead(UINT8 *netData,UINT16 netDataSize,UINT8** sendData, UINT16* sendSize )
+UINT8 msgUnpackU32ParaWrite(UINT8 *netData,UINT16 netDataSize )
 {
 	UINT8 retValue = 0;
 
-//	UINT8 *tempPoint = comSendPackDataStart;
-//
-//	tempPoint += 2;		//保留
-//
-//	*(UINT16*)tempPoint = U32_PARAMETER_COUNT;
-//	tempPoint += sizeof(UINT16);
-//
-//	memcpy(tempPoint,U32Parameter,U32_PARAMETER_COUNT * sizeof(UINT32));
-//	tempPoint += (U32_PARAMETER_COUNT * sizeof(UINT32));
-//
-//	comSendPackHead->code = TYPE609_CONT_UINT32_PAR_READ;
-//	comSendPackHead->dataLeng = tempPoint - comSendPackDataStart;
-//	retValue = COMM_returnData(sendData,sendSize);
+	UINT8 *tempPoint = netData;
 
-	return retValue;
+	tempPoint += 2;		//保留
+
+	UINT16 arraySize = *(UINT16*)tempPoint;
+	tempPoint += sizeof(UINT16);
+
+	UINT8 idx = 0;
+	if(netDataSize >= arraySize * (sizeof(UINT8) + sizeof(UINT32)) + 4)
+	{
+		UINT8 *tempIndexPoint = tempPoint;
+		UINT32 *tempValuePoint = (UINT32*)( tempPoint + sizeof(UINT8) * arraySize );
+
+		for(int i = 0 ; i < arraySize; i ++)
+		{
+			idx = tempIndexPoint[i];
+			if(idx)
+			{
+				g_rtParams.U32Parameter[idx] = tempValuePoint[i];
+				g_rtParams.U32ParaChange[idx] = 1;		//标识参数变化
+			}
+		}
+		return 1;
+	}
+	else
+	{
+		//长度错误
+		return 0;
+	}
 }
+
+UINT8 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize )
+{
+
+	UINT8 *OutBuf = g_ControlPackSendBuf;
+	UINT8  MsgType = MSG_CONTROL_FRM_TYPE;
+	UINT16 NetType;
+	UINT16 CmdCode;
+	UINT16 DataLen;
+
+
+	UINT8 *tempPoint = g_ControlPackSendBuf + sizeof(MUTestMsgHeader);
+
+	UINT8 * StartPos = tempPoint;
+
+	tempPoint += 2;		//保留
+
+	*(UINT16*)tempPoint = U32_PARAMETER_COUNT;
+	tempPoint += sizeof(UINT16);
+
+	memcpy(tempPoint, g_rtParams.U32Parameter, U32_PARAMETER_COUNT * sizeof(UINT32));
+	tempPoint += (U32_PARAMETER_COUNT * sizeof(UINT32));
+
+
+	NetType = NET_609_CONCROL;
+	CmdCode = TYPE609_CONT_UINT32_PAR_READ;
+	DataLen = tempPoint - StartPos;
+
+	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLen );
+}
+
 
 UINT8 msgUnpackU8ParaWrite(UINT8 *netData,UINT16 netDataSize )
 {
@@ -795,7 +807,8 @@ INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  )
 
 		return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLen );
 
-	}else
+	}
+	else
 	{//端口错误
 		return msgPackDefaultReply(0,TYPE609_CONT_GOOSE_FORMAT_READ,COMM_ACK_ERROR, NULL);
 	}
@@ -851,91 +864,7 @@ UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
 }
 
 
-UINT8 COMM_transmitData(UINT8 port,UINT32 sec,UINT32 nSec,UINT8* recvData,UINT16 recvDataSize,UINT8** sendData,UINT16* sendDataSize)
-{
-	UINT8 *sendBuf = 0;
-//	switch(port)
-//	{
-//	case 0:
-//		sendBuf = netRecv1DataSendBuf;
-//		break;
-//	case 1:
-//		sendBuf = netRecv2DataSendBuf;
-//		break;
-//	case 2:
-//		sendBuf = FT3Recv1DataSendBuf;
-//		break;
-//	case 3:
-//		sendBuf = FT3Recv2DataSendBuf;
-//		break;
-//	case 4:
-//		sendBuf = netGoose1SendBuf;
-//		break;
-//	case 5:
-//		sendBuf = netGoose2SendBuf;
-//		break;
-//	default:
-//		sendBuf = 0;
-//		break;
-//	}
 
-	if(recvData && sendBuf)
-	{
-		MUTestMsgHeader *packHead = (MUTestMsgHeader*)sendBuf;
-
-		UINT8 *dataStart = &sendBuf[sizeof(MUTestMsgHeader)];
-		UINT8 *tempPoint = dataStart;
-
-		*(UINT32*)tempPoint = sec;
-		tempPoint += sizeof(UINT32);
-
-		*(UINT32*)tempPoint = nSec;
-		tempPoint += sizeof(UINT32);
-
-		memcpy(tempPoint,recvData,recvDataSize);
-		tempPoint += recvDataSize;
-
-		packHead->dataLeng = tempPoint - dataStart;
-
-		*sendData = sendBuf;
-		*sendDataSize = packHead->dataLeng + sizeof(MUTestMsgHeader);
-
-		return 1;
-	}else
-	{
-		return 0;
-	}
-}
-
-
-UINT8 COMM_transmitStandData(PTR_STAND_SAMP_TYPE data,UINT8** sendData,UINT16* sendDataSize,UINT8 asduNum,UINT8 currentAsdu)
-{
-	if(data && currentAsdu < asduNum)
-	{
-//		UINT8 *dataStart = &standardDataSendBuf[sizeof(MUTestMsgHeader)];
-//		UINT8* tempPoint = dataStart;
-//
-//		*tempPoint = asduNum;
-//		tempPoint ++;
-//
-//		tempPoint += 3;		//保留对齐
-//
-//		STAND_SAMP_TYPE *oneAsdu = (STAND_SAMP_TYPE*)tempPoint;
-//
-//		memcpy(&oneAsdu[currentAsdu],data,sizeof(STAND_SAMP_TYPE));
-//
-//		if(currentAsdu + 1 == asduNum)
-//		{//填满了就发。
-//			tempPoint += sizeof(STAND_SAMP_TYPE) * asduNum;
-//
-//			*sendData = standardDataSendBuf;
-//			*sendDataSize = (tempPoint - dataStart) + sizeof(MUTestMsgHeader);
-//			return 1;
-//		}
-	}
-
-	return 0;
-}
 
 enum
 {
@@ -973,51 +902,114 @@ int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pSmpData, UINT8 Port )
 	UINT16 cntIndex ;		//采样序号的位置
 
 	UINT16 ch1Index;//第一个通道的在帧中的位置
-	SMV_92_CH_TYPE *chValuePoint = NULL;
 	UINT8 chType;
 
-	///
-	UINT32 MapValueArray[15];// 需要转成 大端
-	MapValueArray[MUA]		= netHostChangeL( (UINT32)pSmpData->UaSampData );
-	MapValueArray[MUB]		= netHostChangeL( (UINT32)pSmpData->UbSampData );
-	MapValueArray[MUC]		= netHostChangeL( (UINT32)pSmpData->UcSampData );
+	UINT32 MURadio, MIRadio, PURadio, PIRadio;
 
-	MapValueArray[MIA]		= netHostChangeL( (UINT32)pSmpData->IaSampData );
-	MapValueArray[MIB]		= netHostChangeL( (UINT32)pSmpData->IbSampData );
-	MapValueArray[MIC]		= netHostChangeL( (UINT32)pSmpData->IcSampData );
-
-	MapValueArray[PUA]		= netHostChangeL( (UINT32)pSmpData->UaSampData );
-	MapValueArray[PUB]		= netHostChangeL( (UINT32)pSmpData->UbSampData );
-	MapValueArray[PUC]		= netHostChangeL( (UINT32)pSmpData->UcSampData );
-
-	MapValueArray[PIA]		= netHostChangeL( (UINT32)pSmpData->IaSampData );
-	MapValueArray[PIB]		= netHostChangeL( (UINT32)pSmpData->IbSampData );
-	MapValueArray[PIC]		= netHostChangeL( (UINT32)pSmpData->IcSampData );
-
-	MapValueArray[ZERO_VAL]	= 0;
-	MapValueArray[DELAY]	=  netHostChangeS( (UINT16)pSmpData->netSendTMark);
-	MapValueArray[CNT]		=  netHostChangeS( (UINT16)pSmpData->sampCnt);
-
-	for(uAsduNo = 0; uAsduNo < pSmvPara->asduNum; uAsduNo++)
+	UINT32 U32MapValueArray[15];// 需要转成 大端
+	UINT16 U16MapValueArray[15];//注意：FT3的只还需要根据 有效值、量化因子量化，并转成 大端
+	if( 0 == pSmvPara->proType)
 	{
-		//采样序号的位置
-		cntIndex = pSmvPara->cntIndex[uAsduNo];
+		//9-2
+		MURadio = g_rtParams.U32Parameter[U32PARA_METER_VOL_RADIO];
+		MIRadio = g_rtParams.U32Parameter[U32PARA_METER_CUR_RADIO];
+		PURadio = g_rtParams.U32Parameter[U32PARA_PRO_VOL_RADIO];
+		PIRadio = g_rtParams.U32Parameter[U32PARA_PRO_CUR_RADIO];
 
-		*(smvBuf + cntIndex) = (SmpCnt + uAsduNo)>>8 ;
-		*(smvBuf + cntIndex+1) = (SmpCnt + uAsduNo)&0x00ff;
+		U32MapValueArray[MUA]		= netHostChangeL( (UINT32) (pSmpData->UaSampData * MURadio) );
+		U32MapValueArray[MUB]		= netHostChangeL( (UINT32) (pSmpData->UbSampData * MURadio) );
+		U32MapValueArray[MUC]		= netHostChangeL( (UINT32) (pSmpData->UcSampData * MURadio) );
 
-		//the first channel
-		ch1Index = pSmvPara->firstValueIndex[uAsduNo];
-		chValuePoint = (SMV_92_CH_TYPE*) (smvBuf+ ch1Index);
+		U32MapValueArray[MIA]		= netHostChangeL( (UINT32) (pSmpData->IaSampData * MIRadio) );
+		U32MapValueArray[MIB]		= netHostChangeL( (UINT32) (pSmpData->IbSampData * MIRadio) );
+		U32MapValueArray[MIC]		= netHostChangeL( (UINT32) (pSmpData->IcSampData * MIRadio) );
 
-		for( uChNo = 0; uChNo < pSmvPara->chNum; uChNo++, chValuePoint++)
+		U32MapValueArray[PUA]		= netHostChangeL( (UINT32) (pSmpData->UaSampData * PURadio) );
+		U32MapValueArray[PUB]		= netHostChangeL( (UINT32) (pSmpData->UbSampData * PURadio) );
+		U32MapValueArray[PUC]		= netHostChangeL( (UINT32) (pSmpData->UcSampData * PURadio) );
+
+		U32MapValueArray[PIA]		= netHostChangeL( (UINT32) (pSmpData->IaSampData * PIRadio) );
+		U32MapValueArray[PIB]		= netHostChangeL( (UINT32) (pSmpData->IbSampData * PIRadio) );
+		U32MapValueArray[PIC]		= netHostChangeL( (UINT32) (pSmpData->IcSampData * PIRadio) );
+
+		U32MapValueArray[ZERO_VAL]	= 0;
+		U32MapValueArray[DELAY]		= netHostChangeL( (UINT32) (pSmpData->netSendTMark) );
+		U32MapValueArray[CNT]		= netHostChangeL( (UINT32) (pSmpData->sampCnt) );
+	}
+	else
+	{
+		//9-1
+
+		U16MapValueArray[MUA]		= netHostChangeS( (UINT16) (pSmpData->UaSampData * 11585) );
+		U16MapValueArray[MUB]		= netHostChangeS( (UINT16) (pSmpData->UbSampData * 11585) );
+		U16MapValueArray[MUC]		= netHostChangeS( (UINT16) (pSmpData->UcSampData * 11585) );
+
+		U16MapValueArray[MIA]		= netHostChangeS( (UINT16) (pSmpData->IaSampData * 11585) );
+		U16MapValueArray[MIB]		= netHostChangeS( (UINT16) (pSmpData->IbSampData * 11585) );
+		U16MapValueArray[MIC]		= netHostChangeS( (UINT16) (pSmpData->IcSampData * 11585) );
+
+		U16MapValueArray[PUA]		= netHostChangeS( (UINT16) (pSmpData->UaSampData * 463) );
+		U16MapValueArray[PUB]		= netHostChangeS( (UINT16) (pSmpData->UbSampData * 463) );
+		U16MapValueArray[PUC]		= netHostChangeS( (UINT16) (pSmpData->UcSampData * 463) );
+
+		U16MapValueArray[PIA]		= netHostChangeS( (UINT16) (pSmpData->IaSampData * 463) );
+		U16MapValueArray[PIB]		= netHostChangeS( (UINT16) (pSmpData->IbSampData * 463) );
+		U16MapValueArray[PIC]		= netHostChangeS( (UINT16) (pSmpData->IcSampData * 463) );
+
+		U16MapValueArray[ZERO_VAL]	= 0;
+		U16MapValueArray[DELAY]		= netHostChangeS( (UINT16) (pSmpData->netSendTMark) );
+		U16MapValueArray[CNT]		= netHostChangeS( (UINT16) (pSmpData->sampCnt) );
+	}
+
+	if( 0 == pSmvPara->proType )
+	{
+		SMV_92_CH_TYPE *chValuePoint = NULL;
+
+		for(uAsduNo = 0; uAsduNo < pSmvPara->asduNum; uAsduNo++)
 		{
-			chType = pSmvPara->chType[uChNo];
+			//采样序号的位置
+			cntIndex = pSmvPara->cntIndex[uAsduNo];
 
-			chValuePoint->value = MapValueArray[chType - NEW609_CHTYPE_BASE];
+			*(smvBuf + cntIndex) = (SmpCnt + uAsduNo)>>8 ;
+			*(smvBuf + cntIndex+1) = (SmpCnt + uAsduNo)&0x00ff;
 
-		}//for each channel
+			//the first channel
+			ch1Index = pSmvPara->firstValueIndex[uAsduNo];
+			chValuePoint = (SMV_92_CH_TYPE*) (smvBuf+ ch1Index);
 
+			for( uChNo = 0; uChNo < pSmvPara->chNum; uChNo++, chValuePoint++)
+			{
+				chType = pSmvPara->chType[uChNo];
+
+				chValuePoint->value = U32MapValueArray[chType - NEW609_CHTYPE_BASE];
+
+			}//for each channel
+		}
+	}
+	else
+	{
+		//9-1
+		UINT16 *chValuePoint = NULL;
+		for(uAsduNo = 0; uAsduNo < pSmvPara->asduNum; uAsduNo++)
+		{
+			//采样序号的位置
+			cntIndex = pSmvPara->cntIndex[uAsduNo];
+
+			*(smvBuf + cntIndex) = (SmpCnt + uAsduNo)>>8 ;
+			*(smvBuf + cntIndex+1) = (SmpCnt + uAsduNo)&0x00ff;
+
+			//the first channel
+			ch1Index = pSmvPara->firstValueIndex[uAsduNo];
+			chValuePoint = (UINT16*) (smvBuf+ ch1Index);
+
+			for( uChNo = 0; uChNo < pSmvPara->chNum; uChNo++, chValuePoint++)
+			{
+				chType = pSmvPara->chType[uChNo];
+
+				*chValuePoint = U16MapValueArray[chType - NEW609_CHTYPE_BASE];
+
+			}//for each channel
+		}
 	}
 
 	return 1;
@@ -1026,6 +1018,7 @@ int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pSmpData, UINT8 Port )
 int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData)
 {
 	uint8_t *pDestFrm = OutBuf;
+	uint8_t *pOldDestFrm = pDestFrm;
 	FT3_PROTOCOL_PARA *pFT3_Protocol_Para;
 	uint8_t *pOriginFrm        ;
 	uint8_t ucChannelNum       ;
@@ -1041,26 +1034,31 @@ int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData)
 	uint8_t  CRC_Start;
 	uint16_t CRC ;
 
-	UINT16 MapValueArray[15];//注意：FT3的只还需要根据 有效值、量化因子量化，并转成 大端
-	MapValueArray[MUA]		= netHostChangeS((UINT16)pSmpData->UaSampData);
-	MapValueArray[MUB]		= netHostChangeS((UINT16)pSmpData->UbSampData);
-	MapValueArray[MUC]		= netHostChangeS((UINT16)pSmpData->UcSampData);
+//	UINT32 MURadio = g_rtParams.U32Parameter[U32PARA_METER_VOL_RADIO];
+//	UINT32 MIRadio = g_rtParams.U32Parameter[U32PARA_METER_CUR_RADIO];
+//	UINT32 PURadio = g_rtParams.U32Parameter[U32PARA_PRO_VOL_RADIO];
+//	UINT32 PIRadio = g_rtParams.U32Parameter[U32PARA_PRO_CUR_RADIO];
 
-	MapValueArray[MIA]		= netHostChangeS((UINT16)pSmpData->IaSampData);
-	MapValueArray[MIB]		= netHostChangeS((UINT16)pSmpData->IbSampData);
-	MapValueArray[MIC]		= netHostChangeS((UINT16)pSmpData->IcSampData);
+	UINT16 U16MapValueArray[15];//注意：FT3的只还需要根据 有效值、量化因子量化，并转成 大端
+	U16MapValueArray[MUA]		= netHostChangeS( (UINT16) (pSmpData->UaSampData * 11585) );
+	U16MapValueArray[MUB]		= netHostChangeS( (UINT16) (pSmpData->UbSampData * 11585) );
+	U16MapValueArray[MUC]		= netHostChangeS( (UINT16) (pSmpData->UcSampData * 11585) );
 
-	MapValueArray[PUA]		= netHostChangeS((UINT16)pSmpData->UaSampData);
-	MapValueArray[PUB]		= netHostChangeS((UINT16)pSmpData->UbSampData);
-	MapValueArray[PUC]		= netHostChangeS((UINT16)pSmpData->UcSampData);
+	U16MapValueArray[MIA]		= netHostChangeS( (UINT16) (pSmpData->IaSampData * 11585) );
+	U16MapValueArray[MIB]		= netHostChangeS( (UINT16) (pSmpData->IbSampData * 11585) );
+	U16MapValueArray[MIC]		= netHostChangeS( (UINT16) (pSmpData->IcSampData * 11585) );
 
-	MapValueArray[PIA]		= netHostChangeS((UINT16)pSmpData->IaSampData);
-	MapValueArray[PIB]		= netHostChangeS((UINT16)pSmpData->IbSampData);
-	MapValueArray[PIC]		= netHostChangeS((UINT16)pSmpData->IcSampData);
+	U16MapValueArray[PUA]		= netHostChangeS( (UINT16) (pSmpData->UaSampData * 463) );
+	U16MapValueArray[PUB]		= netHostChangeS( (UINT16) (pSmpData->UbSampData * 463) );
+	U16MapValueArray[PUC]		= netHostChangeS( (UINT16) (pSmpData->UcSampData * 463) );
 
-	MapValueArray[ZERO_VAL]	= 0;
-	MapValueArray[DELAY]	= netHostChangeS((UINT16)pSmpData->netSendTMark);
-	MapValueArray[CNT]		= netHostChangeS((UINT16)pSmpData->sampCnt);
+	U16MapValueArray[PIA]		= netHostChangeS( (UINT16) (pSmpData->IaSampData * 463) );
+	U16MapValueArray[PIB]		= netHostChangeS( (UINT16) (pSmpData->IbSampData * 463) );
+	U16MapValueArray[PIC]		= netHostChangeS( (UINT16) (pSmpData->IcSampData * 463) );
+
+	U16MapValueArray[ZERO_VAL]	= 0;
+	U16MapValueArray[DELAY]		= netHostChangeS((UINT16) (pSmpData->netSendTMark) );
+	U16MapValueArray[CNT]		= netHostChangeS((UINT16) (pSmpData->sampCnt) );
 
 	int i,j;
 	for(i = 0; i < MAX_FT3_OUTPUT_NUM; i++ )
@@ -1073,30 +1071,39 @@ int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData)
 		ucFrmLen           = pFT3_Protocol_Para->frameLen;
 		totalLen		  += ucFrmLen;
 
-		memcpy(pDestFrm, pOriginFrm, ucFrmLen);
-
-		for(j = 0; j < ucChannelNum; j++ )
+		//注意：
+		// 1.第一帧的ucChannelNum不能为0，即第一帧不能是复制帧；
+		// 2.复制帧的ucFrmLen与原始帧长度一致。
+		if(0 == ucChannelNum)
 		{
-			index  = pMapArray[i].index;
-			chType = pMapArray[i].chType;
-
-
-			/* used for FT3 CRC map */
-			if(chType < NEW609_CHTYPE_CRC_START )
+			memcpy(pDestFrm, pOldDestFrm, ucFrmLen);
+		}
+		else
+		{
+			memcpy(pDestFrm, pOriginFrm, ucFrmLen);
+			for(j = 0; j < ucChannelNum; j++ )
 			{
-				pChData = (uint16_t*)(pDestFrm + index);
-				*pChData = MapValueArray[chType - NEW609_CHTYPE_BASE];
-			}
-			else if((chType >= NEW609_CHTYPE_CRC_START ) && (chType < NEW609_CHTYPE_CRC_STOP))
-			{
-				CRC_CheckLen 		= chType - 0x80;
-				CRC_Start    		= index - CRC_CheckLen;
-				CRC          		= Cal_CRC16_ByByte(pDestFrm + CRC_Start, CRC_CheckLen);
-				pDestFrm[index]     = CRC >> 8;
-				pDestFrm[index + 1] = CRC & 0XFF;
-			}
-		}//for each channel
+				index  = pMapArray[i].index;
+				chType = pMapArray[i].chType;
 
+				/* used for FT3 CRC map */
+				if(chType < NEW609_CHTYPE_CRC_START )
+				{
+					pChData = (uint16_t*)(pDestFrm + index);
+					*pChData = U16MapValueArray[chType - NEW609_CHTYPE_BASE];
+				}
+				else if((chType >= NEW609_CHTYPE_CRC_START ) && (chType < NEW609_CHTYPE_CRC_STOP))
+				{
+					CRC_CheckLen 		= chType - 0x80;
+					CRC_Start    		= index - CRC_CheckLen;
+					CRC          		= Cal_CRC16_ByByte(pDestFrm + CRC_Start, CRC_CheckLen);
+					pDestFrm[index]     = CRC >> 8;
+					pDestFrm[index + 1] = CRC & 0XFF;
+				}
+			}//for each channel
+		}
+
+		pOldDestFrm = pDestFrm;
 		pDestFrm += ucFrmLen;
 
 	}// for each port

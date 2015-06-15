@@ -57,7 +57,7 @@
 #include "adi_ether_misra.h"
 #include <string.h>
 #include <time.h> //handle time
-
+#include <adi_osal.h>
 #include "post_debug.h"
 
 
