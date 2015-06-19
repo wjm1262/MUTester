@@ -17,13 +17,13 @@ void Init_GPIO(void);
 //IO口的分配参考 “合并单元计量保护一体化测试仪FPGA通信协议 Ver1.3”
 
 
-//////////PD09 for dm9000a int
+//////////   PD09 for dm9000a int
 ADI_GPIO_RESULT Set_GPIO_PD09_IODirection( ADI_GPIO_DIRECTION Direction );
 ADI_GPIO_RESULT Init_GPIO_PD09_INT( void );
 void Register_Callback_GPIO_PD09_INT( ADI_GPIO_CALLBACK handler, void *const pCBParam );
 void Enable_GPIO_PD09_INT(bool enable);
 
-///////////PB11 for dm9000a
+///////////  PB11 for dm9000a
 ADI_GPIO_RESULT Set_GPIO_PB11_IODirection( ADI_GPIO_DIRECTION Direction );
 
 //////////// PE03 for  SPORT1B_FS

@@ -58,48 +58,6 @@ char VerDescripString[64] = "send FT3 in sport int. ";
 ///
 
 
-#if USE_OS
-void Task_App_Start(void*p_arg)
-{
-	OS_ERR  osErr;
-//
-//#if	OS_CFG_STAT_TASK_EN > 0
-//
-//	OSStatTaskCPUUsageInit(&osErr);
-//
-//#endif
-
-//	OSTaskCreate( (OS_TCB     *)&SystemDatasBroadcast_TCB,
-//				(CPU_CHAR   *)"SystemDatasBroadcast",
-//				(OS_TASK_PTR ) SystemDatasBroadcast,
-//				(void       *) 0,
-//				(OS_PRIO     ) SystemDatasBroadcast_PRIO,
-//				(CPU_STK    *)&SystemDatasBroadcast_STK[0],
-//				(CPU_STK_SIZE) SystemDatasBroadcast_STK_SIZE/10,/*栈溢出临界值我设置在栈大小的90%处*/
-//				(CPU_STK_SIZE) SystemDatasBroadcast_STK_SIZE,
-//				(OS_MSG_QTY  ) 0,
-//				(OS_TICK     ) 0,
-//				(void       *) 0,
-//				(OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
-//				(OS_ERR     *) &osErr);
-//	if(osErr != OS_ERR_NONE)
-//	{
-//		printf("Error creating application task /n");
-//		while(1){ ; }
-//	}
-
-
-
-
-
-//	while(1)
-//	{
-//		OSTimeDlyHMSM(0,0,1,0,(OS_OPT)OS_OPT_TIME_DLY,(OS_ERR*)&osErr);
-//	}
-
-}
-
-#endif
 
 static void IntegrityTest0(uint8_t* pForwardFrm)
 {

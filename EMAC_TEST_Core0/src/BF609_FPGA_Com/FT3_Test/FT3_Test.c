@@ -55,109 +55,109 @@ void ADData2FT3Frm( void *pAD_Value, uint8_t AD_ByteLength, uint32_t smpCnt)
 	 *  single phase FT3 data
 	 *
 	 */
-	pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
-	pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
-//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[0].Status), 4);
-//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = 1111;
-
-
-	pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
-	pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 2;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
-//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[1].Status), 4);
-//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
-
-	pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
-	pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 3;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
-//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[2].Status), 4);
-//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = 1111;
-
-	/*
-	 *
-	 *  Three phase FT3 data
-	 *
-	 */
-	pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
-	pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
-
-	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 111;
-
-	/* cal 8 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
-
-
-	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
-	pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 5;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 11111;
-
-	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = 1111;
-
-	/* cal 8 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[1].CphaseData), 8);
-//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = 1111;
-
-
-	pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
-	pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 6;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = 1111;
-
-	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data2), 16);
-//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = 1111;
-
-	/* cal 8 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
-	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 11111;
-
-	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
-	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+//	pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
+//	pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
+////	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[0].Status), 4);
+////	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = 1111;
+//
+//
+//	pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
+//	pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 2;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
+////	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[1].Status), 4);
+////	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
+//
+//	pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
+//	pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 3;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
+////	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->SinglePhaseData[2].Status), 4);
+////	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = 1111;
+//
+//	/*
+//	 *
+//	 *  Three phase FT3 data
+//	 *
+//	 */
+//	pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
+//	pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
+//
+//	/* cal 16 bytes crc */
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 111;
+//
+//	/* cal 8 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+////	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
+//
+//
+//	pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
+//	pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 5;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 11111;
+//
+//	/* cal 16 bytes crc */
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = 1111;
+//
+//	/* cal 8 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[1].CphaseData), 8);
+////	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = 1111;
+//
+//
+//	pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
+//	pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 6;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = 1111;
+//
+//	/* cal 16 bytes crc */
+////	crc = Cal_CRC16_ByByte((pBF609_FPGA_FT3->ThreePhaseData[2].data2), 16);
+////	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = 1111;
+//
+//	/* cal 8 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+////	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
+//	pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 11111;
+//
+//	Send_FT3_Data(pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
 
 #else
 	/* 12.8k sample rate */
@@ -227,123 +227,123 @@ EX_FT3_TEST_DATA *g_pBF609_FPGA_FT3_ex;
 
 static void Timer5_ISR1(void *pCBParam, uint32_t Event, void *pArg)
 {
-	static uint16_t SmpCnt = 0;
-	uint16_t crc;
-
-	/* set the FPGA trigger pin in low */
-	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
-
+//	static uint16_t SmpCnt = 0;
+//	uint16_t crc;
+//
+//	/* set the FPGA trigger pin in low */
+//	adi_gpio_Clear(ADI_GPIO_PORT_E,ADI_GPIO_PIN_2);
+//
 #if FT3_4000
-	SmpCnt = (SmpCnt + 1) % 4000;
-	uint16_t tmp_cnt = myHtons(SmpCnt);
-	/*
-	 *
-	 *  single phase FT3 data
-	 *
-	 */
-	g_pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
-	g_pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
-
-	/* cal 16 bytes crc*/
-	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
-	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[0].Status), 4);
-	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = 1111;
-
-
-	g_pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
-	g_pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 2;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = myHtons(crc);
-	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[1].Status), 4);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = myHtons(crc);
-	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
-
-	g_pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
-	g_pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 3;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = myHtons(crc);
-	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = 1111;
-
-	/* cal 4 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[2].Status), 4);
-//	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = myHtons(crc);
-	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = 1111;
-
-	/*
-	 *
-	 *  Three phase FT3 data
-	 *
-	 */
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
-
-	/* cal 16 bytes crc*/
-	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
-
-	/* cal 16 bytes crc */
-	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
-
-	/* cal 8 bytes crc */
-	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
-
-
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 5;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 1111;
-
-	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = 1111;
-
-	/* cal 8 bytes crc */
-//	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[1].CphaseData), 8);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = 1111;
-
-
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 6;
-
-	/* cal 16 bytes crc*/
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = 1111;
-
-	/* cal 16 bytes crc */
-//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[2].data2), 16);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = 1111;
-
-	/* cal 8 bytes crc */
+//	SmpCnt = (SmpCnt + 1) % 4000;
+//	uint16_t tmp_cnt = myHtons(SmpCnt);
+//	/*
+//	 *
+//	 *  single phase FT3 data
+//	 *
+//	 */
+//	g_pBF609_FPGA_FT3->SinglePhaseData[0].SmpCnt    = tmp_cnt;
+//	g_pBF609_FPGA_FT3->SinglePhaseData[0].data1[0] = 1;
+//
+//	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[0].data1), 16);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = myHtons(crc);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+//	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[0].Status), 4);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = myHtons(crc);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[0].CRC2      = 1111;
+//
+//
+//	g_pBF609_FPGA_FT3->SinglePhaseData[1].SmpCnt    = tmp_cnt;
+//	g_pBF609_FPGA_FT3->SinglePhaseData[1].data1[0] = 2;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[1].data1), 16);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[1].Status), 4);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[1].CRC2      = 1111;
+//
+//	g_pBF609_FPGA_FT3->SinglePhaseData[2].SmpCnt    = tmp_cnt;
+//	g_pBF609_FPGA_FT3->SinglePhaseData[2].data1[0] = 3;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->SinglePhaseData[2].data1), 16);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC1      = 1111;
+//
+//	/* cal 4 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->SinglePhaseData[2].Status), 4);
+////	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->SinglePhaseData[2].CRC2      = 1111;
+//
+//	/*
+//	 *
+//	 *  Three phase FT3 data
+//	 *
+//	 */
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].SmpCnt     = tmp_cnt;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].data1[0]  = 4;
+//
+//	/* cal 16 bytes crc*/
+//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[0].data1), 16);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = myHtons(crc);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC1      = 1111;
+//
+//	/* cal 16 bytes crc */
+//	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[0].data2), 16);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = myHtons(crc);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC2      = 1111;
+//
+//	/* cal 8 bytes crc */
 //	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
-//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
-
-	Send_FT3_Data(g_pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
-	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = myHtons(crc);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[0].CRC3      = 1111;
+//
+//
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].SmpCnt     = tmp_cnt;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].data1[0]  = 5;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data1), 16);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC1      = 1111;
+//
+//	/* cal 16 bytes crc */
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[1].data2), 16);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC2      = 1111;
+//
+//	/* cal 8 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[1].CphaseData), 8);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].CRC3      = 1111;
+//
+//
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].SmpCnt     = tmp_cnt;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].data1[0]  = 6;
+//
+//	/* cal 16 bytes crc*/
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[2].data1), 16);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC1      = 1111;
+//
+//	/* cal 16 bytes crc */
+////	crc = Cal_CRC16_ByByte((g_pBF609_FPGA_FT3->ThreePhaseData[2].data2), 16);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC2      = 1111;
+//
+//	/* cal 8 bytes crc */
+////	crc = Cal_CRC16_ByByte(&(g_pBF609_FPGA_FT3->ThreePhaseData[2].CphaseData), 8);
+////	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = myHtons(crc);
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].CRC3      = 1111;
+//
+//	Send_FT3_Data(g_pBF609_FPGA_FT3, sizeof(FT3_TEST_DATA));
+//	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
 
 #else   /* 12.8k sample rate */
 	SmpCnt = (SmpCnt + 1) % 12800;
@@ -409,9 +409,6 @@ static void Timer5_ISR1(void *pCBParam, uint32_t Event, void *pArg)
 void Init_FT3_Test(unsigned char FT3_heap_id)
 {
 
-
-
-
 	/*
 	 *  FPGA control data buffer malloc.
 	 */
@@ -429,19 +426,19 @@ void Init_FT3_Test(unsigned char FT3_heap_id)
 		printf("FT3 send buffer malloc failed !\n");
 	}
 
-	/* set the default data to 0xa5 */
-	for(int i = 0; i < sizeof(FT3_TEST_DATA); i++)
-		((uint8_t *)g_pBF609_FPGA_FT3)[i] = 0xA5;
-
-	/* set the frame start code */
-	g_pBF609_FPGA_FT3->SinglePhaseData[0].StartCode = 0x6405;
-	g_pBF609_FPGA_FT3->SinglePhaseData[1].StartCode = 0x6405;
-	g_pBF609_FPGA_FT3->SinglePhaseData[2].StartCode = 0x6405;
-
-
-	g_pBF609_FPGA_FT3->ThreePhaseData[0].StartCode  = 0x6405;
-	g_pBF609_FPGA_FT3->ThreePhaseData[1].StartCode  = 0x6405;
-	g_pBF609_FPGA_FT3->ThreePhaseData[2].StartCode  = 0x6405;
+//	/* set the default data to 0xa5 */
+//	for(int i = 0; i < sizeof(FT3_TEST_DATA); i++)
+//		((uint8_t *)g_pBF609_FPGA_FT3)[i] = 0xA5;
+//
+//	/* set the frame start code */
+//	g_pBF609_FPGA_FT3->SinglePhaseData[0].StartCode = 0x6405;
+//	g_pBF609_FPGA_FT3->SinglePhaseData[1].StartCode = 0x6405;
+//	g_pBF609_FPGA_FT3->SinglePhaseData[2].StartCode = 0x6405;
+//
+//
+//	g_pBF609_FPGA_FT3->ThreePhaseData[0].StartCode  = 0x6405;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[1].StartCode  = 0x6405;
+//	g_pBF609_FPGA_FT3->ThreePhaseData[2].StartCode  = 0x6405;
 
 	/* Init FPGA communication */
 	Init_BF609_FPGA_Comm();
