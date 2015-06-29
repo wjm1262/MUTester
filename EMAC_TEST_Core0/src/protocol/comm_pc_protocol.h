@@ -50,7 +50,7 @@ typedef double FLOAT64;
 #define SECOND_MILLISECOND	1000			//秒用毫秒表示
 #define MILLISECOND_MICROSECOND	1000		//毫秒用微秒表示
 
-
+#pragma pack(1)
 /*start 609通信协议数据类型定义*/
 typedef struct
 {
@@ -199,6 +199,8 @@ typedef struct
 	INT32 IcSampData;		//IC采样值
 }STAND_SAMP_TYPE,*PTR_STAND_SAMP_TYPE;
 #define STAND_SAMP_COUNT_EACH_PKT 10
+
+#pragma pack()
 
 /*end 609通信协议数据类型定义*/
 

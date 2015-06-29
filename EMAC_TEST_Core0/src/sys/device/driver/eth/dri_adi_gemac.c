@@ -1660,7 +1660,6 @@ ADI_ETHER_RESULT Ether_GemacOpen (
 		pDev->PhyAddress            = 0x1;
 //		pDev->pEtherCallback = pfCallback;
 		pDev->MdcClk  =  0x4; //depends on SCLK0 100 - 150Mhz
-		//pDev->MdcClk  =  0x8;
 		
 //		pDev->pEtherCallback 		= pEthInit->pEtherCallback;
 //		pDev->pEtherIntHandler 		= pEthInit->pEtherIntHandler;

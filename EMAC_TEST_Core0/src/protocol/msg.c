@@ -392,7 +392,7 @@ UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize )
 	return 1;
 }
 
-UINT8 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize )
+INT32 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize )
 {
 	UINT8 *OutBuf = g_ControlPackSendBuf;
 	UINT8  MsgType = MSG_CONTROL_FRM_TYPE;
@@ -520,7 +520,7 @@ UINT8 msgUnpackU32ParaWrite(UINT8 *netData,UINT16 netDataSize )
 	}
 }
 
-UINT8 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize )
+INT32 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize )
 {
 
 	UINT8 *OutBuf = g_ControlPackSendBuf;

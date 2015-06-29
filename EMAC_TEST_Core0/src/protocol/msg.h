@@ -75,14 +75,14 @@ UINT8 msgUnpackU8ParaWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackU8ParaRead(UINT8 *netData,UINT16 netDataSize );
 
 UINT8 msgUnpackU32ParaWrite(UINT8 *netData,UINT16 netDataSize );
-UINT8 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize );
+INT32 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize );
 
 UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  );
 UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  );
 
 UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize );
-UINT8 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize );
+INT32 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize );
 
 //////////////////////////
 int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pStandADData, UINT8 Port );

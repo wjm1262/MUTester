@@ -649,6 +649,19 @@ int DM9000A_DMA_Send( void * buf, int len )
 //
 //	}
 
+//	TRPA = (ReadReg(0x23) << 8) + ReadReg(0x22) - 4;
+//	if(TRPA <= 0XBFF) //正数
+//	{
+//		WriteReg(MWRH, TRPA >> 8);
+//		WriteReg(MWRL, TRPA);
+//	}
+//	else //负数
+//	{
+//		TRPA = (int)TRPA + 0XC00;
+//		WriteReg(MWRH, TRPA >> 8);
+//		WriteReg(MWRL, TRPA);
+//	}
+
 
 	/* start write the send FIFO */
 	*pADDR_DM9000A = MWCMD;
@@ -672,7 +685,7 @@ int DM9000A_DMA_Send( void * buf, int len )
 	eResult = adi_mdma_Copy1D (hMemDmaStream3, (void *)pDATA_DM9000A, buf, ADI_DMA_MSIZE_2BYTES, (len +1 ) >> 1);
 	if(eResult != ADI_DMA_SUCCESS)
 	{
-		DEBUG_PRINT("failed to copy memory : %d! \n", eResult);
+		DEBUG_PRINT("DM9000A_DMA_Send failed to copy memory : %d! \n", eResult);
 	}
 //	EXIT_CRITICAL_REGION();
 	cnt = 1;

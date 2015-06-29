@@ -26,7 +26,7 @@ void Enable_GPIO_PD09_INT(bool enable);
 ///////////  PB11 for dm9000a
 ADI_GPIO_RESULT Set_GPIO_PB11_IODirection( ADI_GPIO_DIRECTION Direction );
 
-//////////// PE03 for  SPORT1B_FS
+//////////// PE03 for SPORT1B_FS
 ADI_GPIO_RESULT Set_GPIO_PE03_IODirection( ADI_GPIO_DIRECTION Direction );
 
 //////////// PE04 for SPORT1B_CLK
