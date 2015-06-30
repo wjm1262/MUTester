@@ -32,7 +32,7 @@ void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "send FT3 in sport int. ";
+char VerDescripString[64] = "test xl805_ad_borad_v20. ";
 
 //define STACK SIZE
 #define APPLICATION_TASK_STACK_SIZE (2048)
