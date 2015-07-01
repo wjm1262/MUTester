@@ -199,7 +199,7 @@ static ADI_ETHER_BUFFER *get_unprocessed_elem_exemac_queue ( EXEMAC_FRAME_Q *pQu
 
 void RegisterExEthnetModual( void )
 {
-	MuTesterSystem.Device.exEth.InitExEthnet		= Init_DM9000A;
+	MuTesterSystem.Device.exEth.InitExEthnet		= DM9000A_Init;
 	MuTesterSystem.Device.exEth.EthSend				= ExEthSend;
 	MuTesterSystem.Device.exEth.EthRecv				= ExEthRecv;
 

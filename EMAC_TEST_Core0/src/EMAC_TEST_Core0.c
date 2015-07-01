@@ -32,7 +32,7 @@ void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "test xl805_ad_borad_v20. ";
+char VerDescripString[64] = "timing + forward. ";
 
 //define STACK SIZE
 #define APPLICATION_TASK_STACK_SIZE (2048)
@@ -215,6 +215,23 @@ int main(void)
 
 	while(1)
 	{
+
+		pRecvItem = (LoopQueueItem*)MuTesterSystem.Device.exEth.EthRecv();
+		if(pRecvItem)
+		{
+			NoBytes  = pRecvItem->Size;
+			pRecvFrm = pRecvItem->Data;
+
+			Comm_processCmd( pRecvFrm, NoBytes );
+			if( ( NoBytes == 512 )|| ( NoBytes == 1541 ))
+			{
+				//DEBUG_PRINT ( " L:%d,%0X\n\n" , NoBytes, pRecvItem->Size );
+				DEBUG_PRINT ( " L:%d,\n\n" , NoBytes );
+			}
+
+//			DEBUG_STATEMENT("recv ok.\n\n");
+		}
+
 		//
 		pXmtBuf = MuTesterSystem.Device.exEth.PopUnprocessElem(&g_ExEthXmtQueueEth0 );
 		if(pXmtBuf)
@@ -237,23 +254,7 @@ int main(void)
 			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 		}
 
-//		pRecvItem = (LoopQueueItem*)MuTesterSystem.Device.exEth.EthRecv();
-		pRecvFrm = (uint8_t*)MuTesterSystem.Device.exEth.EthRecv();
-		if(pRecvFrm)
-		{
-			//pRecvFrm = pRecvItem->Data;
 
-			NoBytes = *(uint16_t*)pRecvFrm;
-
-//			Comm_processCmd( pRecvFrm +2, NoBytes );
-			if( ( NoBytes == 512 )|| ( NoBytes == 1541 ))
-			{
-				//DEBUG_PRINT ( " L:%d,%0X\n\n" , NoBytes, pRecvItem->Size );
-				DEBUG_PRINT ( " L:%d,\n\n" , NoBytes );
-			}
-
-//			DEBUG_STATEMENT("recv ok.\n\n");
-		}
 
 //		StandardSmpDataFormatConverter();
 

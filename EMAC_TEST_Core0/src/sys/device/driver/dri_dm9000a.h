@@ -68,7 +68,7 @@
 void Enable_MAC_INT_Interrupt( bool enable );
 
 //
-void Init_DM9000A(uint8_t* srcMac );
+void DM9000A_Init(uint8_t* srcMac );
 
 int ExEthSend(void*buffer, int len);
 

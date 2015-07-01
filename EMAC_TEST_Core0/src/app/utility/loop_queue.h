@@ -9,14 +9,14 @@
 #define LOOP_Queue_H_
 
 #define		CDM_FRM_MAX_SIZE 1518
-#define		QUEUE_MAX_ITEM_NUM    500
+#define		QUEUE_MAX_ITEM_NUM    512
 
 #define    LoopQueue_IS_FULL        1
 #define    LoopQueue_IS_EMPTY        1
 
 
 typedef struct {
-    unsigned short Size;
+    unsigned int Size;
     unsigned char   Data[CDM_FRM_MAX_SIZE];
 } LoopQueueItem;
 

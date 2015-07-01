@@ -233,7 +233,7 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 					nanoSeconds = ( unsigned int ) ( pTmBuff->RxTimeStamp.TimeStampLo ) ;
 
 					FrmLen = pFrms->ProcessedElementCount - 6;
-#if 1
+#if 0
 					pForwardFrm = (uint8_t*)pFrms->Data +2;
 					if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
 					{
@@ -340,7 +340,7 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 
 					FrmLen = pFrms->ProcessedElementCount - 6;
 
-#if 1
+#if 0
 					pForwardFrm = (uint8_t*)pFrms->Data +2;
 					if( (*(pForwardFrm +0x2e) == 0x40 ) && (*(pForwardFrm +0x2f) == 0x01) )
 					{

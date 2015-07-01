@@ -120,8 +120,7 @@ static uint8_t MulticastFilter[8]   = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 #define  pDATA_DM9000A  	((volatile uint16_t *)(0xBE000008))
 #endif
 
-/*=============  D A T A  =============*/
-/* DMA Manager includes */
+
 #include <services/dma/adi_dma.h>
 
 /* DMA Stream Handle */
@@ -174,7 +173,7 @@ static void RxMDAM_Callback2 (void *pCBParam, uint32_t event, void *pArg);
 /*
  * memcpy DMA init
  */
-static uint32_t Init_MDMA_DM9000A(void)
+static uint32_t DM9000A_MDMA_Init(void)
 {
 	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
 
@@ -271,7 +270,12 @@ void ReadID(void)
 
 }
 
-static void Setup_DM9000A(uint8_t* dstMac)
+/*
+ * DM9000A setup
+ */
+
+#if 0
+static void DM9000A_Setup(uint8_t* dstMac)
 {
 	*pBANK1_EMAC_CTR_BASE    &= ~(1u << 1);
 
@@ -398,8 +402,120 @@ static void Setup_DM9000A(uint8_t* dstMac)
 	/* auto send when 75% frame length */
 //		WriteReg(ETCSR, 0x83);
 }
+#else
+static void DM9000A_Setup(uint8_t* dstMac)
+{
+	int clk;
+	/*
+	* Hard reset for dm9000
+	*/
+	*pBANK1_EMAC_CTR_BASE    &= ~(1u << 1);
+	adi_gpio_Clear(ADI_GPIO_PORT_F, ADI_GPIO_PIN_13);
+	clk = 2000; //width of low level
+	while(clk--)
+	{
+	asm(" NOP; ");
+	}
+	*pBANK1_EMAC_CTR_BASE    |= (1u << 1);
+	adi_gpio_Set(ADI_GPIO_PORT_F, ADI_GPIO_PIN_13);
+	clk = 2000; //>5us  reset over
+	while(clk--)
+	{
+	asm(" NOP; ");
+	}
 
 
+	/* power on phy in the dm9000 */
+	WriteReg( GPR, 0x00 );
+	/* wait for phy power on*/
+	clk = 1000;//20us
+	while(clk--)
+	{
+		asm(" NOP; ");
+	}
+
+	/* software reset 1, setup twice to make sure done. */
+	WriteReg( NCR, 0x03 );
+	clk = 1000;//20us
+	while(clk--)
+	{
+		asm(" NOP; ");
+	}
+	WriteReg( NCR, 0x00 );
+	/* software reset 2, setup twice to make sure done. */
+	WriteReg( NCR, 0x03 );
+	clk = 1000;//20us
+	while(clk--)
+	{
+		asm(" NOP; ");
+	}
+	WriteReg( NCR, 0x00 );
+
+
+	/* setup 100M full-duplex mode */
+	phy_w(0x00 , 0x2100);
+	/* power on phy in the dm9000 */
+	WriteReg( GPR, 0x00 );
+	/* wait for phy power on*/
+	clk = 1000;//20us
+	while(clk--)
+	{
+		asm(" NOP; ");
+	}
+
+	/* MAC address set */
+	if(dstMac)
+	{
+		memcpy(DM9000A_MAC, dstMac, 6 );
+	}
+	for(int i = 0; i < 6; i++)
+	{
+		WriteReg(PAR_BASE + i, DM9000A_MAC[i]);
+	}
+
+	/* discard multicast frame, the following code means filt the multicast frame */
+	for(int i = 0; i < 8; i++)
+	{
+		WriteReg(MAR_BASE + i, 0);
+	}
+
+	/* turn off the INT to prevent INIT err */
+	WriteReg(IMR, 0x80);
+
+	/*read NSR, clear legacy status bit*/
+	ReadReg( NSR );
+
+	/* Clear TCR */
+	WriteReg(TCR, 0x00);
+
+	/* Clear ROCR */
+	ReadReg(ROCR);
+
+	/* Clear ISR */
+	WriteReg(ISR, 0xff);
+
+	WriteReg(WUCR, 0x00);
+	/* Transmit Control Register 2, set in LED mode1 */
+	WriteReg(0x2d, 0x80);
+
+
+
+	/*( 0x1 | 0x02 | ( 1 << 7 ) )
+	 * received INT and Enable transmitted
+	 * Enable address pointer automatically toggle to start when pointer reached summit
+	 */
+	WriteReg( IMR, (0x01 | ( 1 << 7 ) ));
+	/*
+	 * Enable Rx
+	 * Enable Promiscuous Mode( 1 << 1 )
+	 * Pass all multi-frame (1 << 3)
+	 * Enable Discard CRC Error Packet
+	 * Enable Discard Long Packet : Packet length is over 1522byte
+	 */
+	WriteReg( RCR, ( 0x1 | ( 1 << 4 ) | ( 1 << 5 ) ) );
+
+}
+#endif
 /*
  * DM9000A software reset
  */
@@ -432,66 +548,259 @@ static void DM9000A_Reset(void)
 
 }
 
-static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
+/*
+ * DM9000A recv
+ */
+
+//static int Process_DM9000A_Recv( uint8_t * buf, uint8_t RxReady)
+//{
+//
+//	uint16_t RxStatus = 0;
+//	uint16_t RxLen = 0;
+//	uint16_t HalfRxLen;
+//	uint16_t MRR_cal;
+//
+//	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
+//
+//	// modified by wjm@2015-5-12
+//
+//		/* start write the Read FIFO */
+//		*pADDR_DM9000A = MRCMD;
+//		*pADDR_DM9000A = MRCMD;
+//
+//
+//#if HAL_VER1_0
+//		/* Use DMA we should cancel the multiplex. */
+//		*pREG_PORTA_FER &= ~SMC0_A03_PORTA_FER;
+//		/* set the A03 to 1, means always write data in DMA process. */
+//		*pREG_PORTA_DATA_SET = ADI_GPIO_PIN_0;
+//#else
+//
+////		*pREG_PORTB_FER &= ~SMC0_A25_PORTB_FER;
+////		*pREG_PORTB_DATA_SET = ADI_GPIO_PIN_11;
+//#endif
+//
+//		RxStatus  = *pDATA_DM9000A;
+//		RxLen 	= *pDATA_DM9000A;
+//
+//
+//		/* 调试发现，读取rx_length时地址没有自增， 得到的是status的值，判断后反复读取 */
+//		while(RxStatus == RxLen)
+//		{
+//			RxLen = *pDATA_DM9000A;
+//		}
+//
+//		*(uint16_t*)buf = RxLen-4; // 帧长度
+//		buf = buf+2;
+//		HalfRxLen = (RxLen + 1) >> 1;
+//
+//#if 1
+//
+//		eResult = adi_mdma_Copy1D (hMemDmaStream2, buf, (char *)pDATA_DM9000A,
+//				ADI_DMA_MSIZE_2BYTES,
+//				HalfRxLen);
+//		if(eResult != ADI_DMA_SUCCESS)
+//		{
+//			DEBUG_PRINT("Process_DM9000A_Recv: failed to copy memory : %d \n", eResult);
+//		}
+//
+//#else
+//		for(int i = 0; i < HalfRxLen; i++ )
+//		{
+//			(( uint16_t *)(buf+2))[i] = *pDATA_DM9000A;
+//		}
+//#endif
+//
+//	return 1;
+//}
+//
+//
+//
+//
+//static void Process_DM9000A_INT_Event( void )
+//{
+//	LoopQueueItem* pItem = NULL;
+//
+//	uint8_t RxReady = 0;
+//
+//	uint8_t rsr, nsr,isr;
+//
+//	uint16_t status = ReadReg( ISR );
+//
+////	uint8_t RxStatusRegister;
+//	if( status & 0x01 )//接收包中断
+//	{
+//		/* 读取Rx Ready，不偏移内存指针 */
+//		ReadReg( MRCMDX );
+//		RxReady = ReadReg( MRCMDX );
+//
+//		/* Ready状态不是0或者1为异常，需要重启 */
+//		// add by wjm@2015-5-12
+//		if(RxReady & 0xfe )
+//		{
+//			DM9000A_Reset();
+//			return ;
+//		}
+//
+//		if(RxReady == 0)
+//		{
+//			nsr = ReadReg(NSR);
+//			rsr = ReadReg(RSR);
+//			isr = ReadReg(ISR);
+//		}
+//
+//		while(RxReady & 0x01 == 1)
+//		{
+////			RxStatusRegister = ReadReg(0x06);// modified by wjm@2015-5-12
+//
+//			ENTER_CRITICAL_REGION();
+//			pItem =  LoopQueue_push( &g_ExEthRecvQueue );
+//			EXIT_CRITICAL_REGION();
+//
+//			if( pItem != NULL )
+//			{
+////				pItem->Size = RxStatusRegister;// modified by wjm@2015-5-12
+////				MDMA2_Param = (void*)pItem->Data;
+//				g_bRxMDMAIsReady = false;
+//				Process_DM9000A_Recv( pItem->Data, RxReady);
+//			}
+//
+//			//wait for RX DMA work over to release SMC.
+//			while(!g_bRxMDMAIsReady)
+//			{
+//				asm("nop;");
+//			}
+//
+//			/* 读取Rx Ready，不偏移内存指针 */
+//			ReadReg( MRCMDX );
+//			RxReady = ReadReg( MRCMDX );
+//
+//		}
+//
+//		WriteReg( ISR, 0x01 );//清除中断
+//
+//	}
+//
+//	if(status & 0x02)//发送包中断
+//	{
+//		WriteReg( ISR, 0x02 );//清除中断
+//	}
+//}
+
+static int DM9000A_Recv(void)
 {
-
-	uint16_t RxStatus = 0;
-	uint16_t RxLen = 0;
-	uint16_t HalfRxLen;
-	uint16_t MRR_cal;
-
 	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
+	uint8_t ReadyForRead = 0;
 
-	// modified by wjm@2015-5-12
+	int rt = -1;
 
+	uint8_t rsr, nsr,isr;
+	uint16_t status = 0;
+	uint16_t rx_length = 0;
+	uint16_t half_len =0;
+	LoopQueueItem* pItem = NULL;
+
+
+	uint16_t* buf =NULL;
+
+	rsr = 0;
+	nsr = 0;
+	isr = 0;
+	/* 读取状态位，不偏移内存指针 */
+
+	ReadReg( MRCMDX );
+	ReadyForRead = ReadReg( MRCMDX );
+
+	/* Ready状态不是0或者1为异常，需要重启 */
+	if(ReadyForRead & 0xfe )
+	{
+		DM9000A_Reset();
+		return -1;
+	}
+
+
+	while(ReadyForRead  == 1)//data valid
+	{
+		rt = 0;
 		/* start write the Read FIFO */
 		*pADDR_DM9000A = MRCMD;
 		*pADDR_DM9000A = MRCMD;
+		/*
+		 * move 4-Bytes following operation.
+		 */
+		status 	  = *pDATA_DM9000A;
+		asm("NOP;");
+		asm("NOP;");
+		asm("NOP;");
+		rx_length = *pDATA_DM9000A;
+
+		/* 调试发现，读取rx_length时地址没有自增， 得到的是status的值，判断后反复读取 */
+		while(rx_length == status)
+		{
+			asm("NOP;");
+			asm("NOP;");
+			asm("NOP;");
+			rx_length = *pDATA_DM9000A;
+			asm("NOP;");
+			asm("NOP;");
+			asm("NOP;");
+		}
 
 
-#if HAL_VER1_0
+		pItem =  LoopQueue_push( &g_ExEthRecvQueue );
+		if(!pItem)
+		{
+			DEBUG_STATEMENT("LoopQueue_push: failed\n\n");
+			return -2;
+		}
+
+		half_len = (rx_length + 1) >> 1;
+
+		pItem->Size = rx_length-4;
+
+		buf = (uint16_t*)pItem->Data;
+
+#if DM9000A_CMD_ADDR_A03
 		/* Use DMA we should cancel the multiplex. */
 		*pREG_PORTA_FER &= ~SMC0_A03_PORTA_FER;
 		/* set the A03 to 1, means always write data in DMA process. */
 		*pREG_PORTA_DATA_SET = ADI_GPIO_PIN_0;
 #else
-
-//		*pREG_PORTB_FER &= ~SMC0_A25_PORTB_FER;
-//		*pREG_PORTB_DATA_SET = ADI_GPIO_PIN_11;
+		//*pREG_PORTA_FER &= ~SMC0_A25_PORTB_FER;
+		*pREG_PORTB_FER &= ~SMC0_A25_PORTB_FER;
+		*pREG_PORTB_DATA_SET = ADI_GPIO_PIN_11;
 #endif
 
-		RxStatus  = *pDATA_DM9000A;
-		RxLen 	= *pDATA_DM9000A;
+		g_bRxMDMAIsReady = false;
 
-
-		/* 调试发现，读取rx_length时地址没有自增， 得到的是status的值，判断后反复读取 */
-		while(RxStatus == RxLen)
-		{
-			RxLen = *pDATA_DM9000A;
-		}
-
-		*(uint16_t*)buf = RxLen; // 帧长度
-
-		HalfRxLen = (RxLen + 1) >> 1;
-
-#if 1
-
-		eResult = adi_mdma_Copy1D (hMemDmaStream2, (void*)(buf+2), (void *)pDATA_DM9000A,
-				ADI_DMA_MSIZE_2BYTES,
-				HalfRxLen);
+		eResult = adi_mdma_Copy1D (hMemDmaStream2, buf,  (uint16_t *)pDATA_DM9000A,
+						ADI_DMA_MSIZE_2BYTES,
+						half_len);
 		if(eResult != ADI_DMA_SUCCESS)
 		{
-			DEBUG_PRINT("Process_DM9000A_Recv: failed to copy memory : %d \n", eResult);
+			DEBUG_PRINT("DM9000A_Recv: failed to copy memory : %d \n", eResult);
 		}
 
-#else
-		for(int i = 0; i < HalfRxLen; i++ )
+		//wait for RX DMA work over to release SMC.
+		while(!g_bRxMDMAIsReady)
 		{
-			(( uint16_t *)(buf+2))[i] = *pDATA_DM9000A;
+			asm("NOP;");
+			asm("NOP;");
+			asm("NOP;");
 		}
-#endif
 
-	return 1;
+		ReadReg( MRCMDX );
+		ReadyForRead = ReadReg( MRCMDX );
+
+	}//while
+
+	if(ReadyForRead == 0)
+	{
+		nsr = ReadReg(NSR);
+		rsr = ReadReg(RSR);
+		isr = ReadReg(ISR);
+	}
+	return rt;
 }
 
 //rx dma
@@ -509,75 +818,12 @@ static void RxMDAM_Callback2 (void *pCBParam, uint32_t event, void *pArg)
 			g_bRxMDMAIsReady = true;
 #else
 			/* Resume A25 in SMC mode */
-//			*pREG_PORTB_FER |= SMC0_A25_PORTB_FER;
+			*pREG_PORTB_FER |= SMC0_A25_PORTB_FER;
 			g_bRxMDMAIsReady = true;
 #endif
 			break;
 		default:
 			break;
-	}
-}
-
-
-static void Process_DM9000A_INT_Event( void )
-{
-	LoopQueueItem* pItem = NULL;
-
-	uint8_t RxReady = 0;
-
-	uint16_t status = ReadReg( ISR );
-
-//	uint8_t RxStatusRegister;
-	if( status & 0x01 )//接收包中断
-	{
-		/* 读取Rx Ready，不偏移内存指针 */
-		ReadReg( MRCMDX );
-		RxReady = ReadReg( MRCMDX );
-
-		while(RxReady & 0x01 == 1)
-		{
-//			RxStatusRegister = ReadReg(0x06);// modified by wjm@2015-5-12
-
-			ENTER_CRITICAL_REGION();
-
-			pItem =  LoopQueue_push( &g_ExEthRecvQueue );
-
-			EXIT_CRITICAL_REGION();
-
-			if( pItem != NULL )
-			{
-//				pItem->Size = RxStatusRegister;// modified by wjm@2015-5-12
-//				MDMA2_Param = (void*)pItem->Data;
-				g_bRxMDMAIsReady = false;
-				Process_DM9000A_Recv( pItem->Data, RxReady);
-			}
-
-			//wait for RX DMA work over to release SMC.
-			while(!g_bRxMDMAIsReady)
-			{
-
-			}
-
-			/* 读取Rx Ready，不偏移内存指针 */
-			ReadReg( MRCMDX );
-			RxReady = ReadReg( MRCMDX );
-
-		}
-
-		WriteReg( ISR, 0x01 );//清除中断
-
-		/* Ready状态不是0或者1为异常，需要重启 */
-		// add by wjm@2015-5-12
-		if(RxReady & 0xfe )
-		{
-			DM9000A_Reset();
-			return ;
-		}
-	}
-
-	if(status & 0x02)//发送包中断
-	{
-		WriteReg( ISR, 0x02 );//清除中断
 	}
 }
 
@@ -745,7 +991,7 @@ static void TxMDAM_Callback3 (void *pCBParam, uint32_t event, void *pArg)
  * DM9000A_IRQ_Init
  *
  */
-static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
+static ADI_GPIO_RESULT DM9000A_IRQ_Init(void)
 {
 	ADI_GPIO_RESULT result;
 
@@ -780,9 +1026,9 @@ static ADI_GPIO_RESULT Init_IRQ_DM9000A(void)
 
 
 /*
- * control dm9000a with SMC module bank1，so we should configure the SMC
+ * control dm9000a with SMC module bank3，so we should configure the SMC
  */
-static uint32_t Setup_SMC_DM9000A(void)
+static uint32_t DM9000A_SMC_BANK3_SetUp(void)
 {
 
 	float freq, cycle;
@@ -890,19 +1136,18 @@ static uint32_t Setup_SMC_DM9000A(void)
 /*
  * DM9000A INIT
  */
-void Init_DM9000A(uint8_t* srcMac )
+void DM9000A_Init(uint8_t* srcMac )
 {
-	/*
-	 * init the smc0 bank3
-	 */
+	if(0 == DM9000A_MDMA_Init())
+	{
+		DEBUG_STATEMENT("DM9000A_MDMA_Init: failed \n\n");
+	}
 
-	Init_MDMA_DM9000A();
+	DM9000A_SMC_BANK3_SetUp();
 
-	Setup_SMC_DM9000A();
+	DM9000A_IRQ_Init();
 
-	Init_IRQ_DM9000A();
-
-	Setup_DM9000A( srcMac );
+	DM9000A_Setup( srcMac );
 
 	LoopQueue_init( &g_ExEthRecvQueue );
 
@@ -940,21 +1185,25 @@ void* ExEthRecv(void)
 	uint16_t irq = *pREG_PORTD_DATA & ADI_GPIO_PIN_9;
 	if(irq)
 	{
-		Process_DM9000A_INT_Event();
+//		WriteReg(IMR, 0x80);
+//		Process_DM9000A_INT_Event();
+//		/* turn on the INT to prevent INIT err */
+//		WriteReg(IMR, 0x81);
+
+		WriteReg(IMR, 0x80);
+		if(ReadReg(ISR) & 0X01)
+		{
+			DM9000A_Recv();
+			WriteReg( ISR, 0x01 );//清除中断
+		}
+		/* turn on the INT to prevent INIT err */
+		WriteReg(IMR, 0x81);
 	}
 
-	ENTER_CRITICAL_REGION();
 
 	pRecvItem = LoopQueue_pop( &g_ExEthRecvQueue );
 
-	EXIT_CRITICAL_REGION();
-
-	if(pRecvItem)
-	{
-		return (pRecvItem->Data );
-	}
-
-	return NULL;
+	return pRecvItem;
 }
 
 //void DM9000A_Test(void)

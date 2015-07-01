@@ -34,6 +34,7 @@ static void Initialize(void)
 
 #endif
 
+    /* used only in AD board, init for smc io */
     Setup_SMC_Bank1();
 
 	RegisterEthnetModual();

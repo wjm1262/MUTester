@@ -12,10 +12,22 @@
 #include "stdlib.h"
 #include "stdlib_bf.h"
 
+//who defined ENTER_CRITICAL_REGION();EXIT_CRITICAL_REGION();
+#include "dri_adi_gemac.h"
+
+
+
 //注意 这个队列的操作是对外提供存储单元的。所以，pop操作是在
 int     LoopQueue_init(LoopQueue *q)
 {
+	int i = 0;
     memset((char*)q, 0, QUEUE_MAX_ITEM_NUM* sizeof(LoopQueueItem) );
+
+    for(i = 0; i < QUEUE_MAX_ITEM_NUM; i++ )
+    {
+    	q->item[i].Size = CDM_FRM_MAX_SIZE;
+    }
+
     //
     q->tail =  q->header = 0;
 
@@ -38,8 +50,11 @@ int     LoopQueue_getCount(LoopQueue *q)
     /* if there is no item in the LoopQueue, header and tail are both -1 */
     /* other wise, header and tail neither is -1 */
 
+    ENTER_CRITICAL_REGION();
+
     n = ( q->tail - q->header + QUEUE_MAX_ITEM_NUM ) % QUEUE_MAX_ITEM_NUM;
 
+    EXIT_CRITICAL_REGION();
 
 #ifdef LoopQueue_DEBUG
     printf("[%s()]: count=[%d]\n", __LINE__, n);
@@ -75,7 +90,13 @@ int    LoopQueue_isEmpty(LoopQueue *q)
 
     /* if there is no item in the LoopQueue, header and tail are both -1 */
     /* other wise, header and tail neither is -1 */
-    if(q->header ==  q->tail ) return LoopQueue_IS_EMPTY;
+    ENTER_CRITICAL_REGION();
+    if(q->header ==  q->tail )
+    {
+    	EXIT_CRITICAL_REGION();
+    	return LoopQueue_IS_EMPTY;
+    }
+    EXIT_CRITICAL_REGION();
     return is_empty;
 }
 
@@ -95,12 +116,13 @@ int    LoopQueue_isFull(LoopQueue *q)
     printf("[%s()]: q->header=[%d], q->tail=[%d]\n", __LINE__, q->header, q->tail);
 #endif
 
-
+    ENTER_CRITICAL_REGION();
     if ( ( q->tail + 1 ) % QUEUE_MAX_ITEM_NUM == q->header )
 	{
+    	EXIT_CRITICAL_REGION();
 		return LoopQueue_IS_FULL;  // 入队前判断(预留一个存储单元)
 	}
-
+    EXIT_CRITICAL_REGION();
     return is_full;
 }
 
@@ -121,8 +143,11 @@ LoopQueueItem*    LoopQueue_push(LoopQueue *q)
     printf("[%s()]: q->header=[%d], q->tail=[%d]\n", __LINE__, q->header, q->tail);
 #endif
 
+    ENTER_CRITICAL_REGION();
+
     if ( ( q->tail + 1 ) % QUEUE_MAX_ITEM_NUM == q->header )
     {
+    	EXIT_CRITICAL_REGION();
         return NULL;
     }
 
@@ -130,6 +155,7 @@ LoopQueueItem*    LoopQueue_push(LoopQueue *q)
 
     q->tail = (q->tail+1)%QUEUE_MAX_ITEM_NUM;
 
+    EXIT_CRITICAL_REGION();
 
 #ifdef LoopQueue_DEBUG
     printf("[%s()]: q->header=[%d], q->tail=[%d]\n", __LINE__, q->header, q->tail);
@@ -149,15 +175,20 @@ LoopQueueItem*    LoopQueue_pop(LoopQueue *q)
 	printf("[%s()]: q->header=[%d], q->tail=[%d]\n", __LINE__, q->header, q->tail);
 #endif
 
+	ENTER_CRITICAL_REGION();
+
 	if(q->header ==  q->tail )
 	{
+		EXIT_CRITICAL_REGION();
 		return NULL;
 	}
+
 
 	p =  q->item + q->header;
 
 	q->header = ( q->header + 1 ) % QUEUE_MAX_ITEM_NUM;
 
+	EXIT_CRITICAL_REGION();
 
 #ifdef LoopQueue_DEBUG
     printf("[%s()]: q->header=[%d], q->tail=[%d]\n", __LINE__, q->header, q->tail);

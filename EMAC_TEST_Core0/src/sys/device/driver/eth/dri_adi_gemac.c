@@ -885,7 +885,8 @@ static void process_int2 ( ADI_EMAC_DEVICE *pDev, ADI_EMAC_CHANNEL *pChannel )
 			else
 			{
 				pTmp->RxTimeStamp.TimeStampLo = pCurDmaDesc->Status;
-				DEBUG_PRINT("rx tm unavailable, EMAC:%0X, ST:%0X. \n\n ",pDev, pCurDmaDesc->Status);
+				pTmp->RxTimeStamp.TimeStampHi = 0xeeeeeeee;
+//				DEBUG_PRINT("rx tm unavailable, EMAC:%0X, ST:%0X. \n\n ",pDev, pCurDmaDesc->Status);
 			}
 
 		}
