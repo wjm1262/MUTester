@@ -220,8 +220,8 @@ UINT32 netHostChangeL(UINT32 netlong);
 #define NET_GOOSE  0x88B8
 #define NET_VLAN  0x8100
 //#define NET_CONCROL  0x01FF
-#define NET_609_TRANSMIT  0x0133
-#define NET_609_CONCROL  0x0134
+#define NET_609_TRANSMIT  0x0633
+#define NET_609_CONCROL  0x0634
 
 /*********************modify by wjm@2015-6-4**************************/
 //新609转发板通道定义

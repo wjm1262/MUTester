@@ -26,6 +26,10 @@
 #include "task.h"
 #include "dev_pwr.h"
 
+#include "comm_pc_protocol.h"
+#include "msg.h"
+
+
 #if defined(__DEBUG_FILE__)
 #include <string.h>
 extern FILE *pDebugFile;				/* debug file when directing output to a file */
@@ -422,9 +426,16 @@ bool EnableGPTimer5(bool bEnable)
  */
 static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 {
+	static uint32_t s_SmpCnt = 0;
 	unsigned int n;
+	STAND_SAMP_TYPE StandardSmpData={0};
 
-	OutputFT3Frm();
+	//标准数据组帧发送
+	StandardSmpData.sampCnt = s_SmpCnt;
+	OutputStandardADFrm( &StandardSmpData );
+	s_SmpCnt = (++s_SmpCnt) % SMP_RATE;
+
+//	OutputFT3Frm();
 
 //	StandardSmpDataFormatConverter();
 

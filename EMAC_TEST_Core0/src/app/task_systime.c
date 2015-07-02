@@ -228,7 +228,7 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 	}
 #endif
 
-#if 1
+#if 0
 	// set the  first Trigger time
 	// 因为PPS输出也需要设置target time regs，为了避免 Time Stamp Target Time Programming Error，在输出PPS后才开始第一次定时。
 
@@ -257,7 +257,7 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 		SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds + 2, 0);
 		pTaskPara->bPPSIsRunning = true;
 
-
+		EnableGPTimer5(true);
 	}
 #endif
 
@@ -296,8 +296,8 @@ void TargetTimeTriggerInterruptHandler(	ADI_ETHER_HANDLE phDevice )
 //	StartTransmit( phDevice );
 
 	//标准数据组帧发送
-	StandardSmpData.sampCnt = pTaskPara->nAlarmIdx;
-	OutputStandardADFrm( &StandardSmpData );
+//	StandardSmpData.sampCnt = pTaskPara->nAlarmIdx;
+//	OutputStandardADFrm( &StandardSmpData );
 
 	pTaskPara->nAlarmIdx++;
 
@@ -338,7 +338,7 @@ void Task_SystemTime0( void* p_arg )
 	}
 
 	MuTesterSystem.Device.SysTime0.SetAuxiTMTriggerHandler( g_hEthDev[0], handle_auxiliary_tm_interrupt );
-	MuTesterSystem.Device.SysTime0.SetTargetTMTriggerHandler( g_hEthDev[0], TargetTimeTriggerInterruptHandler );
+//	MuTesterSystem.Device.SysTime0.SetTargetTMTriggerHandler( g_hEthDev[0], TargetTimeTriggerInterruptHandler );
 	MuTesterSystem.Device.SysTime0.EnableTimeStampAuxinInterrupt( g_hEthDev[0] );
 
 

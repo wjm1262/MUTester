@@ -178,7 +178,7 @@ int main(void)
 //	Task_AD7608( NULL );
 
 	///
-//	Init_GP_Timer5();
+	Init_GP_Timer5();
 
 //	SetTimerEventHandler(Timer5_Event_Handler);
 
