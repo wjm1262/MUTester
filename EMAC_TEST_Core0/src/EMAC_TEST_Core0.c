@@ -32,30 +32,8 @@ void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "timing + forward. ";
+char VerDescripString[64] = "for BeiJing SiFang. ";
 
-//define STACK SIZE
-#define APPLICATION_TASK_STACK_SIZE (2048)
-
-#define APP_START_TASK_STACK_SIZE (2048)
-#define Eth0_Rx_TASK_STACK_SIZE (2048)
-#define Eth0_Tx_TASK_STACK_SIZE (2048)
-#define Eth1_Rx_TASK_STACK_SIZE (2048)
-#define Eth1_Tx_TASK_STACK_SIZE (2048)
-#define SYSTIME_TASK_STACK_SIZE (2048)
-#define AD_TASK_STACK_SIZE (2048)
-
-//define PRIO
-#define APP_START_TASK_PRIO  (6)
-#define Eth0_Rx_TASK_PRIO  (6)
-#define Eth0_Tx_TASK_PRIO  (6)
-#define Eth1_Rx_TASK_PRIO  (6)
-#define Eth1_Tx_TASK_PRIO  (6)
-#define SysTime_TASK_PRIO  (6)
-#define AD_TASK_PRIO  (6)
-///
-
-///
 
 
 
@@ -189,7 +167,7 @@ int main(void)
 	Task_Eth1_Rx(NULL);
 
 	//
-	Init_FT3_Test(1);
+//	Init_FT3_Test(1);
 
 
 	Task_SystemTime0(NULL);
@@ -197,10 +175,7 @@ int main(void)
 
 
 
-	//
-//	Init_IEC_9_2();
-
-	Task_AD7608( NULL );
+//	Task_AD7608( NULL );
 
 	///
 //	Init_GP_Timer5();
@@ -223,13 +198,7 @@ int main(void)
 			pRecvFrm = pRecvItem->Data;
 
 			Comm_processCmd( pRecvFrm, NoBytes );
-			if( ( NoBytes == 512 )|| ( NoBytes == 1541 ))
-			{
-				//DEBUG_PRINT ( " L:%d,%0X\n\n" , NoBytes, pRecvItem->Size );
-				DEBUG_PRINT ( " L:%d,\n\n" , NoBytes );
-			}
 
-//			DEBUG_STATEMENT("recv ok.\n\n");
 		}
 
 		//
@@ -254,240 +223,10 @@ int main(void)
 			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 		}
 
-
-
 //		StandardSmpDataFormatConverter();
 
 	}//while
 
-#if USE_OS
-	//
-	result = adi_OS_Init();
-	if (result != 0)
-	{
-		printf("Failed to initialize operating system. \n\n");
-		while(1){ ; }
-	}
-
-	/* create Application task */
-//	OSTaskCreate (
-//		&App_Satrt_TaskTCB,                /* Pointer to TCB */
-//		"App Start Task",                 /* The Task Name */
-//		Task_App_Start,                    /* Function Pointer */
-//		(void*) NULL,                       /* Function Argument */
-//		APP_START_TASK_PRIO,              /* Application Task Priority */
-//		App_Satrt_TaskStack,               /* Stack base Address */
-//		APPLICATION_TASK_STACK_SIZE - 1,    /* Stack Limit */
-//		APPLICATION_TASK_STACK_SIZE,        /* Stack Size */
-//		NULL,                               /* Message Queue Size */
-//		1,                                  /* Time Quota */
-//		NULL,                               /* External Pointer */
-//		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-//		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-//		&osErr                              /* Pointer to error variable */
-//		);
-//
-//	if(osErr != OS_ERR_NONE)
-//	{
-//	   printf("Error creating application task \n\n");
-//	   while(1){ ; }
-//	}
-
-#if 1
-	/* create Application task */
-	OSTaskCreate (
-		&Eth1_Tx_TaskTCB,                /* Pointer to TCB */
-		"Eth1 Sender Task",                 /* The Task Name */
-		Task_Eth1_Tx,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		Eth1_Tx_TASK_PRIO,              /* Application Task Priority */
-		Eth1_Tx_TaskStack,               /* Stack base Address */
-		Eth1_Tx_TASK_STACK_SIZE-1,    /* Stack Limit */
-		Eth1_Tx_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-	/* create Application task */
-	OSTaskCreate (
-		&Eth0_Rx_TaskTCB,                /* Pointer to TCB */
-		"Eth0 Receiver Task",                 /* The Task Name */
-		Task_Eth0_Rx,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		Eth0_Rx_TASK_PRIO,              /* Application Task Priority */
-		Eth0_Rx_TaskStack,               /* Stack base Address */
-		Eth0_Rx_TASK_STACK_SIZE - 1,    /* Stack Limit */
-		Eth0_Rx_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-#else
-
-	/* create Application task */
-	OSTaskCreate (
-		&Eth0_Tx_TaskTCB,                /* Pointer to TCB */
-		"Eth0 Sender Task",                 /* The Task Name */
-		Task_Eth0_Tx,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		Eth0_Tx_TASK_PRIO,              /* Application Task Priority */
-		Eth0_Tx_TaskStack,               /* Stack base Address */
-		Eth0_Tx_TASK_STACK_SIZE-1,    /* Stack Limit */
-		Eth0_Tx_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-		if(osErr != OS_ERR_NONE)
-		{
-		   printf("Error creating application task. \n\n");
-		   while(1){ ; }
-		}
-
-	/* create Application task */
-	OSTaskCreate (
-		&Eth1_Rx_TaskTCB,                /* Pointer to TCB */
-		"Eth1 Receiver Task",                 /* The Task Name */
-		Task_Eth1_Rx,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		Eth1_Rx_TASK_PRIO,              /* Application Task Priority */
-		Eth1_Rx_TaskStack,               /* Stack base Address */
-		Eth1_Rx_TASK_STACK_SIZE - 1,    /* Stack Limit */
-		Eth1_Rx_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-
-#endif
-
-
-
-
-#if 1
-	/* create Application task */
-	OSTaskCreate (
-		&SysTime0_TaskTCB,                /* Pointer to TCB */
-		"SysTime0 Task",                 /* The Task Name */
-		Task_SystemTime0,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		SysTime_TASK_PRIO,              /* Application Task Priority */
-		SysTime0_TaskStack,               /* Stack base Address */
-		SYSTIME_TASK_STACK_SIZE - 1,    /* Stack Limit */
-		SYSTIME_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-
-//	/* create Application task */
-	OSTaskCreate (
-		&SysTime1_TaskTCB,                /* Pointer to TCB */
-		"SysTime1 Task",                 /* The Task Name */
-		Task_SystemTime1,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		SysTime_TASK_PRIO,              /* Application Task Priority */
-		SysTime1_TaskStack,               /* Stack base Address */
-		SYSTIME_TASK_STACK_SIZE - 1,    /* Stack Limit */
-		SYSTIME_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-#endif
-
-#if 0
-	//
-	/* create Application task */
-	OSTaskCreate (
-		&AD7608_TaskTCB,                /* Pointer to TCB */
-		"AD7608 Task",                 /* The Task Name */
-		Task_AD7608,                    /* Function Pointer */
-		(void*) NULL,                       /* Function Argument */
-		AD_TASK_PRIO,              /* Application Task Priority */
-		AD7608_TaskStack,               /* Stack base Address */
-		AD_TASK_STACK_SIZE - 1,    /* Stack Limit */
-		AD_TASK_STACK_SIZE,        /* Stack Size */
-		NULL,                               /* Message Queue Size */
-		1,                                  /* Time Quota */
-		NULL,                               /* External Pointer */
-		OS_OPT_TASK_STK_CHK |               /* Allow Stack Check */
-		OS_OPT_TASK_STK_CLR,                /* Clear the stack */
-		&osErr                              /* Pointer to error variable */
-		);
-
-	if(osErr != OS_ERR_NONE)
-	{
-	   printf("Error creating application task. \n\n");
-	   while(1){ ; }
-	}
-
-#endif
-
-	/* start the OS */
-	OSStart(&osErr);
-
-	if(osErr != OS_ERR_NONE)
-	{
-		printf("failed to start OS. \n\n");
-		while(1){ ; }
-	}
-
-#endif
 
 	return 0;
 }

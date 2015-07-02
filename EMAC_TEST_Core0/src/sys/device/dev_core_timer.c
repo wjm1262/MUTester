@@ -5,7 +5,7 @@
  *      Author: Administrator
  */
 
-#include "IEC61850_9_2.h"
+
 #include "dev_core_timer.h"
 
 /* the handle of the core timer */
@@ -34,7 +34,7 @@ static void CoreTimerHandler(void *pCBParam, uint32_t Event, void *pArg)
 //	/* LED1 */
 //	adi_gpio_Toggle(ADI_GPIO_PORT_G, ADI_GPIO_PIN_13);
 
-	Send_9_2Frame();
+//	Send_9_2Frame();
 
 }
 

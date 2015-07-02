@@ -14,10 +14,9 @@
 #include "myapp_cfg.h"
 
 #include "comm_pc_protocol.h"
-//#include "xl-6004_forward_protocol.h"
+
 #include "msg.h"
 
-#include "IEC61850_9_2.h"
 
 //FT3
 #include "FT3_Frame_Definition_Test.h"
@@ -30,98 +29,6 @@
 
 TASK_AD_PARA g_TaskADPara ={NULL, 0};
 
-#define SPI0_RX_SIZE  18
-static uint8_t SPI0RxBuffer[SPI0_RX_SIZE] =  {0x00u};
-
-/* transceiver configurations */
-ADI_SPI_TRANSCEIVER spi_Tx_Rx_buffer  = {NULL, 0u, NULL, 0u, &SPI0RxBuffer[0], SPI0_RX_SIZE};
-
-/*=============  D A T A  =============*/
-/* DMA Manager includes */
-#include <services/dma/adi_dma.h>
-
-/* DMA Stream Handle */
-ADI_DMA_STREAM_HANDLE   hMemDmaStream;
-/* Source DMA Handle */
-ADI_DMA_CHANNEL_HANDLE  hSrcDmaChannel;
-/* Destination DMA Handle */
-ADI_DMA_CHANNEL_HANDLE  hDestDmaChannel;
-/* Memory to handle DMA Stream */
-static uint8_t MemDmaStreamMem[ADI_DMA_STREAM_REQ_MEMORY];
-/*
- * Word/Memory transfer size to use for this example
- * Enable only one word transfer size
- */
-//#define MEMCOPY_XFER_1BYTE	 /* Enable macro for 1 byte transfer */
-//#define MEMCOPY_XFER_2BYTES	 /* Enable macro for 2 bytes transfer */
-//#define MEMCOPY_XFER_4BYTES	 /* Enable macro for 4 bytes transfer */
-
-/* Word/Memory transfer size in bytes */
-#if defined (MEMCOPY_XFER_4BYTES)	/* 4 bytes transfer */
-#define MEMCOPY_MSIZE               ADI_DMA_MSIZE_4BYTES
-#define MEMCOPY_MSIZE_IN_BYTES      (4u)
-#elif defined (MEMCOPY_XFER_2BYTES)	/* 2 bytes transfer */
-#define MEMCOPY_MSIZE               ADI_DMA_MSIZE_2BYTES
-#define MEMCOPY_MSIZE_IN_BYTES      (2u)
-#else	 /* 1 byte transfer */
-#define MEMCOPY_MSIZE               ADI_DMA_MSIZE_1BYTE
-#define MEMCOPY_MSIZE_IN_BYTES      (1u)
-#endif
-/*
- * MDMA Stream ID to use for this example
- */
-#define MEMCOPY_STREAM_ID           ADI_DMA_MEMDMA_S0       /* Stream 0 */
-
-/*
- * MDMA callback function
- */
-void myMDAM_Callback (void *pCBParam, uint32_t event, void *pArg)
-{
-	ADI_ETHER_BUFFER *ptr = g_TaskADPara.pStandardADFrmSendBuf;
-	ADI_ETHER_BUFFER * pNewBuffer = NULL;
-	switch ( event )
-	{
-		case ADI_DMA_EVENT_BUFFER_PROCESSED:
-
-			//send by eth0
-//			MuTesterSystem.Device.Eth0.Write( g_hEthDev[0], ptr);
-
-			//send by exEth
-			MuTesterSystem.Device.exEth.PushUnprocessElem(&g_ExEthXmtQueueAD, ptr);
-
-
-			break;
-		default:
-			break;
-	}
-}
-/*
- * memcpy DMA init
- */
-uint32_t MDMA_Init(void)
-{
-	ADI_DMA_RESULT      eResult = ADI_DMA_SUCCESS;
-    /* IF (Success) */
-    if (eResult == ADI_DMA_SUCCESS)
-    {
-        /* Open a Memory DMA Stream */
-        eResult = adi_mdma_Open (MEMCOPY_STREAM_ID,
-                                 &MemDmaStreamMem[0],
-                                 &hMemDmaStream,
-                                 &hSrcDmaChannel,
-                                 &hDestDmaChannel,
-                                 myMDAM_Callback,
-                                 NULL);
-
-        /* IF (Failure) */
-        if (eResult != ADI_DMA_SUCCESS)
-        {
-        	printf("Failed to open MDMA stream", eResult);
-        }
-    }
-
-    return 0;
-}
 
 ///////////////////
 static int ADData2StandardSmpData(STAND_SAMP_TYPE* OutStandardSmpData,
@@ -541,61 +448,6 @@ static void AD7608_Busy_ISR(ADI_GPIO_PIN_INTERRUPT const ePinInt, const uint32_t
 }
 
 
-static void SPORTCallbackRx(
-    void        *pAppHandle,
-    uint32_t     nEvent,
-    void        *pArg)
-{
-
-    ADI_SPORT_RESULT eResult;
-    static int i = 0;
-    AD7608_DATA *pAD7608_Data = pArg;
-
-    ADI_ETHER_BUFFER *des = NULL;
-    IEC61850_9_2 *pFrmData   = NULL;
-   /*
-	 * Disable the SPORT1-B, stop the SPORT process
-	 */
-    Disable_SPORT1B();
-
-
-	/*
-	 * Avoiding data offset, we should cancel the SPORT1-B-CLK, set clk in high default.
-	 */
-
-    CancelClk_SPORT1B();
-
-
-    /* CASEOF (event type) */
-    switch (nEvent)
-    {
-        /* CASE (buffer processed) */
-        case (uint32_t)ADI_SPORT_EVENT_RX_BUFFER_PROCESSED:
-
-          		/* user process the AD data*/
-				des = pop_queue( &user_net_config_info[0].xmt_buffers_queue );
-        		g_TaskADPara.pStandardADFrmSendBuf = des;
-
-        		des = MuTesterSystem.Device.exEth.PopProcessedElem( &g_ExEthXmtQueueAD, 1 );
-        		g_TaskADPara.pStandardADFrmSendBuf = des;
-
-				pFrmData = (IEC61850_9_2 *)Packet_9_2Frame2( pArg, 2);
-
-				des->ElementCount  = pFrmData->FrameLen + 2;
-				des->pNext         = NULL;
-
-				adi_mdma_Copy1D(hMemDmaStream,
-									(uint8_t *)des->Data+2,
-									(pFrmData->SendBuff + pFrmData->offset + 1),
-									ADI_DMA_MSIZE_1BYTE,
-									pFrmData->FrameLen);
-
-            break;
-        default:
-             break;
-    }
-    /* return */
-}
 
 static void SPORTCallbackRx2(
     void        *pAppHandle,
@@ -691,13 +543,11 @@ void Task_AD7608( void* p_arg )
 
 	g_TaskADPara.usSmpCnt = 0;
 
-	MDMA_Init();
 
 	MuTesterSystem.Device.AD7608.InitADDevice();
 
 	MuTesterSystem.Device.AD7608.RegisterBuzyIOCallback( AD7608_Busy_ISR );
 
-//	MuTesterSystem.Device.AD7608.RegisterSPI0Callback( SPI0_Callback );
 
 	MuTesterSystem.Device.AD7608.RegisterSportCallback( SPORTCallbackRx2 );
 

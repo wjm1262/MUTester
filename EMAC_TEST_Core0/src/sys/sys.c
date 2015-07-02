@@ -7,7 +7,6 @@
 
 #include "sys.h"
 
-#include "IEC61850_9_2.h"
 
 
 static void Initialize(void)

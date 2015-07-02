@@ -514,7 +514,7 @@ int SetFixedPPSOutput(ADI_ETHER_HANDLE phDevice)
 
 }
 
-void SetTrigerTimeofAuxiInCtrlPPS(ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp)
+void SetAlarmTrigerTime(ADI_ETHER_HANDLE phDevice, const TimeInternal *pAuxiTimeStamp)
 {
 	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
 	ADI_EMAC_REGISTERS *const  pEmacRegs = ( ( ADI_EMAC_DEVICE * ) phDevice )->pEMAC_REGS;

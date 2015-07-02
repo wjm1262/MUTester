@@ -13,8 +13,9 @@
 #include "arith.h"
 #include "servo.h"
 
-#include "IEC61850_9_2.h"
 
+#include "comm_pc_protocol.h"
+#include "msg.h"
 
 typedef struct sTASK_SYSTIME_PARA
 {
@@ -39,6 +40,8 @@ TASK_SYSTIME_PARA g_TaskSysTimeParas[MAX_NETWORK_IF] = {
 		{true, false, false, false, false, false, false,{0}, 0, 0, 0},
 		{true, false, false, false, false, false, false,{0}, 0, 0, 0},
 };
+
+extern int OutputStandardADFrm( const STAND_SAMP_TYPE*  pStandSmpData);
 
 #if 0
 
@@ -196,7 +199,7 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 	if( phDevice == g_hEthDev[0] )
 	{
 		pTaskPara = &g_TaskSysTimeParas[0];
-//		pIEC61850_9_2->pASDU_info[0].SmpCnt = 3999; //modify by wjm@2015-6-3
+
 	}
 	else if( phDevice == g_hEthDev[1] )
 	{
@@ -208,68 +211,55 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 	}
 
 
-	if(pTaskPara->bIsDoTimingTest == false)
-	{
-		pTaskPara->nErrorTiming = handle_systime_calibration(phDevice,
-										pAuxiTimeStamp,
-										pTaskPara);
-#if 1
-		bRet = SysTmIsSynchronizted( pTaskPara->nErrorTiming );
 
-		if(pTaskPara->bSysTmIsSynced != bRet)
-		{
-			pTaskPara->bSysTmSyncChanged = true;
-			pTaskPara->bSysTmIsSynced = bRet;
-			pTaskPara->bSetFirstAlarm = false;
-		}
-#endif
+	pTaskPara->nErrorTiming = handle_systime_calibration(phDevice,
+									pAuxiTimeStamp,
+									pTaskPara);
+
 
 #if 1
-		if(!pTaskPara->bPPSIsRunning && pTaskPara->bSysTmIsSynced )
-		{
+	bRet = SysTmIsSynchronizted( pTaskPara->nErrorTiming );
 
-			//
-			ProgrammingSysTimeFineCorrection( phDevice );//注意：如果调用了本函数，即使没有调用SetFixedPPSOutput，也会输出PPS，
-														//PPS脉冲宽度等于SCLKx的周期，因为只要Enable PTP Module + 系统时间在运行，
-													//就相当于SetFixedPPSOutput。
-
-			SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds+2, 0);
-			pTaskPara->bPPSIsRunning = true;
-
-
-		}
-#endif
-		// set the  first Trigger time
-#if 0
-
-		if ( (!pTaskPara->bSetFirstAlarm ) && (pTaskPara->bSysTmIsSynced) )
-		{
-			pTaskPara->bSetFirstAlarm = true;
-
-			pTaskPara->AlarmStartTime.nanoseconds = pAuxiTimeStamp->nanoseconds;
-			pTaskPara->AlarmStartTime.seconds     = pAuxiTimeStamp->seconds;
-
-			if( pTaskPara->AlarmStartTime.nanoseconds < (NANO_SECOND_UNIT/2) )
-			{
-				pTaskPara->AlarmStartTime.seconds += 1;
-				pTaskPara->AlarmStartTime.nanoseconds = 0;
-			}
-			else
-			{
-				pTaskPara->AlarmStartTime.seconds += 2;
-				pTaskPara->AlarmStartTime.nanoseconds = 0;
-			}
-
-			SetTrigerTimeofAuxiInCtrlPPS( g_hDev[0], &(pTaskPara->AlarmStartTime) );
-
-		}
-#endif
-	}
-	else
+	if(pTaskPara->bSysTmIsSynced != bRet)
 	{
-		pTaskPara->nResultTimingTest = handle_timing_test( pAuxiTimeStamp );
+		pTaskPara->bSysTmSyncChanged = true;
+		pTaskPara->bSysTmIsSynced = bRet;
+		pTaskPara->bSetFirstAlarm = false;
+	}
+#endif
+
+#if 1
+	// set the  first Trigger time
+	// 因为PPS输出也需要设置target time regs，为了避免 Time Stamp Target Time Programming Error，在输出PPS后才开始第一次定时。
+
+	if ( (pTaskPara->bPPSIsRunning)&&(!pTaskPara->bSetFirstAlarm ) && (pTaskPara->bSysTmIsSynced) )
+	{
+		pTaskPara->bSetFirstAlarm = true;
+
+		pTaskPara->AlarmStartTime.nanoseconds = 0;
+		pTaskPara->AlarmStartTime.seconds     = pAuxiTimeStamp->seconds + 3;
+
+
+		SetAlarmTrigerTime( g_hEthDev[0], &(pTaskPara->AlarmStartTime) );
 
 	}
+#endif
+
+#if 1
+	if(!pTaskPara->bPPSIsRunning && pTaskPara->bSysTmIsSynced )
+	{
+
+		//
+		ProgrammingSysTimeFineCorrection( phDevice );//注意：如果调用了本函数，即使没有调用SetFixedPPSOutput，也会输出PPS，
+													//PPS脉冲宽度等于SCLKx的周期，因为只要Enable PTP Module + 系统时间在运行，
+												//就相当于SetFixedPPSOutput。
+
+		SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds + 2, 0);
+		pTaskPara->bPPSIsRunning = true;
+
+
+	}
+#endif
 
 
 	return 1;
@@ -281,6 +271,8 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 void TargetTimeTriggerInterruptHandler(	ADI_ETHER_HANDLE phDevice )
 {
 #if 1
+
+	STAND_SAMP_TYPE StandardSmpData={0};
 
 	ADI_EMAC_DEVICE    *const  pDev      = ( ADI_EMAC_DEVICE * ) phDevice;
 
@@ -301,7 +293,11 @@ void TargetTimeTriggerInterruptHandler(	ADI_ETHER_HANDLE phDevice )
 		return ;
 	}
 
-	StartTransmit( phDevice );
+//	StartTransmit( phDevice );
+
+	//标准数据组帧发送
+	StandardSmpData.sampCnt = pTaskPara->nAlarmIdx;
+	OutputStandardADFrm( &StandardSmpData );
 
 	pTaskPara->nAlarmIdx++;
 
@@ -317,7 +313,7 @@ void TargetTimeTriggerInterruptHandler(	ADI_ETHER_HANDLE phDevice )
 	}
 
 
-	SetTrigerTimeofAuxiInCtrlPPS(phDevice, &pTaskPara->AlarmStartTime);
+	SetAlarmTrigerTime(phDevice, &pTaskPara->AlarmStartTime);
 
 #else
 	EnableCoreTimer(true);
@@ -342,7 +338,7 @@ void Task_SystemTime0( void* p_arg )
 	}
 
 	MuTesterSystem.Device.SysTime0.SetAuxiTMTriggerHandler( g_hEthDev[0], handle_auxiliary_tm_interrupt );
-//	MuTesterSystem.Device.SysTime0.SetTargetTMTriggerHandler( g_hEthDev[0], TargetTimeTriggerInterruptHandler );
+	MuTesterSystem.Device.SysTime0.SetTargetTMTriggerHandler( g_hEthDev[0], TargetTimeTriggerInterruptHandler );
 	MuTesterSystem.Device.SysTime0.EnableTimeStampAuxinInterrupt( g_hEthDev[0] );
 
 
