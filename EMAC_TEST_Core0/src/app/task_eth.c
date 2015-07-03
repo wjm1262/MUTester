@@ -194,6 +194,8 @@ static void IntegrityTest1(uint8_t* pForwardFrm)
 void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 {
 
+	static uint32_t s_RxCnt = 0;
+	static uint32_t s_TxCnt = 0;
 	ADI_EMAC_DEVICE*    const  pDev      = (ADI_EMAC_DEVICE*)g_hEthDev[0];
 
 
@@ -250,8 +252,10 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 #endif
 
 					PackForwardFrame( TYPE609_CONT_NET_RECV1_DATA,  unSecond, nanoSeconds,
+										s_RxCnt,
 										FrmLen,
 										pFrms);
+					s_RxCnt++;
 
 					pFrms = pFrms->pNext;
 					n++;
@@ -307,6 +311,9 @@ void Ethernet0_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 {
 
+	static uint32_t s_RxCnt = 0;
+	static uint32_t s_TxCnt = 0;
+
 	ADI_EMAC_DEVICE*    const  pDev      = (ADI_EMAC_DEVICE*)g_hEthDev[1];
 
 
@@ -355,9 +362,14 @@ void Ethernet1_Callback ( void *pArg1, unsigned int event, void *pArg2 )
 						DEBUG_STATEMENT("net1 ERROR AppID\n\n");
 					}
 #endif
-					PackForwardFrame( TYPE609_CONT_NET_RECV2_DATA, unSecond, nanoSeconds,
-										FrmLen,
-										pFrms);
+					PackForwardFrame( TYPE609_CONT_NET_RECV2_DATA,
+									unSecond,
+									nanoSeconds,
+									s_RxCnt,
+									FrmLen,
+									pFrms);
+
+					s_RxCnt++;
 
 					pFrms = pFrms->pNext;
 					n++;

@@ -424,6 +424,8 @@ bool EnableGPTimer5(bool bEnable)
   *   Function:    void Timer_ISR( void *, uint_32, void *)
  *   Description: Timer ISR
  */
+extern int OutputStandardADFrm( const STAND_SAMP_TYPE*  pStandSmpData);
+
 static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 {
 	static uint32_t s_SmpCnt = 0;
@@ -433,7 +435,7 @@ static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 	//标准数据组帧发送
 	StandardSmpData.sampCnt = s_SmpCnt;
 	OutputStandardADFrm( &StandardSmpData );
-	s_SmpCnt = (++s_SmpCnt) % SMP_RATE;
+	s_SmpCnt = (s_SmpCnt+1) % SMP_RATE;
 
 //	OutputFT3Frm();
 

@@ -60,6 +60,6 @@
 
 ADI_PWR_RESULT Init_PowerService(void);
 
-int GetSCLK0(float *freq, float *cycle);
+ADI_PWR_RESULT GetSCLK0(float *freq, float *cycle);
 
 #endif /* DEV_PWR_H_ */

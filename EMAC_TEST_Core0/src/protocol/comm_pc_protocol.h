@@ -20,7 +20,7 @@ typedef float FLOAT32;
 typedef double FLOAT64;
 
 #define MSG_HEADER_LEN (14+6)
-#define MSG_FORWARD_FRM_HEADER_LEN (8)
+#define MSG_FORWARD_FRM_HEADER_LEN (12)
 
 #define MAX_ASDU_NUM			8			//最大ASDU个数
 #define MAX_CH_NUM				64			//最大通道数
@@ -64,15 +64,71 @@ typedef struct
 }MUTestMsgHeader;
 
 
+
+typedef struct LDR_Data
+{
+	UINT16 LDR_CRC;  	 	/* 整个LDR文件的CRC校验码 */
+
+	UINT16 Segment_Len;       /* 当前数据包的数据长度 */
+
+	UINT32 LDR_File_Len;   	/* LDR 文件的总字节数  */
+
+	UINT32 Segment_Index_In_File; 	/* 当前数据包LDR偏移位置 */
+
+	UINT8  Segment_Data[1];   /* 当前数据包指针，仅一个字节，作为占位符  */
+}LDR_DATA;
+
+typedef struct UpgradeFrame
+{
+	//帧头格式
+	MUTestMsgHeader FrmHeader;
+
+	LDR_DATA    ldr_data_s;
+}UPGRADE_FRAME;
+
+
+typedef struct Version_Info
+{
+	UINT32 SW_VerCode;  	 /* 软件版本编码 */
+
+	UINT32 HW_VerCode;     /* 硬件版本编码 */
+
+	UINT32 PC_CommVer;   	/* 通信协议版本  */
+
+	UINT32 FPGA_SW_Ver; 	/* FPGA程序版本 */
+
+	UINT32 FPGA_CommVer; 	/* FPGA通信协议版本 */
+
+	UINT32 OtherVerCode; 	/* 其它版本编码 */
+
+	UINT32 VerDescLen; 	/* 文本描述长度  <= 256*/
+
+	UINT8  VerDescText[256];    /* 描述文本  */
+}VER_INFO;
+
+typedef struct Ver_Info_Frame
+{
+
+	//帧头格式
+	MUTestMsgHeader FrmHeader;
+
+	VER_INFO        VerInfo_s;
+}VER_INFO_FRAME;
+
+
 typedef struct
 {
-	UINT32 softVer;
-	UINT32 hardVer;
-	UINT32 otherVer1;
-	UINT32 otherVer2;
-	UINT32 otherVer3;
-	UINT32 otherVer4;
-}NEW609VER_TYPE,*pNEW609VER_TYPE,*ppNEW609VER_TYPE;
+	//帧头格式
+	MUTestMsgHeader FrmHeader;
+
+	//数据域
+	UINT16 ReplyCmd;	//应答的类型，是版本回馈还是控制等帧的回馈
+	UINT16 errCode;   //错误编码
+	UINT16 Reserver;	//保留
+	UINT16 errLen;	//数据长度
+	UINT8  errDiscrip[256];
+}UpgradeAckFrame;
+
 
 typedef struct
 {//设置点对点发送帧格式

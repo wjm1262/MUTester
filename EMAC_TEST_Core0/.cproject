@@ -54,6 +54,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src/protocol&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src/BF609_FPGA_Com&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src/BF609_FPGA_Com/FT3_Test&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/src/VerUpgrade&quot;"/>
 								</option>
 								<option id="compiler.option.threads.708385600" name="Enable toolchain RTOS support (-threads)" superClass="compiler.option.threads" value="false" valueType="boolean"/>
 								<option id="blackfin.compiler.option.cplbenable.1550947158" name="CPLBs are enabled (-cplbs)" superClass="blackfin.compiler.option.cplbenable" value="true" valueType="boolean"/>

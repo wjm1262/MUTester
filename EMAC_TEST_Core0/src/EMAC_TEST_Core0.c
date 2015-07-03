@@ -28,7 +28,7 @@
  * Init FT3 test
  * user only need invoke this function in INIT code, then the FT3 send process is running in Timer6.
  */
-void Init_FT3_Test(unsigned char FT3_heap_id);
+//void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
@@ -223,7 +223,6 @@ int main(void)
 			MuTesterSystem.Device.exEth.EthSend ( pForwardFrm, pXmtBuf->ElementCount - 2);
 		}
 
-//		StandardSmpDataFormatConverter();
 
 	}//while
 

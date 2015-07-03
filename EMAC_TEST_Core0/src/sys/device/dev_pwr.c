@@ -52,24 +52,24 @@ ADI_PWR_RESULT Init_PowerService(void)
  * FREQ is in MHz, CYCLE is in nanosecond
  */
 
-int GetSCLK0(float *freq, float *cycle)
+ADI_PWR_RESULT GetSCLK0(float *freq, float *cycle)
 {
-	int ErrorCode = 1;
+	ADI_PWR_RESULT tRes;
 
 	/* System Clock Frequencies*/
 	uint32_t   fsysclk = 0u;   /* System Clock */
 	uint32_t   fsclk0  = 0u;   /* System Clock0 */
 	uint32_t   fsclk1  = 0u;   /* System Clock1 */
-	ADI_PWR_RESULT tRes;
+
 
 	if( (tRes = adi_pwr_GetSystemFreq(&fsysclk, &fsclk0, &fsclk1) )!= ADI_PWR_SUCCESS)
 	{
 		//DEBUG_PRINT("myGetSCLK0 call adi_pwr_GetSystemFreq: failed \n\n", fsysclk, fsclk0, fsclk1);
-		return 0;
+		return tRes;
 	}
 
 	*freq = fsclk0/1000000;
 	*cycle = 1000 / *freq;
 
-	return ErrorCode;
+	return ADI_PWR_SUCCESS;
 }

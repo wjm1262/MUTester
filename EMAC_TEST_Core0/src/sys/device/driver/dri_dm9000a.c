@@ -476,7 +476,7 @@ static void DM9000A_Setup(uint8_t* dstMac)
 	/* discard multicast frame, the following code means filt the multicast frame */
 	for(int i = 0; i < 8; i++)
 	{
-		WriteReg(MAR_BASE + i, 0);
+		WriteReg(MAR_BASE + i, MulticastFilter[i]);
 	}
 
 	/* turn off the INT to prevent INIT err */

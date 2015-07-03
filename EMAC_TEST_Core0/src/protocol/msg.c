@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "VerUpgrade.h"
 #include "crc_calculator.h"
 
 /*
@@ -88,73 +89,19 @@ int msgPackHeader ( UINT8 *OutBuf, UINT8 MsgType, UINT16 NetType, UINT16 CmdCode
 	UINT16 Len = MSG_HEADER_LEN + DataLeng;
 	MUTestMsgHeader *header = (MUTestMsgHeader *)OutBuf;
 
+	//eth header
 	memcpy(	header->sourMac, user_net_config_info[2].hwaddr, 6 );
 	memcpy( header->descMac, PC_MAC, 6 );
 	header->descMac[5] = MsgType;		//控制命令:0x81; 转发帧:0x80
-
 	header->netType    = netHostChangeS( NetType );
 
+	//cmd header
 	header->code 	   = CmdCode;
-
 	header->unDef 	   = 0x0000;
 	header->dataLeng   = DataLeng;
 
 	return Len;
 }
-
-/*Pack header message into OUT buffer of ptpClock, send to PC*/
-// forward smv, goose, ft3 frames to PC.
-int msgPackForwardFrm ( UINT8 *OutBuf, UINT16 CmdCode, UINT16 DataLeng, UINT32 sec, UINT32 nanoSec )
-{
-	UINT8 MsgType;
-	UINT16 NetType;
-	UINT16 FrmLen;
-
-	UINT8 *dataStart = OutBuf + sizeof(MUTestMsgHeader);
-
-	UINT8 *tempPoint = dataStart;
-
-	*(UINT32*)tempPoint = sec;
-	tempPoint += sizeof(UINT32);
-
-	*(UINT32*)tempPoint = nanoSec;
-	tempPoint += sizeof(UINT32);
-
-	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
-	NetType = NET_609_TRANSMIT ;
-	FrmLen  = MSG_FORWARD_FRM_HEADER_LEN + DataLeng;
-
-	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, FrmLen );
-}
-
-int msgPackStandADFrm(UINT8* pOutBuf,  UINT8 asduNum)
-{
-	UINT8  MsgType;
-	UINT16 NetType;
-	UINT16 FrmLen;
-
-	int i = 0;
-
-	UINT32 ADDataLen = asduNum*sizeof(STAND_SAMP_TYPE);
-
-
-	//pack 采样单元数目
-	UINT8 *dataStart = pOutBuf + sizeof(MUTestMsgHeader) ;
-	*dataStart = asduNum;
-	dataStart += 4;
-
-
-	//pack eth header
-	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
-
-	NetType = NET_609_TRANSMIT;
-
-	FrmLen  =  4 + ADDataLen;
-
-	return msgPackHeader ( pOutBuf, MsgType, NetType, TYPE609_CONT_STANDARD_DATA, FrmLen );
-
-}
-
 
 int msgPackDefaultReply(UINT8 isRight, UINT16 order, UINT16 errorCode, char *info )
 {
@@ -206,6 +153,68 @@ int msgPackDefaultReply(UINT8 isRight, UINT16 order, UINT16 errorCode, char *inf
 	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLeng );
 
 }
+
+/*
+ * */
+UINT8 msgUnPackSoftWareVersionUpdate(UINT8 *netData,UINT16 netDataSize)
+{
+
+	VER_UPDATE_ACK_CODE ret = GetLdrFileData( netData );
+
+	return ret;
+
+}
+
+INT32 PackSoftWareVersionUpdateAckFrm( bool bRight, VER_UPDATE_ACK_CODE errCode)
+{
+
+	char *info  = VerAckInfo[errCode].desc;
+
+	int MsgLen = msgPackDefaultReply( bRight, TYPE609_CONT_SOFT_DOWN, errCode, info );
+
+
+	return MsgLen;
+}
+
+INT32 msgPackSoftWareVersionRead(UINT8 *netData, UINT16 netDataSize )
+{
+	UINT8 *OutBuf = g_ControlPackSendBuf;
+	UINT8  MsgType = MSG_CONTROL_FRM_TYPE;
+	UINT16 NetType;
+	UINT16 CmdCode;
+	UINT16 DataLen;
+
+	VER_INFO* pVerInfo ;
+
+	UINT8* StartPos ;
+
+	StartPos = OutBuf +  sizeof(MUTestMsgHeader);
+
+	pVerInfo = (VER_INFO*)StartPos;
+
+
+	pVerInfo->SW_VerCode   = LDR_VER_NUMBER;
+	pVerInfo->HW_VerCode   = HARDWARE_VER_NUMBER;
+	pVerInfo->PC_CommVer   = PC_COMM_VER_NUMBER;
+	pVerInfo->FPGA_SW_Ver  = FPGA_VER_NUMBER;
+	pVerInfo->FPGA_CommVer = FPGA_COMM_VER_NUMBER;
+	pVerInfo->OtherVerCode = 0;
+
+	SET_VER_NUM();
+	pVerInfo->VerDescLen   = 256;
+
+	memcpy(pVerInfo->VerDescText, VerDesc, 256);
+
+	NetType  = NET_609_CONCROL;
+	CmdCode = TYPE609_CONT_SOFT_VER;
+	DataLen = sizeof(VER_INFO);
+
+	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, DataLen );
+
+}
+
+
+
 
 
 UINT8 msgUnpackSmvFormatWrite(UINT8 *netData,UINT16 netDataSize)
@@ -864,7 +873,34 @@ UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
 }
 
 
+///////////////////////////////
 
+int msgPackStandADFrm(UINT8* pOutBuf,  UINT8 asduNum)
+{
+	UINT8  MsgType;
+	UINT16 NetType;
+	UINT16 FrmLen;
+
+	int i = 0;
+
+	UINT32 ADDataLen = asduNum*sizeof(STAND_SAMP_TYPE);
+
+
+	//pack 采样单元数目
+	UINT8 *dataStart = pOutBuf + sizeof(MUTestMsgHeader) ;
+	*dataStart = asduNum;
+	dataStart += 4;
+
+
+	//pack eth header
+	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
+
+	NetType = NET_609_TRANSMIT;
+
+	FrmLen  =  4 + ADDataLen;
+
+	return msgPackHeader ( pOutBuf, MsgType, NetType, TYPE609_CONT_STANDARD_DATA, FrmLen );
+}
 
 enum
 {
@@ -1112,11 +1148,41 @@ int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData)
 }
 
 
-///////////////////////////////////////////////////////
 
-ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
-										uint16_t FrmLen,
-										 ADI_ETHER_BUFFER *pXmtBuf)
+///////////////////////////////////////////////////////
+// forward smv, goose, frames to PC.
+static int msgPackForwardFrm ( UINT8 *OutBuf, UINT16 CmdCode, UINT16 DataLeng, UINT32 sec, UINT32 nanoSec ,uint32_t unRxCnt)
+{
+	UINT8 MsgType;
+	UINT16 NetType;
+	UINT16 FrmLen;
+
+	UINT8 *dataStart = OutBuf + sizeof(MUTestMsgHeader);
+
+	UINT8 *tempPoint = dataStart;
+
+	*(UINT32*)tempPoint = sec;
+	tempPoint += sizeof(UINT32);
+
+	*(UINT32*)tempPoint = nanoSec;
+	tempPoint += sizeof(UINT32);
+
+	*(UINT32*)tempPoint = unRxCnt;
+	tempPoint += sizeof(UINT32);
+
+	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧
+	NetType = NET_609_TRANSMIT ;
+	FrmLen  = MSG_FORWARD_FRM_HEADER_LEN + DataLeng;
+
+	return msgPackHeader ( OutBuf, MsgType, NetType, CmdCode, FrmLen );
+}
+
+ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode,
+		uint32_t unSecond,
+		uint32_t unNanoSecond,
+		uint32_t unRxCnt,
+		uint16_t FrmLen,
+		ADI_ETHER_BUFFER *pXmtBuf)
 {
 
 	ADI_ETHER_BUFFER *tx = pXmtBuf;
@@ -1138,6 +1204,9 @@ ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode, uint32_t unSecond, uint32_t 
 	tempPoint += sizeof(UINT32);
 
 	*(UINT32*)tempPoint = unNanoSecond;
+	tempPoint += sizeof(UINT32);
+
+	*(UINT32*)tempPoint = unRxCnt;
 	tempPoint += sizeof(UINT32);
 
 	MsgType = MSG_FORWARD_FRM_TYPE; //转发帧

@@ -13,6 +13,8 @@
 #include <string.h>
 #include <drivers/ethernet/adi_ether.h>
 
+#include "VerUpgrade.h"
+
 /*******************************
 start：共享数据
 *******************************/
@@ -61,10 +63,12 @@ void msgUnpackHeader ( UINT8 *InBuf, MUTestMsgHeader *header );
 int msgPackHeader ( UINT8 *OutBuf, UINT8 MsgType, UINT16 NetType,
 									UINT16 CmdCode, UINT16 DataLeng );
 
-int msgPackForwardFrm ( UINT8 *OutBuf, UINT16 CmdCode, UINT16 DataLeng,
-									UINT32 sec,UINT32 nanoSec );
 
-int msgPackStandADFrm(UINT8* pOutBuf,  UINT8 asduNum);
+UINT8 msgUnPackSoftWareVersionUpdate(UINT8 *netData,UINT16 netDataSize);
+
+INT32 PackSoftWareVersionUpdateAckFrm( bool bRight, VER_UPDATE_ACK_CODE errCode);
+
+INT32 msgPackSoftWareVersionRead(UINT8 *netData, UINT16 netDataSize );
 
 int msgPackDefaultReply(UINT8 isRight, UINT16 order, UINT16 errorCode, char *info );
 
@@ -85,11 +89,17 @@ UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackFT3FormatRead(UINT8 *netData,UINT16 netDataSize );
 
 //////////////////////////
+
+int msgPackStandADFrm(UINT8* pOutBuf,  UINT8 asduNum);
 int PackSmvFrm( UINT8* OutBuf, const STAND_SAMP_TYPE* pStandADData, UINT8 Port );
 int PackFT3Frm(UINT8 *OutBuf, const STAND_SAMP_TYPE* pSmpData);
-ADI_ETHER_BUFFER *PackForwardFrame( uint16_t CmdCode, uint32_t unSecond, uint32_t unNanoSecond,
-										uint16_t FrmLen,
-										 ADI_ETHER_BUFFER *pXmtBuf);
+ADI_ETHER_BUFFER *PackForwardFrame( UINT16 CmdCode,
+		uint32_t unSecond,
+		uint32_t unNanoSecond,
+		uint32_t unRxCnt,
+		uint16_t FrmLen,
+		ADI_ETHER_BUFFER *pXmtBuf);
+
 /*******************************
 end：导出接口
 *******************************/
