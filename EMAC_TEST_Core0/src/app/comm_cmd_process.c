@@ -198,7 +198,7 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 
 			ret = msgUnpackGooseFormatWrite(netData,netDataSize);
 
-			if(ret)
+			if(ret )
 			{
 				MsgLen = msgPackDefaultReply(1,
 							TYPE609_CONT_GOOSE_FORMAT_WRITE,
@@ -214,6 +214,8 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 			}
 
 			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+
+			//process init event
 
 			break;
 		case TYPE609_CONT_GOOSE_FORMAT_READ:
@@ -227,7 +229,7 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 
 			ret = msgUnpackGooseDataWrite(netData, netDataSize );
 
-			if(ret == 1)
+			if(ret )
 			{
 				MsgLen = msgPackDefaultReply(1,
 							TYPE609_CONT_GOOSE_DATA_WRITE,
@@ -241,8 +243,10 @@ UINT8 Comm_processCmd(UINT8 *recvData,UINT16 recvSize )
 							COMM_ACK_ERROR,
 							NULL);
 			}
-
 			MuTesterSystem.Device.exEth.EthSend ( g_ControlPackSendBuf, MsgLen);
+
+			//process value change event
+
 
 			break;
 		default:

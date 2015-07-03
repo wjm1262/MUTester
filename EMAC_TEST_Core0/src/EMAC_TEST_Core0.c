@@ -5,7 +5,7 @@
 #define ADI_DEBUG  (1)
 
 #include "EMAC_TEST_Core0.h"
-//#include "xl-6004_forward_protocol.h"
+
 #include "comm_pc_protocol.h"
 #include "msg.h"
 #include "comm_cmd_process.h"
@@ -28,11 +28,11 @@
  * Init FT3 test
  * user only need invoke this function in INIT code, then the FT3 send process is running in Timer6.
  */
-//void Init_FT3_Test(unsigned char FT3_heap_id);
+void Init_FT3_Test(unsigned char FT3_heap_id);
 
 
 char VersionString[128] = "Version 1.0.0. ";
-char VerDescripString[64] = "for BeiJing SiFang. ";
+char VerDescripString[64] = "add Version Update. ";
 
 
 
@@ -167,7 +167,7 @@ int main(void)
 	Task_Eth1_Rx(NULL);
 
 	//
-//	Init_FT3_Test(1);
+	Init_FT3_Test(1);
 
 
 	Task_SystemTime0(NULL);
@@ -175,10 +175,10 @@ int main(void)
 
 
 
-//	Task_AD7608( NULL );
+	Task_AD7608( NULL );
 
 	///
-	Init_GP_Timer5();
+//	Init_GP_Timer5();
 
 //	SetTimerEventHandler(Timer5_Event_Handler);
 

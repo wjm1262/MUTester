@@ -53,6 +53,7 @@ uint8_t TimerMemory[ADI_TMR_MEMORY];
 static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg);
 
 #define TEST_TIMER0_NUM      1
+//1ms
 #define TIMER0_PERIOD        (SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL)/1000
 #define TIMER0_WIDTH         (TIMER0_PERIOD/2)
 #define TIMER0_DELAY          (TIMER0_WIDTH/2)
@@ -287,7 +288,7 @@ static void TimerHandler(void *pCBParam, uint32_t Event, void *pArg)
 
 
 
-
+// 采样间隔
 #define TIMER5_PERIOD        ((SYS_CLKIN*MULTIPLIER_SEL/ (1 + DF_SEL) /SYSCLK_SEL/SCLK0_SEL)/SMP_RATE)
 
 #define TIMER5_WIDTH        (TIMER5_PERIOD/5)
@@ -424,35 +425,30 @@ bool EnableGPTimer5(bool bEnable)
   *   Function:    void Timer_ISR( void *, uint_32, void *)
  *   Description: Timer ISR
  */
-extern int OutputStandardADFrm( const STAND_SAMP_TYPE*  pStandSmpData);
+
 
 static void Timer5_ISR(void *pCBParam, uint32_t Event, void *pArg)
 {
 	static uint32_t s_SmpCnt = 0;
 	unsigned int n;
-	STAND_SAMP_TYPE StandardSmpData={0};
 
-	//标准数据组帧发送
-	StandardSmpData.sampCnt = s_SmpCnt;
-	OutputStandardADFrm( &StandardSmpData );
-	s_SmpCnt = (s_SmpCnt+1) % SMP_RATE;
 
 //	OutputFT3Frm();
 
 //	StandardSmpDataFormatConverter();
 
-//	for( n = 0; n < MAX_NUM_CLOCK_TICK_EVENT_HANDLERS; n++ )
-//	{
-//		if( sClkTickHandlers[n].m_IsActive )
-//		{
-//			sClkTickHandlers[n].m_pHandler(pCBParam, Event, pArg);
-//		}
-//	}
+	for( n = 0; n < MAX_NUM_CLOCK_TICK_EVENT_HANDLERS; n++ )
+	{
+		if( sClkTickHandlers[n].m_IsActive )
+		{
+			sClkTickHandlers[n].m_pHandler(pCBParam, Event, pArg);
+		}
+	}
 }
 
 /*******************************************************************
-*   Function:    SetTimeout
-*   Description: Set a value for a global timeout, return the timer
+*   Function:    SetTimerEventHandler
+*   Description: Set a Handler for a global timeout, return the timer
 *******************************************************************/
 unsigned int SetTimerEventHandler(Timer_Event_Handler handler)
 {
@@ -463,7 +459,7 @@ unsigned int SetTimerEventHandler(Timer_Event_Handler handler)
 		timer structure */
 	for( n = 0;  n < MAX_NUM_CLOCK_TICK_EVENT_HANDLERS; n++ )
 	{
-		if( false == sCountDownTimer[n].m_IsActive )
+		if( false == sClkTickHandlers[n].m_IsActive )
 		{
 			sClkTickHandlers[n].m_IsActive = true;
 			sClkTickHandlers[n].m_pHandler = handler;
@@ -477,3 +473,25 @@ unsigned int SetTimerEventHandler(Timer_Event_Handler handler)
 	return ((unsigned int)-1);
 }
 
+unsigned int CancelTimerEventHandler(Timer_Event_Handler handler)
+{
+	unsigned int uiTIMASK = cli();
+	unsigned int n;
+
+	/* we don't care which countdown timer is used, so search for a free
+		timer structure */
+	for( n = 0;  n < MAX_NUM_CLOCK_TICK_EVENT_HANDLERS; n++ )
+	{
+		if( (true == sClkTickHandlers[n].m_IsActive) &&  (handler == sClkTickHandlers[n].m_pHandler) )
+		{
+			sClkTickHandlers[n].m_IsActive = false;
+			sClkTickHandlers[n].m_pHandler = handler;
+
+			sti(uiTIMASK);
+			return n;
+		}
+	}
+
+	sti(uiTIMASK);
+	return ((unsigned int)-1);
+}

@@ -257,7 +257,7 @@ static int handle_auxiliary_tm_interrupt(	void*pArg1, void* pArg2)
 		SetPtpPPSOut(phDevice, pAuxiTimeStamp->seconds + 2, 0);
 		pTaskPara->bPPSIsRunning = true;
 
-		EnableGPTimer5(true);
+//		EnableGPTimer5(true);
 	}
 #endif
 

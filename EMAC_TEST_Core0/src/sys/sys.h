@@ -104,6 +104,35 @@ typedef struct Dev_AD
 
 }DEV_AD;
 
+#define GOOSE_TIME_NUM (5)
+typedef struct Goose_Object
+{
+	long m_nTmInitVal[GOOSE_TIME_NUM]; // T0,T1,T2,T3,T4, 的初始值, 顺序不能更改
+	long m_nTime[GOOSE_TIME_NUM];         // T0,T1,T2,T3,T4, , 顺序不能更改
+	uint32_t m_stNum;
+	uint32_t m_sqNum;
+	uint8_t  m_pFrame[MAX_GOOSE_PACK_LEN];
+
+	uint8_t StNumType;			//默认0x05即UINT32，可先不区分保留
+	uint8_t SqNumType;			//默认0x05即UINT32，可先不区分保留
+	uint16_t timeLiveIndex;		//有效时间在帧中的偏移位置
+	uint16_t actiomTimeIndex;		//变位时间在帧中的偏移位置
+	uint16_t StNumIndex;			//StNum在帧中的偏移位置
+	uint16_t SqNumIndex;			//SqNum在帧中的偏移位置
+	uint16_t allDataIndex;		//数据域在帧中的偏移位置
+	uint16_t frameLen;			//网络帧长度
+	uint32_t bSend;
+
+	//初始化T0,T1,T2,T3,T4, 的初始值, 顺序不能更改，
+	void (*GooseObject_initTime)(struct Goose_Object*pObj, long t0, long t1 , long t2,  long t3 , long t4 );
+
+	//发生状态变位事件，设置T0,T1,T2,T3,T4,Treverse 为 初始值
+	void (*GooseObject_resetTime)(struct Goose_Object*pObj);
+
+
+	void (*OnMyTimer)( struct Goose_Object*pObj );
+	void (*OnStValChangedEvent)( struct Goose_Object*pObj );
+}GooseObject;
 typedef struct System_Struct
 {
     void (*Initialize)(void);

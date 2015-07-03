@@ -41,8 +41,10 @@ typedef struct sRUNTIME_PARAMS
 	LOSE_TYPE NetSendLosePara;
 	LOSE_TYPE FT3SendLosePara;
 
-	GOOSE_PARA_TYPE NetSend1GoosePara;
-	GOOSE_PARA_TYPE NetSend2GoosePara;
+//	GOOSE_PARA_TYPE NetSend1GoosePara;
+//	GOOSE_PARA_TYPE NetSend2GoosePara;
+	GOOSE_BLOCK_TYPE* pGoCB;
+	uint32_t nGoCB;
 } RUNTIME_PARAMS;
 
 extern RUNTIME_PARAMS g_rtParams;
@@ -81,8 +83,10 @@ INT32 msgPackU8ParaRead(UINT8 *netData,UINT16 netDataSize );
 UINT8 msgUnpackU32ParaWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackU32ParaRead(UINT8 *netData, UINT16 netDataSize );
 
+////return the port, else return 0
 UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize );
 INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  );
+//return port, else return 0
 UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  );
 
 UINT8 msgUnpackFT3FormatWrite(UINT8 *netData,UINT16 netDataSize );

@@ -734,6 +734,7 @@ UINT8 COMM_isInterityRead(UINT8 *netData,UINT16 netDataSize,UINT8** sendData,UIN
 	return retValue;
 }
 
+//return the port, else return 0
 UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize )
 {
 	UINT8 retValue = 0;
@@ -760,7 +761,7 @@ UINT8 msgUnpackGooseFormatWrite(UINT8 *netData,UINT16 netDataSize )
 	if(goosePara && netDataSize - 4 <= sizeof(GOOSE_PARA_TYPE))
 	{
 		memcpy(goosePara, tempPoint, netDataSize - 4);
-		return 1;
+		return port;
 	}
 	else
 	{//长度错误
@@ -824,6 +825,7 @@ INT32 msgPackGooseFormatRead(UINT8 *netData,UINT16 netDataSize  )
 
 }
 
+//return port, else return 0
 UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
 {
 	UINT8 retValue = 0;
@@ -854,18 +856,18 @@ UINT8 msgUnpackGooseDataWrite(UINT8 *netData,UINT16 netDataSize  )
 		{
 			memcpy(&(goosePara->frame[goosePara->allDataIndex]),tempPoint,tempLen);
 
-			retValue = 1;
+			retValue = port;
 
 		}
 		else
 		{
 			//数据长度错误
-			retValue = 2;
+			retValue = 0;
 		}
 	}
 	else
 	{//端口错误
-		retValue = 3;
+		retValue = 0;
 	}
 
 	return retValue;

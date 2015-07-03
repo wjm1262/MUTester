@@ -222,9 +222,14 @@ typedef struct
 	UINT32 T3;					//重传时间,单位uS
 	UINT32 undef1;
 	UINT32 undef2;
-	UINT32 undef3;
-	UINT8 frame[MAX_GOOSE_PACK_LEN];
+	UINT32 bSend;
 }GOOSE_PARA_TYPE,*PTR_GOOSE_PARA_TYPE;
+
+typedef struct
+{
+	GOOSE_PARA_TYPE goosePara;
+	UINT8 frame[MAX_GOOSE_PACK_LEN];
+}GOOSE_BLOCK_TYPE,*PTR_GOOSE_BLOCK_TYPE;
 
 typedef struct
 {

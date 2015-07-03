@@ -15,7 +15,7 @@
 
 #define LDR_VER_NUMBER    100   //°æ±¾±àºÅ
 #define HARDWARE_VER_NUMBER    20   //°æ±¾±àºÅ
-#define PC_COMM_VER_NUMBER    111   //°æ±¾±àºÅ
+#define PC_COMM_VER_NUMBER    112   //°æ±¾±àºÅ
 #define FPGA_VER_NUMBER    10   //°æ±¾±àºÅ
 #define FPGA_COMM_VER_NUMBER    10   //°æ±¾±àºÅ
 
